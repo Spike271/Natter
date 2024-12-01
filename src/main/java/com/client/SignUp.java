@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 
 public class SignUp extends CustomComponent implements ActionListener
@@ -35,6 +36,16 @@ public class SignUp extends CustomComponent implements ActionListener
 		themeButton = new GradientToggleButton();
 		themeButton.setSelected(toggle);
 		themeButton.setToolTipText("Dark Mode");
+		themeButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				JOptionPane.showConfirmDialog(null, "Restart the Natter to apply new theme.", "Apply the new Theme?",
+						JOptionPane.DEFAULT_OPTION);
+			}
+		});
+		
 		buttonPanel.add(themeButton);
 	}
 	

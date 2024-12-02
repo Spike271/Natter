@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 public class SignIn extends CustomComponent implements ActionListener
@@ -30,7 +31,7 @@ public class SignIn extends CustomComponent implements ActionListener
 	}
 	
 	@Override
-	void addThemeButton()
+	void addThemeButton(JPanel buttonPanel)
 	{
 		// Theme Button
 		themeButton = new GradientToggleButton();
@@ -62,6 +63,16 @@ public class SignIn extends CustomComponent implements ActionListener
 				repaint();
 			}
 		});
+	}
+	
+	@Override
+	protected void maximizeBtn()
+	{
+	}
+	
+	@Override
+	protected void maxBtnAdd(JPanel buttonPanel)
+	{
 	}
 	
 	private void addGuiComponents()

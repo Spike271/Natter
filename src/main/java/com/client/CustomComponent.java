@@ -22,7 +22,7 @@ public abstract class CustomComponent extends JFrame
 	public static final boolean toggle = ResourceHandler.isDarkModeOn();
 	
 	private int xMouse, yMouse;
-	private String mode = toggle ? "dark_mode" : "light_mode";
+	protected final String mode = toggle ? "dark_mode" : "light_mode";
 	private ModernButton maximizeButton;
 	public JPanel contentPane;
 	private String title = "title";
@@ -65,11 +65,11 @@ public abstract class CustomComponent extends JFrame
 	private JPanel createTitleBar()
 	{
 		JPanel titleBar = new JPanel();
-		titleBar.setBackground(Color.decode(ResourceHandler.getSettings(mode, "titleBarColor")));
+		titleBar.setBackground(Color.decode(ResourceHandler.getColor(mode, "titleBarColor")));
 		titleBar.setLayout(new BorderLayout());
 		
 		// Add icon on the left side
-		setIconImage(new ImageIcon(ResourceHandler.getSettings(mode, "iconPath")).getImage());
+		setIconImage(new ImageIcon(ResourceHandler.getColor(mode, "iconPath")).getImage());
 		JLabel iconLabel = createIconLabel();
 		titleBar.add(iconLabel, BorderLayout.WEST);
 		
@@ -90,7 +90,7 @@ public abstract class CustomComponent extends JFrame
 	
 	private JLabel createIconLabel()
 	{
-		ImageIcon appIcon = new ImageIcon(ResourceHandler.getSettings(mode, "iconPath"));
+		ImageIcon appIcon = new ImageIcon(ResourceHandler.getColor(mode, "iconPath"));
 		JLabel iconLabel = new JLabel(appIcon);
 		iconLabel.setPreferredSize(new Dimension(45, 35));
 		iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 0));
@@ -100,7 +100,7 @@ public abstract class CustomComponent extends JFrame
 	private JLabel createTitleLabel()
 	{
 		JLabel titleLabel = new JLabel(title);
-		titleLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "titleTextColor")));
+		titleLabel.setForeground(Color.decode(ResourceHandler.getColor(mode, "titleTextColor")));
 		titleLabel.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
 		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		return titleLabel;
@@ -121,7 +121,7 @@ public abstract class CustomComponent extends JFrame
 	private JPanel createContentPane()
 	{
 		JPanel contentPane = new JPanel();
-		contentPane.setBackground(Color.decode(ResourceHandler.getSettings(mode, "frameBGColor")));
+		contentPane.setBackground(Color.decode(ResourceHandler.getColor(mode, "frameBGColor")));
 		contentPane.setLayout(null);
 		return contentPane;
 	}
@@ -151,10 +151,10 @@ public abstract class CustomComponent extends JFrame
 	private ModernButton createMinimizeButton()
 	{
 		ModernButton minimizeButton = new ModernButton("_",
-				Color.decode(ResourceHandler.getSettings(mode, "minbtnBGColor")),
-				Color.decode(ResourceHandler.getSettings(mode, "minbtnHoverColor")));
+				Color.decode(ResourceHandler.getColor(mode, "minbtnBGColor")),
+				Color.decode(ResourceHandler.getColor(mode, "minbtnHoverColor")));
 		
-		minimizeButton.setForeground(Color.decode(ResourceHandler.getSettings(mode, "minbtnColor")));
+		minimizeButton.setForeground(Color.decode(ResourceHandler.getColor(mode, "minbtnColor")));
 		minimizeButton.setFocusPainted(false);
 		minimizeButton.addActionListener(e -> setState(CustomComponent.ICONIFIED)); // Minimize the window
 		return minimizeButton;
@@ -163,10 +163,10 @@ public abstract class CustomComponent extends JFrame
 	private ModernButton createCloseButton()
 	{
 		ModernButton closeButton = new ModernButton("X",
-				Color.decode(ResourceHandler.getSettings(mode, "closebtnBGColor")),
-				Color.decode(ResourceHandler.getSettings(mode, "closebtnHoverColor")));
+				Color.decode(ResourceHandler.getColor(mode, "closebtnBGColor")),
+				Color.decode(ResourceHandler.getColor(mode, "closebtnHoverColor")));
 		
-		closeButton.setForeground(Color.decode(ResourceHandler.getSettings(mode, "closebtnColor")));
+		closeButton.setForeground(Color.decode(ResourceHandler.getColor(mode, "closebtnColor")));
 		return closeButton;
 	}
 	
@@ -201,10 +201,10 @@ public abstract class CustomComponent extends JFrame
 	
 	protected void maximizeBtn()
 	{
-		maximizeButton = new ModernButton("[]", Color.decode(ResourceHandler.getSettings(mode, "minbtnBGColor")),
-				Color.decode(ResourceHandler.getSettings(mode, "minbtnHoverColor")));
+		maximizeButton = new ModernButton("◻", Color.decode(ResourceHandler.getColor(mode, "minbtnBGColor")),
+				Color.decode(ResourceHandler.getColor(mode, "minbtnHoverColor")));
 		
-		maximizeButton.setForeground(Color.decode(ResourceHandler.getSettings(mode, "minbtnColor")));
+		maximizeButton.setForeground(Color.decode(ResourceHandler.getColor(mode, "minbtnColor")));
 		maximizeButton.setFocusPainted(false);
 		maximizeButton.addActionListener(e -> {
 			if (isMaximized)

@@ -15,7 +15,7 @@ import org.apache.commons.configuration2.io.FileHandler;
 
 public class ResourceHandler
 {
-	public static String getSettings(String section, String key)
+	public static String getColor(String section, String key)
 	{
 		try
 		{
@@ -30,7 +30,7 @@ public class ResourceHandler
 		return null;
 	}
 	
-	public static void changeSettings(String key)
+	public static void changeColor(String key)
 	{
 		try
 		{
@@ -48,7 +48,7 @@ public class ResourceHandler
 	
 	public static boolean isDarkModeOn()
 	{
-		String check = getSettings("Natter", "isDark");
+		String check = getColor("Natter", "isDark");
 		return check.equals("true") ? true : false;
 	}
 	

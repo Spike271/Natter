@@ -15,13 +15,14 @@ public class NatterMain
 			public void run()
 			{
 				
-				signIn = new SignIn();
-				signIn.setVisible(true);
+				/*
+				 * signIn = new SignIn(); signIn.setVisible(true);
+				 * 
+				 * signUp = new SignUp(); signUp.setVisible(false);
+				 */
 				
-				signUp = new SignUp();
-				signUp.setVisible(false);
-				
-				// Natter natter = new Natter();
+				Natter natter = new Natter();
+				natter.setVisible(true);
 			}
 		});
 	}

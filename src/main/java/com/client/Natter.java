@@ -3,15 +3,16 @@ package com.client;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 public class Natter extends CustomComponent
@@ -71,36 +72,55 @@ public class Natter extends CustomComponent
 		inputPanel.setLayout(new BorderLayout());
 		inputPanel.setBackground(transpentColor);
 		
-		JTextField inputField = new JTextField();
-		inputField.addKeyListener(new KeyAdapter() {
-			
-			@Override
-			public void keyTyped(KeyEvent e)
-			{
-				if (e.getKeyChar() == KeyEvent.VK_ENTER)
-				{
-					String input = inputField.getText();
-					
-					if (input.isEmpty())
-						return;
-					
-					inputField.setText("");
-					messagePanel.add(createChatMessageComponent(input));
-					messagePanel.add(Box.createVerticalStrut(10));
-					
-					repaint();
-					revalidate();
-				}
-			}
-		});
+		JTextArea inputField = new JTextArea(2, 30);
+		inputField.setLineWrap(true);
+		inputField.setWrapStyleWord(true);
 		
 		inputField.setBackground(Color.decode(ResourceHandler.getColor("dark_mode", "secondaryColor")));
 		inputField.setForeground(Color.decode(ResourceHandler.getColor("dark_mode", "fontColor")));
 		inputField.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
-		inputField.setPreferredSize(new Dimension(inputPanel.getWidth(), 50));
-		inputPanel.add(inputField, BorderLayout.CENTER);
-		chatPanel.add(inputField, BorderLayout.SOUTH);
+		inputField.setCaretColor(Color.decode(ResourceHandler.getColor("dark_mode", "fontColor")));
+		inputField.setBorder(new EmptyBorder(0, 5, 0, 5));
+		// inputField.setPreferredSize(new Dimension(inputPanel.getWidth(), 50));
 		
+		inputField.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e)
+			{
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && e.isControlDown())
+				{
+					String input = inputField.getText();
+					
+					if (!input.trim().isEmpty())
+					{
+						// textArea.append(text + "\n");
+						inputField.setText("");
+						messagePanel.add(createChatMessageComponent(input));
+						messagePanel.add(Box.createVerticalStrut(10));
+						
+						repaint();
+						revalidate();
+					}
+				}
+			}
+		});
+		
+		JScrollPane inputScrollPane = new JScrollPane(inputField);
+		
+		inputPanel.add(inputScrollPane, BorderLayout.CENTER);
+		
+		chatPanel.add(inputPanel, BorderLayout.SOUTH);
 		chatPanel.add(messagePanel, BorderLayout.CENTER);
 	}
 	

@@ -58,7 +58,7 @@ public class SignUp extends CustomComponent implements ActionListener
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				ResourceHandler.changeColor(themeButton.isSelected() ? "true" : "false");
+				ResourceHandler.changeSettings(themeButton.isSelected() ? "true" : "false");
 				dispose();
 				repaint();
 			}

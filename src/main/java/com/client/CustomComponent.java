@@ -6,9 +6,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -25,6 +30,7 @@ public abstract class CustomComponent extends JFrame
 	protected final String mode = toggle ? "dark_mode" : "light_mode";
 	private ModernButton maximizeButton;
 	public JPanel contentPane;
+	public JPanel titleBar;
 	private String title = "title";
 	// private JPanel buttonPanel;
 	protected ModernButton closeButton;
@@ -50,7 +56,7 @@ public abstract class CustomComponent extends JFrame
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		// Create a custom title bar panel
-		JPanel titleBar = createTitleBar();
+		titleBar = createTitleBar();
 		
 		// Add components to the frame
 		this.add(titleBar, BorderLayout.NORTH);
@@ -68,7 +74,7 @@ public abstract class CustomComponent extends JFrame
 		titleBar.setBackground(Color.decode(ResourceHandler.getSettings(mode, "titleBarColor")));
 		titleBar.setLayout(new BorderLayout());
 		
-		// Add icon on the left side
+		// Add icon on the tray
 		setIconImage(new ImageIcon(ResourceHandler.getSettings(mode, "iconPath")).getImage());
 		JLabel iconLabel = createIconLabel();
 		titleBar.add(iconLabel, BorderLayout.WEST);
@@ -90,10 +96,21 @@ public abstract class CustomComponent extends JFrame
 	
 	private JLabel createIconLabel()
 	{
-		ImageIcon appIcon = new ImageIcon(ResourceHandler.getSettings(mode, "iconPath"));
-		JLabel iconLabel = new JLabel(appIcon);
-		iconLabel.setPreferredSize(new Dimension(45, 35));
-		iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 0));
+		JLabel iconLabel = new JLabel();
+		iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 12, 5, 0));
+		iconLabel.setPreferredSize(new Dimension(45, 38));
+		
+		BufferedImage originalImage = null;
+		try
+		{
+			originalImage = ImageIO.read(new File(ResourceHandler.getSettings(mode, "iconPath")));
+		}
+		catch (IOException e)
+		{
+			return null;
+		}
+		Image scaledImage = originalImage.getScaledInstance(33, 35, Image.SCALE_SMOOTH);
+		iconLabel.setIcon(new ImageIcon(scaledImage));
 		return iconLabel;
 	}
 	

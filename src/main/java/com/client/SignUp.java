@@ -77,7 +77,7 @@ public class SignUp extends CustomComponent implements ActionListener
 	
 	private void addGuiComponents()
 	{
-		Font font = ResourceHandler.getFont("arial.ttf", 20f);
+		Font font = ResourceHandler.getFont("Roboto-Medium.ttf", 21f);
 		
 		JLabel Heading = new JLabel("Create account");
 		Heading.setBounds(0, 30, 600, 50);
@@ -95,7 +95,8 @@ public class SignUp extends CustomComponent implements ActionListener
 		
 		clickableLabel = new JButton("Sign in");
 		clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-		clickableLabel.setBounds(367, 80, 60, 20);
+		clickableLabel.setBounds(373, 80, 70, 20);
+		clickableLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		clickableLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		clickableLabel.setForeground(new Color(0, 200, 250));
 		clickableLabel.setContentAreaFilled(false);

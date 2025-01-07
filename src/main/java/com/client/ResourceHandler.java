@@ -38,7 +38,7 @@ public class ResourceHandler
 			FileHandler fileHandler = new FileHandler(iniConfig);
 			fileHandler.load(new File("./src/main/java/com/Settings/config.ini"));
 			
-			iniConfig.setProperty("Natter.isDark", key);
+			iniConfig.setProperty("Global.isDark", key);
 			iniConfig.write(new FileWriter("./src/main/java/com/Settings/config.ini"));
 		}
 		catch (ConfigurationException | IOException e)
@@ -89,7 +89,7 @@ public class ResourceHandler
 		
 		if (filePath.contains("%20"))
 		{
-			filePath = SignUp.class.getResource(resource).getPath().replaceAll("%20", " ");
+			filePath = ResourceHandler.class.getResource(resource).getPath().replaceAll("%20", " ");
 		}
 		
 		return new File(filePath);

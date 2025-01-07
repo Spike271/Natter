@@ -4,25 +4,25 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.border.EmptyBorder;
+
+import net.miginfocom.swing.MigLayout;
 
 public class Natter extends CustomComponent
 {
 	private static final long serialVersionUID = 1L;
-	private JPanel usersPanel, messagePanel;
+	private JPanel usersPanel;
 	private Color transpentColor = new Color(0, 0, 0, 0);
 	
 	@Override
@@ -30,11 +30,70 @@ public class Natter extends CustomComponent
 	{
 	}
 	
+	private JPanel addPanel(int i)
+	{
+		JPanel chatItemPanel = new JPanel();
+		chatItemPanel.setLayout(new MigLayout("", "[][]", "[]"));
+		chatItemPanel.setBackground(transpentColor);
+		
+		Icon profileImage = new ImageIcon("profile/p" + (i) + ".png");
+		ProfilePicture avatar = new ProfilePicture();
+		avatar.setBorderSize(1);
+		avatar.setBorderSpace(1);
+		avatar.setImage(profileImage);
+		chatItemPanel.add(avatar, "al left, w 60, h 60");
+		
+		// Chat details
+		JPanel detailsPanel = new JPanel(new MigLayout("al left,debug, wrap, gapy 10", "[][]", "[][]"));
+		detailsPanel.setBackground(transpentColor);
+		
+		JLabel nameLabel = new JLabel("User " + i);
+		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
+		
+		JLabel timestampLabel = new JLabel("10:15 AM");
+		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		detailsPanel.add(timestampLabel);
+		
+		JLabel messageLabel = new JLabel("Message preview for User " + i);
+		messageLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		detailsPanel.add(messageLabel, "pushx, growx, span2, w 220!");
+		
+		chatItemPanel.add(detailsPanel, "al center, w 230!");
+		
+		chatItemPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		chatItemPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent evt)
+			{
+				JOptionPane.showMessageDialog(null, "Opening chat with User ");
+			}
+		});
+		
+		return chatItemPanel;
+	}
+	
+	private JScrollPane createScroll()
+	{
+		JScrollPane scroll = new JScrollPane();
+		scroll.setBorder(null);
+		scroll.setViewportBorder(null);
+		return scroll;
+	}
+	
 	public Natter()
 	{
 		super("Natter");
+		
+		ComponentResizer com = new ComponentResizer();
+		com.registerComponent(this, titleBar);
+		com.setMinimumSize(new Dimension(1000, 800));
+		com.setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());
+		com.setSnapSize(new Dimension(5, 5));
+		
 		contentPane.setLayout(new BorderLayout());
-		this.setSize(1200, 850);
+		this.setSize(1100, 850);
 		this.setLocationRelativeTo(null);
 		this.setFocusable(false);
 		addGuiComponents();
@@ -43,135 +102,40 @@ public class Natter extends CustomComponent
 	private void addGuiComponents()
 	{
 		usersPanel = new JPanel();
-		usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
-		usersPanel.setBackground(Color.decode(ResourceHandler.getSettings("dark_mode", "secondaryColor")));
-		usersPanel.setPreferredSize(new Dimension(250, getHeight()));
-		usersPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.darkGray)); // Top border only
+		usersPanel.setLayout(new MigLayout("wrap, insets 10, gapy 4", "[290:310:320]", ""));
+		usersPanel.setBackground(Color.decode(ResourceHandler.getSettings(mode, "userPanel")));
+		usersPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.gray)); // Top and right border only
 		
-		JLabel userPanelHeading = new JLabel("Chats");
-		userPanelHeading.setBorder(new EmptyBorder(10, 10, 10, 10));
-		userPanelHeading.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
-		userPanelHeading.setForeground(Color.decode(ResourceHandler.getSettings("dark_mode", "fontColor")));
-		usersPanel.add(userPanelHeading);
+		JButton btn1 = new JButton("add");
 		
-		contentPane.add(usersPanel, BorderLayout.WEST);
-		
-		////////////////////////////////////////////////////
-		
-		JPanel chatPanel = new JPanel();
-		chatPanel.setLayout(new BorderLayout());
-		chatPanel.setBackground(transpentColor);
-		
-		contentPane.add(chatPanel, BorderLayout.CENTER);
-		
-		messagePanel = new JPanel();
-		messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
-		messagePanel.setBorder(new EmptyBorder(50, 50, 0, 50));
-		messagePanel.setBackground(transpentColor);
-		
-		////////////////////////////////////////////////////
-		
-		JPanel inputPanel = new JPanel();
-		inputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		inputPanel.setLayout(new BorderLayout()); // no gaps between the components
-		inputPanel.setBackground(transpentColor);
-		
-		JTextArea inputField = new JTextArea(2, 1);
-		// inputField.setLineWrap(true);
-		// inputField.setWrapStyleWord(true);
-		
-		inputField.setBackground(Color.decode(ResourceHandler.getSettings("dark_mode", "secondaryColor")));
-		inputField.setForeground(Color.decode(ResourceHandler.getSettings("dark_mode", "fontColor")));
-		inputField.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
-		inputField.setCaretColor(Color.decode(ResourceHandler.getSettings("dark_mode", "fontColor")));
-		inputField.setBorder(new EmptyBorder(0, 5, 0, 5));
-		// inputField.setPreferredSize(new Dimension(inputPanel.getWidth(), 50));
-		
-		inputField.addKeyListener(new KeyListener() {
+		btn1.addActionListener(new ActionListener() {
 			
-			@Override
-			public void keyTyped(KeyEvent e)
-			{
-			}
-			
-			@Override
-			public void keyReleased(KeyEvent e)
-			{
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent e)
-			{
-				if (e.getKeyCode() == KeyEvent.VK_ENTER && e.isControlDown())
-				{
-					String input = inputField.getText();
-					
-					if (!input.trim().isEmpty())
-					{
-						inputField.setText("");
-						messagePanel.add(createChatMessageComponent(input));
-						messagePanel.add(Box.createVerticalStrut(10));
-						
-						repaint();
-						revalidate();
-					}
-				}
-			}
-		});
-		
-		JScrollPane inputScrollPane = new JScrollPane(inputField);
-		inputScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		inputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-		
-		inputPanel.add(inputScrollPane, BorderLayout.CENTER);
-		
-		ModernButton sendButton = new ModernButton(new ImageIcon(ResourceHandler.getSettings(mode, "sendIconPath")),
-				Color.black, Color.cyan);
-		sendButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		sendButton.setPreferredSize(new Dimension(40, inputField.getHeight()));
-		sendButton.setFocusable(false);
-		sendButton.addActionListener(new ActionListener() {
+			int i = 1;
 			
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				String input = inputField.getText();
-				
-				if (!input.trim().isEmpty())
-				{
-					inputField.setText("");
-					messagePanel.add(createChatMessageComponent(input));
-					messagePanel.add(Box.createVerticalStrut(10));
-					
-					repaint();
-					revalidate();
-				}
+				usersPanel.add(addPanel(i), "pushx, growx, span1");
+				repaint();
+				revalidate();
+				i++;
 			}
 		});
 		
-		inputPanel.add(sendButton, BorderLayout.EAST);
+		JScrollPane scrollBody = createScroll();
+		scrollBody.setViewportView(usersPanel);
+		scrollBody.setVerticalScrollBar(new CustomScrollBar());
+		scrollBody.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollBody.getViewport().setOpaque(false);
 		
-		chatPanel.add(inputPanel, BorderLayout.SOUTH);
-		chatPanel.add(messagePanel, BorderLayout.CENTER);
+		JLabel userPanelHeading = new JLabel("Chats");
+		// userPanelHeading.setBorder(new EmptyBorder(10, 10, 10, 10));
+		userPanelHeading.setFont(ResourceHandler.getFont("Roboto-Black.ttf", 20f));
+		userPanelHeading.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		usersPanel.add(userPanelHeading, "w 40, h 40, span, al center");
+		
+		contentPane.add(scrollBody, BorderLayout.WEST);
+		contentPane.add(btn1, BorderLayout.NORTH);
 	}
 	
-	private JPanel createChatMessageComponent(String message)
-	{
-		JPanel chatMessage = new JPanel();
-		chatMessage.setLayout(new BoxLayout(chatMessage, BoxLayout.Y_AXIS));
-		chatMessage.setBorder(new EmptyBorder(10, 20, 10, 20));
-		
-		JLabel usernameLabel = new JLabel("User1 :");
-		usernameLabel.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
-		usernameLabel.setForeground(Color.white);
-		chatMessage.add(usernameLabel);
-		
-		JLabel messageLabel = new JLabel("<html>" + message.replaceAll("\n", "<br>") + "</html>");
-		messageLabel.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
-		messageLabel.setForeground(Color.white);
-		chatMessage.add(messageLabel);
-		chatMessage.setBackground(transpentColor);
-		
-		return chatMessage;
-	}
 }

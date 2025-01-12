@@ -14,10 +14,9 @@ public class NatterMain
 			@Override
 			public void run()
 			{
-				
 				// signIn = new SignIn();
 				// signIn.setVisible(true);
-				
+				//
 				// signUp = new SignUp();
 				// signUp.setVisible(false);
 				

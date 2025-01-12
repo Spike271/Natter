@@ -51,7 +51,7 @@ public class SignIn extends CustomComponent implements ActionListener
 	}
 	
 	@Override
-	protected void closeOperation()
+	protected void addcloseOperation()
 	{
 		closeButton.addActionListener(new ActionListener() {
 			

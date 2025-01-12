@@ -32,7 +32,6 @@ public abstract class CustomComponent extends JFrame
 	public JPanel contentPane;
 	public JPanel titleBar;
 	private String title = "title";
-	// private JPanel buttonPanel;
 	protected ModernButton closeButton;
 	
 	// Track if the window is maximized
@@ -57,15 +56,13 @@ public abstract class CustomComponent extends JFrame
 		
 		// Create a custom title bar panel
 		titleBar = createTitleBar();
-		
-		// Add components to the frame
 		this.add(titleBar, BorderLayout.NORTH);
 		
 		// Main content area
 		contentPane = createContentPane();
 		this.add(contentPane, BorderLayout.CENTER);
 		
-		closeOperation();
+		addcloseOperation();
 	}
 	
 	private JPanel createTitleBar()
@@ -75,7 +72,7 @@ public abstract class CustomComponent extends JFrame
 		titleBar.setLayout(new BorderLayout());
 		
 		// Add icon on the tray
-		setIconImage(new ImageIcon(ResourceHandler.getSettings(mode, "iconPath")).getImage());
+		setIconImage(ResourceHandler.loadImageIcon(ResourceHandler.getSettings(mode, "iconPath")).getImage());
 		JLabel iconLabel = createIconLabel();
 		titleBar.add(iconLabel, BorderLayout.WEST);
 		
@@ -103,7 +100,8 @@ public abstract class CustomComponent extends JFrame
 		BufferedImage originalImage = null;
 		try
 		{
-			originalImage = ImageIO.read(new File(ResourceHandler.getSettings(mode, "iconPath")));
+			File tempFile = new File(getClass().getResource(ResourceHandler.getSettings(mode, "iconPath")).getPath());
+			originalImage = ImageIO.read(tempFile);
 		}
 		catch (IOException e)
 		{
@@ -126,7 +124,7 @@ public abstract class CustomComponent extends JFrame
 	private JPanel createTitlePanel(JLabel titleLabel)
 	{
 		JPanel titlePanel = new JPanel(new GridBagLayout());
-		titlePanel.setOpaque(false); // Make it transparent
+		titlePanel.setOpaque(false); // transparent
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0; // Column = 0
 		gbc.gridy = 0; // Row = 0
@@ -211,7 +209,7 @@ public abstract class CustomComponent extends JFrame
 		});
 	}
 	
-	protected void closeOperation()
+	protected void addcloseOperation()
 	{
 		closeButton.addActionListener(e -> dispose());
 	}

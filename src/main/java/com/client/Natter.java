@@ -11,6 +11,8 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -104,10 +106,15 @@ public class Natter extends CustomComponent
 			System.err.println("cannot find the logo");
 		}
 		
-		JLabel label = new JLabel("Chatting app for all PC's");
-		label.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 18f));
-		label.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
-		panel.add(label);
+		JLabel label1 = new JLabel("Chatting app for all PC's");
+		label1.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 18f));
+		label1.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		panel.add(label1, "gapx 8, wrap, sg 1");
+		
+		JLabel label2 = new JLabel("No conversations selected");
+		label2.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
+		label2.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		panel.add(label2, "sg 1");
 		return panel;
 	}
 	
@@ -149,6 +156,45 @@ public class Natter extends CustomComponent
 		userPanelHeading.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		usersPanel.add(userPanelHeading, "gapx 20, w 40, h 40, split");
 		
+		// setting icon
+		JLabel setting = new JLabel(new ImageIcon(
+				ResourceHandler.loadImageIcon(ResourceHandler.getSettings(mode, "settingIcon")).getImage()));
+		setting.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		setting.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e)
+			{
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e)
+			{
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				NatterMain.settingPanel.setVisible(true);
+			}
+		});
+		
+		usersPanel.add(setting, "gapx 5, split");
+		
 		// + button
 		RoundedButton roundedButton = new RoundedButton("+");
 		roundedButton.addActionListener(new ActionListener() {
@@ -165,7 +211,7 @@ public class Natter extends CustomComponent
 			}
 		});
 		roundedButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		usersPanel.add(roundedButton, "gapx 150, w 20, h 20, wrap");
+		usersPanel.add(roundedButton, "gapx 130, w 20, h 20, wrap");
 		
 		JScrollPane scrollBody = createScroll();
 		scrollBody.setViewportView(usersPanel);

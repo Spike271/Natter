@@ -23,22 +23,33 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class Natter extends CustomComponent
+public class Natter extends JFrame implements Theme
 {
 	private static final long serialVersionUID = 1L;
+	private final String mode = toggle ? "dark_mode" : "light_mode";
 	private JPanel usersPanel;
 	private Color transpentColor = new Color(0, 0, 0, 0);
 	
-	@Override
-	void addThemeButton(JPanel buttonPanel)
+	public Natter()
 	{
+		super("Natter");
+		
+		this.setIconImage(ResourceHandler.loadImageIcon(ResourceHandler.getSettings(mode, "iconPath")).getImage());
+		this.setLayout(new BorderLayout());
+		this.setSize(1100, 850);
+		this.setMinimumSize(new Dimension(1000, 800));
+		this.setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());
+		this.setLocationRelativeTo(null);
+		this.setFocusable(false);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		addGuiComponents();
 	}
 	
 	private JPanel userComponentPanel(int i)
@@ -81,7 +92,7 @@ public class Natter extends CustomComponent
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent evt)
 			{
-				JOptionPane.showMessageDialog(null, "Opening chat with User ");
+				// JOptionPane.showMessageDialog(null, "Opening chat with User ");
 			}
 		});
 		
@@ -106,15 +117,11 @@ public class Natter extends CustomComponent
 			System.err.println("cannot find the logo");
 		}
 		
-		JLabel label1 = new JLabel("Chatting app for all PC's");
+		JLabel label1 = new JLabel("<html>" + "<center><b>Chatting app for all PC's</b></center>" + "<br/>"
+				+ "No conversations selected" + "</html>");
 		label1.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 18f));
 		label1.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		panel.add(label1, "gapx 8, wrap, sg 1");
-		
-		JLabel label2 = new JLabel("No conversations selected");
-		label2.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
-		label2.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
-		panel.add(label2, "sg 1");
 		return panel;
 	}
 	
@@ -124,23 +131,6 @@ public class Natter extends CustomComponent
 		scroll.setBorder(null);
 		scroll.setViewportBorder(null);
 		return scroll;
-	}
-	
-	public Natter()
-	{
-		super("Natter");
-		
-		ComponentResizer com = new ComponentResizer();
-		com.registerComponent(this, titleBar);
-		com.setMinimumSize(new Dimension(1000, 800));
-		com.setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());
-		com.setSnapSize(new Dimension(5, 5));
-		
-		contentPane.setLayout(new BorderLayout());
-		this.setSize(1100, 850);
-		this.setLocationRelativeTo(null);
-		this.setFocusable(false);
-		addGuiComponents();
 	}
 	
 	private void addGuiComponents()
@@ -195,7 +185,7 @@ public class Natter extends CustomComponent
 		
 		usersPanel.add(setting, "gapx 5, split");
 		
-		// + button
+		// Create and add + button
 		RoundedButton roundedButton = new RoundedButton("+");
 		roundedButton.addActionListener(new ActionListener() {
 			
@@ -210,6 +200,7 @@ public class Natter extends CustomComponent
 				i++;
 			}
 		});
+		
 		roundedButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		usersPanel.add(roundedButton, "gapx 130, w 20, h 20, wrap");
 		
@@ -219,8 +210,8 @@ public class Natter extends CustomComponent
 		scrollBody.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollBody.getViewport().setOpaque(false);
 		
-		contentPane.add(scrollBody, BorderLayout.WEST);
-		contentPane.add(appDesc(), BorderLayout.CENTER);
+		this.add(scrollBody, BorderLayout.WEST);
+		this.add(appDesc(), BorderLayout.CENTER);
 	}
 	
 	class RoundedButton extends JButton

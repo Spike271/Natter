@@ -1,6 +1,7 @@
 package com.client;
 
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,10 +20,13 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import net.miginfocom.swing.MigLayout;
 
-public class SettingPanel extends JFrame
+public class SettingPanel extends JFrame implements Theme
 {
 	private static final long serialVersionUID = 1L;
 	private JPanel apperancePanel;
@@ -34,8 +38,6 @@ public class SettingPanel extends JFrame
 	{
 		init();
 		this.setTitle("Settings");
-		this.setIconImage(
-				ResourceHandler.loadImageIcon(ResourceHandler.getSettings("light_mode", "iconPath")).getImage());
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setSize(1000, 700);
 		this.setResizable(false);
@@ -44,10 +46,13 @@ public class SettingPanel extends JFrame
 	
 	private void init()
 	{
+		Thread t1 = new Thread(() -> profilePanel = createProfilePanel());
+		t1.start();
+		
 		this.setLayout(new MigLayout("fill, insets 20", "[center, fill]"));
 		
 		apperancePanel = createApperancePanel();
-		profilePanel = createProfilePanel();
+		
 		placeHolderPanel = createPlaceHolderPanel();
 		
 		menuPanel = createMenuPanel();
@@ -56,6 +61,13 @@ public class SettingPanel extends JFrame
 		splitPane.putClientProperty(FlatClientProperties.STYLE, "style:plain;");
 		
 		this.add(splitPane, "h 500");
+		
+		try
+		{
+			t1.join();
+		}
+		catch (Exception e)
+		{}
 	}
 	
 	private JPanel createPlaceHolderPanel()
@@ -64,7 +76,7 @@ public class SettingPanel extends JFrame
 		placeHolderPanel.setLayout(new MigLayout("fillx", "[fill]", "[]"));
 		placeHolderPanel.putClientProperty(FlatClientProperties.STYLE,
 				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
-		placeHolderPanel.setMinimumSize(new Dimension(400, getHeight()));
+		placeHolderPanel.setMinimumSize(new Dimension(600, getHeight()));
 		
 		return placeHolderPanel;
 	}
@@ -83,8 +95,10 @@ public class SettingPanel extends JFrame
 		themeLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
 		apperancePanel.add(themeLabel);
 		
-		// Create a dropdown menu
+		// Create a drop down menu
 		JComboBox<String> dropDown = new JComboBox<>(new String[] { "Light Mode", "Dark Mode" });
+		dropDown.setSelectedIndex(toggle ? 1 : 0);
+		int check = dropDown.getSelectedIndex();
 		dropDown.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "minimumWidth:150;"
 				+ "arrowType:traingle;" + "buttonStyle:none;" + "focusWidth:0;");
 		
@@ -94,7 +108,12 @@ public class SettingPanel extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				String selectedItem = (String) dropDown.getSelectedItem();
-				JOptionPane.showMessageDialog(null, "You selected: " + selectedItem);
+				if (check != dropDown.getSelectedIndex())
+				{
+					changeThemes(selectedItem.startsWith("D"));
+					JOptionPane.showMessageDialog(SettingPanel.this,
+							"Restart the Application to take the full effect.");
+				}
 			}
 		});
 		apperancePanel.add(dropDown);
@@ -212,5 +231,28 @@ public class SettingPanel extends JFrame
 		profilePanel.add(removeButton, "gapy 5");
 		
 		return profilePanel;
+	}
+	
+	private void changeThemes(boolean dark)
+	{
+		if (FlatLaf.isLafDark() != dark)
+		{
+			if (!dark)
+			{
+				EventQueue.invokeLater(() -> {
+					FlatMacLightLaf.setup();
+					FlatLaf.updateUI();
+					ResourceHandler.changeSettings("false");
+				});
+			}
+			else
+			{
+				EventQueue.invokeLater(() -> {
+					FlatMacDarkLaf.setup();
+					FlatLaf.updateUI();
+					ResourceHandler.changeSettings("true");
+				});
+			}
+		}
 	}
 }

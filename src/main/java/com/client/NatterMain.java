@@ -1,13 +1,8 @@
 package com.client;
 
-import java.awt.EventQueue;
-
 import javax.swing.SwingUtilities;
 
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
-
-public class NatterMain
+public class NatterMain implements Theme
 {
 	public static SignIn signIn;
 	public static SignUp signUp;
@@ -20,34 +15,29 @@ public class NatterMain
 			@Override
 			public void run()
 			{
-				// signIn = new SignIn();
-				// signIn.setVisible(true);
-				//
-				// signUp = new SignUp();
-				// signUp.setVisible(false);
+				signIn = new SignIn();
+				signIn.setVisible(true);
 				
-				Natter natter = new Natter();
-				natter.setVisible(true);
+				signUp = new SignUp();
+				signUp.setVisible(false);
 			}
 		});
 		
-		try
-		{
-			EventQueue.invokeAndWait(new Runnable() {
-				
-				@Override
-				public void run()
-				{
-					FlatLaf.registerCustomDefaultsSource("res.com.themes");
-					FlatMacDarkLaf.setup();
-					
-					settingPanel = new SettingPanel();
-				}
-			});
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		/*
+		 * try { EventQueue.invokeAndWait(new Runnable() {
+		 * 
+		 * @Override public void run() {
+		 * FlatLaf.registerCustomDefaultsSource("res.com.themes");
+		 * FlatRobotoFont.install(); UIManager.put("defaultFont", new
+		 * Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
+		 * 
+		 * if (toggle) FlatMacDarkLaf.setup(); else FlatMacLightLaf.setup();
+		 * 
+		 * Natter natter = new Natter(); natter.setVisible(true);
+		 * 
+		 * settingPanel = new SettingPanel(); } }); } catch (Exception e) {
+		 * e.printStackTrace(); }
+		 */
+		
 	}
 }

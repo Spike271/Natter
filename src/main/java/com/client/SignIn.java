@@ -7,6 +7,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -17,9 +22,12 @@ import javax.swing.SwingConstants;
 public class SignIn extends CustomComponent implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
-	private JButton clickableLabel;
 	private Color labelColor = toggle ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
+	private JButton clickableLabel;
+	private RoundedJButton submitButton;
+	private RoundedJTextField textbox1;
+	private RoundedJPasswordField textbox2;
 	
 	public SignIn()
 	{
@@ -63,16 +71,6 @@ public class SignIn extends CustomComponent implements ActionListener
 				repaint();
 			}
 		});
-	}
-	
-	@Override
-	protected void maximizeBtn()
-	{
-	}
-	
-	@Override
-	protected void maxBtnAdd(JPanel buttonPanel)
-	{
 	}
 	
 	private void addGuiComponents()
@@ -119,7 +117,7 @@ public class SignIn extends CustomComponent implements ActionListener
 			@Override
 			public void mouseExited(MouseEvent e)
 			{
-				clickableLabel.setText("Sign Up");
+				clickableLabel.setText("<html>Sign Up</html>");
 			}
 		});
 		contentPane.add(clickableLabel);
@@ -133,7 +131,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		contentPane.add(label1);
 		
 		// User name text box
-		RoundedJTextField textbox1 = new RoundedJTextField("Username", 15, font);
+		textbox1 = new RoundedJTextField("Username", 15, font);
 		textbox1.setBounds(110, 160, 400, 50);
 		textbox1.setSelectedTextColor(Color.WHITE);
 		textbox1.setSelectionColor(Color.BLUE);
@@ -147,19 +145,20 @@ public class SignIn extends CustomComponent implements ActionListener
 		label2.setForeground(labelColor);
 		contentPane.add(label2);
 		
-		RoundedJPasswordField textbox2 = new RoundedJPasswordField("Password", 15, font);
+		textbox2 = new RoundedJPasswordField("Password", 15, font);
 		textbox2.setBounds(110, 250, 400, 50);
 		textbox2.setSelectedTextColor(Color.WHITE);
 		textbox2.setSelectionColor(Color.BLUE);
 		contentPane.add(textbox2);
 		
-		RoundedJButton button1 = new RoundedJButton("Login", 15);
-		button1.setBounds(110, 400, 405, 50);
-		button1.setFont(font);
-		button1.setBackground(new Color(0, 50, 255));
-		button1.setForeground(Color.white);
-		button1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		contentPane.add(button1);
+		submitButton = new RoundedJButton("Login", 15);
+		submitButton.setBounds(110, 400, 405, 50);
+		submitButton.setFont(font);
+		submitButton.setBackground(new Color(0, 50, 255));
+		submitButton.setForeground(Color.white);
+		submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		submitButton.addActionListener(this);
+		contentPane.add(submitButton);
 	}
 	
 	@Override
@@ -169,6 +168,41 @@ public class SignIn extends CustomComponent implements ActionListener
 		{
 			this.setVisible(false);
 			NatterMain.signUp.setVisible(true);
+		}
+		else if (e.getSource() == submitButton)
+		{
+			String username = textbox1.getText().trim();
+			String password = String.valueOf(textbox2.getPassword()).trim();
+			
+			if (!(username.isBlank() && password.isBlank()))
+			{
+				if (!(username.equalsIgnoreCase("Username") && password.equalsIgnoreCase("Password")))
+				{
+					final String URL = "jdbc:mysql://localhost:3306/Natter";
+					final String USER = "root";
+					final String PASSWORD = "8529499264";
+					
+					try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD))
+					{
+						String sql = "SELECT * FROM account_info where Username = '" + username + "' and Password = '"
+								+ password + "'";
+						
+						System.out.println("Query = " + sql);
+						
+						try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
+						{
+							ResultSet resultSet = preparedStatement.executeQuery();
+							
+							if (resultSet.next())
+								System.out.println("Welcome");
+						}
+						catch (SQLException e1)
+						{}
+					}
+					catch (SQLException e2)
+					{}
+				}
+			}
 		}
 	}
 }

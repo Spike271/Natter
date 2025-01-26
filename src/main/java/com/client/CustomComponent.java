@@ -21,21 +21,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-public abstract class CustomComponent extends JFrame
+public abstract class CustomComponent extends JFrame implements Theme
 {
 	private static final long serialVersionUID = 1L;
-	public static final boolean toggle = ResourceHandler.isDarkModeOn();
 	
 	private int xMouse, yMouse;
 	protected final String mode = toggle ? "dark_mode" : "light_mode";
-	private ModernButton maximizeButton;
 	public JPanel contentPane;
-	public JPanel titleBar;
+	private JPanel titleBar;
 	private String title = "title";
 	protected ModernButton closeButton;
-	
-	// Track if the window is maximized
-	private boolean isMaximized = false;
 	
 	public CustomComponent()
 	{
@@ -107,6 +102,7 @@ public abstract class CustomComponent extends JFrame
 		{
 			return null;
 		}
+		
 		Image scaledImage = originalImage.getScaledInstance(33, 35, Image.SCALE_SMOOTH);
 		iconLabel.setIcon(new ImageIcon(scaledImage));
 		return iconLabel;
@@ -151,10 +147,6 @@ public abstract class CustomComponent extends JFrame
 		// Minimize button
 		ModernButton minimizeButton = createMinimizeButton();
 		buttonPanel.add(minimizeButton);
-		
-		// Maximize button
-		maximizeBtn();
-		maxBtnAdd(buttonPanel);
 		
 		// Close button
 		closeButton = createCloseButton();
@@ -212,32 +204,6 @@ public abstract class CustomComponent extends JFrame
 	protected void addcloseOperation()
 	{
 		closeButton.addActionListener(e -> dispose());
-	}
-	
-	protected void maximizeBtn()
-	{
-		maximizeButton = new ModernButton("◻", Color.decode(ResourceHandler.getSettings(mode, "minbtnBGColor")),
-				Color.decode(ResourceHandler.getSettings(mode, "minbtnHoverColor")));
-		
-		maximizeButton.setForeground(Color.decode(ResourceHandler.getSettings(mode, "minbtnColor")));
-		maximizeButton.setFocusPainted(false);
-		maximizeButton.addActionListener(e -> {
-			if (isMaximized)
-			{
-				this.setExtendedState(JFrame.NORMAL);
-				isMaximized = false;
-			}
-			else
-			{
-				this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-				isMaximized = true;
-			}
-		});
-	}
-	
-	protected void maxBtnAdd(JPanel buttonPanel)
-	{
-		buttonPanel.add(maximizeButton);
 	}
 	
 	abstract void addThemeButton(JPanel buttonPanel);

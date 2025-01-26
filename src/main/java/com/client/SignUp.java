@@ -20,6 +20,7 @@ public class SignUp extends CustomComponent implements ActionListener
 	private JButton clickableLabel;
 	private Color labelColor = toggle ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
+	private RoundedJButton submitButton;
 	
 	public SignUp()
 	{
@@ -63,16 +64,6 @@ public class SignUp extends CustomComponent implements ActionListener
 				repaint();
 			}
 		});
-	}
-	
-	@Override
-	protected void maximizeBtn()
-	{
-	}
-	
-	@Override
-	protected void maxBtnAdd(JPanel buttonPanel)
-	{
 	}
 	
 	private void addGuiComponents()
@@ -186,13 +177,13 @@ public class SignUp extends CustomComponent implements ActionListener
 		textbox5.setSelectedTextColor(Color.WHITE);
 		contentPane.add(textbox5);
 		
-		RoundedJButton button1 = new RoundedJButton("Sign up", 15);
-		button1.setBounds(100, 470, 405, 40);
-		button1.setFont(font);
-		button1.setBackground(new Color(0, 50, 255));
-		button1.setForeground(Color.white);
-		button1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		contentPane.add(button1);
+		submitButton = new RoundedJButton("Sign up", 15);
+		submitButton.setBounds(100, 470, 405, 40);
+		submitButton.setFont(font);
+		submitButton.setBackground(new Color(0, 50, 255));
+		submitButton.setForeground(Color.white);
+		submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		contentPane.add(submitButton);
 	}
 	
 	@Override
@@ -202,6 +193,10 @@ public class SignUp extends CustomComponent implements ActionListener
 		{
 			this.setVisible(false);
 			NatterMain.signIn.setVisible(true);
+		}
+		else if (e.getSource() == submitButton)
+		{
+			
 		}
 	}
 }

@@ -7,6 +7,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -21,6 +27,8 @@ public class SignUp extends CustomComponent implements ActionListener
 	private Color labelColor = toggle ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
 	private RoundedJButton submitButton;
+	RoundedJTextField FNbox, LNbox, Userbox;
+	RoundedJPasswordField Passbox, CFbox;
 	
 	public SignUp()
 	{
@@ -107,7 +115,7 @@ public class SignUp extends CustomComponent implements ActionListener
 			@Override
 			public void mouseExited(MouseEvent e)
 			{
-				clickableLabel.setText("Sign in");
+				clickableLabel.setText("<html>Sign in</html>");
 			}
 		});
 		
@@ -120,11 +128,11 @@ public class SignUp extends CustomComponent implements ActionListener
 		label1.setForeground(labelColor);
 		contentPane.add(label1);
 		
-		RoundedJTextField textbox1 = new RoundedJTextField("First name", 15, font);
-		textbox1.setBounds(100, 160, 200, 40);
-		textbox1.setSelectionColor(Color.BLUE);
-		textbox1.setSelectedTextColor(Color.WHITE);
-		contentPane.add(textbox1);
+		FNbox = new RoundedJTextField("First name ", 15, font);
+		FNbox.setBounds(100, 160, 200, 40);
+		FNbox.setSelectionColor(Color.BLUE);
+		FNbox.setSelectedTextColor(Color.WHITE);
+		contentPane.add(FNbox);
 		
 		JLabel label2 = new JLabel("Last name:");
 		label2.setBounds(320, 120, 320, 50);
@@ -132,11 +140,11 @@ public class SignUp extends CustomComponent implements ActionListener
 		label2.setForeground(labelColor);
 		contentPane.add(label2);
 		
-		RoundedJTextField textbox2 = new RoundedJTextField("Last name", 15, font);
-		textbox2.setBounds(305, 160, 200, 40);
-		textbox2.setSelectionColor(Color.BLUE);
-		textbox2.setSelectedTextColor(Color.WHITE);
-		contentPane.add(textbox2);
+		LNbox = new RoundedJTextField("Last name ", 15, font);
+		LNbox.setBounds(305, 160, 200, 40);
+		LNbox.setSelectionColor(Color.BLUE);
+		LNbox.setSelectedTextColor(Color.WHITE);
+		contentPane.add(LNbox);
 		
 		JLabel label3 = new JLabel("Username:");
 		label3.setBounds(0, 200, 320, 50);
@@ -145,11 +153,11 @@ public class SignUp extends CustomComponent implements ActionListener
 		label3.setForeground(labelColor);
 		contentPane.add(label3);
 		
-		RoundedJTextField textbox3 = new RoundedJTextField("Username", 15, font);
-		textbox3.setBounds(100, 240, 405, 40);
-		textbox3.setSelectionColor(Color.BLUE);
-		textbox3.setSelectedTextColor(Color.WHITE);
-		contentPane.add(textbox3);
+		Userbox = new RoundedJTextField("Username ", 15, font);
+		Userbox.setBounds(100, 240, 405, 40);
+		Userbox.setSelectionColor(Color.BLUE);
+		Userbox.setSelectedTextColor(Color.WHITE);
+		contentPane.add(Userbox);
 		
 		JLabel label4 = new JLabel("Password:");
 		label4.setBounds(0, 280, 320, 50);
@@ -158,11 +166,11 @@ public class SignUp extends CustomComponent implements ActionListener
 		label4.setForeground(labelColor);
 		contentPane.add(label4);
 		
-		RoundedJPasswordField textbox4 = new RoundedJPasswordField("Password", 15, font);
-		textbox4.setBounds(100, 320, 405, 40);
-		textbox4.setSelectionColor(Color.BLUE);
-		textbox4.setSelectedTextColor(Color.WHITE);
-		contentPane.add(textbox4);
+		Passbox = new RoundedJPasswordField("Password ", 15, font);
+		Passbox.setBounds(100, 320, 405, 40);
+		Passbox.setSelectionColor(Color.BLUE);
+		Passbox.setSelectedTextColor(Color.WHITE);
+		contentPane.add(Passbox);
 		
 		JLabel label5 = new JLabel("Confirm Password:");
 		label5.setBounds(33, 360, 320, 50);
@@ -171,11 +179,11 @@ public class SignUp extends CustomComponent implements ActionListener
 		label5.setForeground(labelColor);
 		contentPane.add(label5);
 		
-		RoundedJPasswordField textbox5 = new RoundedJPasswordField("Confirm Password", 15, font);
-		textbox5.setBounds(100, 400, 405, 40);
-		textbox5.setSelectionColor(Color.BLUE);
-		textbox5.setSelectedTextColor(Color.WHITE);
-		contentPane.add(textbox5);
+		CFbox = new RoundedJPasswordField("Confirm Password ", 15, font);
+		CFbox.setBounds(100, 400, 405, 40);
+		CFbox.setSelectionColor(Color.BLUE);
+		CFbox.setSelectedTextColor(Color.WHITE);
+		contentPane.add(CFbox);
 		
 		submitButton = new RoundedJButton("Sign up", 15);
 		submitButton.setBounds(100, 470, 405, 40);
@@ -183,6 +191,7 @@ public class SignUp extends CustomComponent implements ActionListener
 		submitButton.setBackground(new Color(0, 50, 255));
 		submitButton.setForeground(Color.white);
 		submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		submitButton.addActionListener(this);
 		contentPane.add(submitButton);
 	}
 	
@@ -196,7 +205,88 @@ public class SignUp extends CustomComponent implements ActionListener
 		}
 		else if (e.getSource() == submitButton)
 		{
+			Thread t1 = new Thread(() -> {
+				
+				String firstName = FNbox.getText().trim();
+				String lastName = LNbox.getText().trim();
+				String userName = Userbox.getText().trim();
+				String password = String.valueOf(Passbox.getPassword()).trim();
+				String confirmPassword = String.valueOf(CFbox.getPassword()).trim();
+				
+				if (firstName.equalsIgnoreCase("First name") || lastName.equalsIgnoreCase("Last name")
+						|| userName.equalsIgnoreCase("Username") || password.equalsIgnoreCase("Password")
+						|| confirmPassword.equalsIgnoreCase("Confirm Password"))
+				{
+					JOptionPane.showMessageDialog(SignUp.this, "Please fill all the required fields.");
+				}
+				
+				else if (!password.equals(confirmPassword))
+				{
+					JOptionPane.showMessageDialog(SignUp.this, "Confirm Password doesn't match with password.");
+				}
+				
+				else if (!(firstName.isBlank() && lastName.isBlank() && userName.isBlank() && password.isBlank()
+						&& confirmPassword.isBlank()))
+				{
+					final String URL = "jdbc:mysql://localhost:3306/Natter";
+					final String USERNAME = "root";
+					final String PASSWORD = "8529499264";
+					final String Query = "INSERT INTO account_info VALUES (NULL, ?, ?, ?, ?, ?)";
+					
+					try (Connection connection = DriverManager.getConnection(URL, USERNAME,
+							PASSWORD); PreparedStatement preparedStatement = connection.prepareStatement(Query))
+					{
+						
+						preparedStatement.setString(1, firstName);
+						preparedStatement.setString(2, lastName);
+						preparedStatement.setString(3, userName);
+						preparedStatement.setString(4, password);
+						preparedStatement.setString(5, getMacAddress());
+						
+						int rowsAffected = preparedStatement.executeUpdate();
+						System.out.println("Query" + preparedStatement);
+						System.out.println("Rows inserted: " + rowsAffected);
+					}
+					catch (SQLException e2)
+					{}
+				}
+				
+			});
+			
+			t1.start();
+		}
+	}
+	
+	private String getMacAddress()
+	{
+		try
+		{
+			InetAddress inetAddress = InetAddress.getLocalHost();
+			NetworkInterface networkInterface = NetworkInterface.getByInetAddress(inetAddress);
+			networkInterface.getHardwareAddress();
+			
+			byte[] macAddress = networkInterface.getHardwareAddress();
+			if (macAddress != null)
+			{
+				StringBuilder sb = new StringBuilder();
+				for (byte b : macAddress)
+				{
+					sb.append(String.format("%02X-", b));
+				}
+				
+				return (sb.toString().substring(0, sb.length() - 1));
+			}
+			
+			else
+			{
+				System.out.println("No MAC address found for the network interface.");
+			}
 			
 		}
+		catch (Exception e)
+		{
+			System.err.println("Error retrieving network interfaces: " + e.getMessage());
+		}
+		return null;
 	}
 }

@@ -131,7 +131,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		contentPane.add(label1);
 		
 		// User name text box
-		textbox1 = new RoundedJTextField("Username", 15, font);
+		textbox1 = new RoundedJTextField("Username ", 15, font);
 		textbox1.setBounds(110, 160, 400, 50);
 		textbox1.setSelectedTextColor(Color.WHITE);
 		textbox1.setSelectionColor(Color.BLUE);
@@ -145,7 +145,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		label2.setForeground(labelColor);
 		contentPane.add(label2);
 		
-		textbox2 = new RoundedJPasswordField("Password", 15, font);
+		textbox2 = new RoundedJPasswordField("Password ", 15, font);
 		textbox2.setBounds(110, 250, 400, 50);
 		textbox2.setSelectedTextColor(Color.WHITE);
 		textbox2.setSelectionColor(Color.BLUE);
@@ -171,12 +171,17 @@ public class SignIn extends CustomComponent implements ActionListener
 		}
 		else if (e.getSource() == submitButton)
 		{
-			String username = textbox1.getText().trim();
-			String password = String.valueOf(textbox2.getPassword()).trim();
-			
-			if (!(username.isBlank() && password.isBlank()))
-			{
-				if (!(username.equalsIgnoreCase("Username") && password.equalsIgnoreCase("Password")))
+			Thread t1 = new Thread(() -> {
+				
+				String username = textbox1.getText().trim();
+				String password = String.valueOf(textbox2.getPassword()).trim();
+				
+				if (username.equalsIgnoreCase("Username") || password.equalsIgnoreCase("Password"))
+				{
+					JOptionPane.showMessageDialog(SignIn.this, "Please fill all the required fields.");
+				}
+				
+				else if (!(username.isBlank() && password.isBlank()))
 				{
 					final String URL = "jdbc:mysql://localhost:3306/Natter";
 					final String USER = "root";
@@ -186,8 +191,6 @@ public class SignIn extends CustomComponent implements ActionListener
 					{
 						String sql = "SELECT * FROM account_info where Username = '" + username + "' and Password = '"
 								+ password + "'";
-						
-						System.out.println("Query = " + sql);
 						
 						try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
 						{
@@ -202,7 +205,9 @@ public class SignIn extends CustomComponent implements ActionListener
 					catch (SQLException e2)
 					{}
 				}
-			}
+			});
+			
+			t1.start();
 		}
 	}
 }

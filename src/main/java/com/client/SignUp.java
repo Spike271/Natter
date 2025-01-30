@@ -207,6 +207,9 @@ public class SignUp extends CustomComponent implements ActionListener
 		{
 			Thread t1 = new Thread(() -> {
 				
+				submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				submitButton.setEnabled(false);
+				
 				String firstName = FNbox.getText().trim();
 				String lastName = LNbox.getText().trim();
 				String userName = Userbox.getText().trim();
@@ -243,12 +246,22 @@ public class SignUp extends CustomComponent implements ActionListener
 						preparedStatement.setString(4, password);
 						preparedStatement.setString(5, getMacAddress());
 						
-						int rowsAffected = preparedStatement.executeUpdate();
-						System.out.println("Query" + preparedStatement);
-						System.out.println("Rows inserted: " + rowsAffected);
+						preparedStatement.executeUpdate();
+						
+						JOptionPane.showMessageDialog(this, "Your username : " + userName + "\nPassword: " + password);
+						
+						NatterMain.natter.setVisible(true);
+						NatterMain.dbUsername = userName;
+						this.setVisible(false);
+						
 					}
 					catch (SQLException e2)
 					{}
+					finally
+					{
+						submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+						submitButton.setEnabled(true);
+					}
 				}
 				
 			});

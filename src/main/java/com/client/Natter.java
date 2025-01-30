@@ -179,6 +179,9 @@ public class Natter extends JFrame implements Theme
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
+				if (NatterMain.settingPanel == null)
+					NatterMain.settingPanel = new SettingPanel();
+				
 				NatterMain.settingPanel.setVisible(true);
 			}
 		});

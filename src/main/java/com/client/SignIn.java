@@ -169,9 +169,14 @@ public class SignIn extends CustomComponent implements ActionListener
 			this.setVisible(false);
 			NatterMain.signUp.setVisible(true);
 		}
+		
 		else if (e.getSource() == submitButton)
 		{
 			Thread t1 = new Thread(() -> {
+				
+				submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				submitButton.setEnabled(false);
+				repaint();
 				
 				String username = textbox1.getText().trim();
 				String password = String.valueOf(textbox2.getPassword()).trim();
@@ -187,23 +192,33 @@ public class SignIn extends CustomComponent implements ActionListener
 					final String USER = "root";
 					final String PASSWORD = "8529499264";
 					
-					try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD))
+					final String query = "SELECT * FROM account_info where Username = '" + username
+							+ "' and Password = '" + password + "'";
+					
+					try (Connection connection = DriverManager.getConnection(URL, USER,
+							PASSWORD); PreparedStatement preparedStatement = connection.prepareStatement(query))
 					{
-						String sql = "SELECT * FROM account_info where Username = '" + username + "' and Password = '"
-								+ password + "'";
+						ResultSet resultSet = preparedStatement.executeQuery();
 						
-						try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
+						if (resultSet.next())
 						{
-							ResultSet resultSet = preparedStatement.executeQuery();
-							
-							if (resultSet.next())
-								System.out.println("Welcome");
+							NatterMain.natter.setVisible(true);
+							this.setVisible(false);
+							NatterMain.dbUsername = username;
 						}
-						catch (SQLException e1)
-						{}
+						else
+						{
+							JOptionPane.showMessageDialog(this, "Wrong username or password.");
+						}
 					}
-					catch (SQLException e2)
+					catch (SQLException e1)
 					{}
+					finally
+					{
+						submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+						submitButton.setEnabled(true);
+						repaint();
+					}
 				}
 			});
 			

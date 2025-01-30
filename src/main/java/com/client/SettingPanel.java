@@ -5,19 +5,31 @@ import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
@@ -26,19 +38,29 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import net.miginfocom.swing.MigLayout;
 
-public class SettingPanel extends JFrame implements Theme
+public class SettingPanel extends JFrame implements Theme, ActionListener
 {
 	private static final long serialVersionUID = 1L;
 	private JPanel apperancePanel;
 	private JPanel profilePanel;
 	private JPanel placeHolderPanel;
 	private JPanel menuPanel;
+	private JButton changeButton, removeButton;
+	private Thread t1;
 	
 	public SettingPanel()
 	{
 		init();
 		this.setTitle("Settings");
-		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e)
+			{
+				new Thread(() -> {
+					dispose();
+					NatterMain.settingPanel = new SettingPanel();
+				}).start();
+			}
+		});
 		this.setSize(1000, 700);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
@@ -46,7 +68,7 @@ public class SettingPanel extends JFrame implements Theme
 	
 	private void init()
 	{
-		Thread t1 = new Thread(() -> profilePanel = createProfilePanel());
+		t1 = new Thread(() -> profilePanel = createProfilePanel());
 		t1.start();
 		
 		this.setLayout(new MigLayout("fill, insets 20", "[center, fill]"));
@@ -99,7 +121,7 @@ public class SettingPanel extends JFrame implements Theme
 		JComboBox<String> dropDown = new JComboBox<>(new String[] { "Light Mode", "Dark Mode" });
 		dropDown.setSelectedIndex(toggle ? 1 : 0);
 		int check = dropDown.getSelectedIndex();
-		dropDown.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "minimumWidth:150;"
+		dropDown.putClientProperty(FlatClientProperties.STYLE, "font: +3;" + "arc: 1;" + "minimumWidth:160;"
 				+ "arrowType:traingle;" + "buttonStyle:none;" + "focusWidth:0;");
 		
 		dropDown.addActionListener(new ActionListener() {
@@ -187,7 +209,7 @@ public class SettingPanel extends JFrame implements Theme
 		
 		try
 		{
-			BufferedImage originalImage = ImageIO.read(new File(getClass().getResource("01.jpg").getPath()));
+			BufferedImage originalImage = loadImageWithoutExtension("01");
 			// Desired dimensions
 			int maxWidth = 400;
 			int maxHeight = 350;
@@ -218,16 +240,18 @@ public class SettingPanel extends JFrame implements Theme
 			profilePanel.add(profilePic, "h 100, w 100, center");
 		}
 		
-		JLabel username = new JLabel("@Username");
+		JLabel username = new JLabel(NatterMain.dbUsername);
 		username.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
 		profilePanel.add(username, "center");
 		
-		JButton changeButton = new JButton("Change Image");
-		changeButton.putClientProperty(FlatClientProperties.STYLE, "font: +1;" + "focusWidth:0;");
+		changeButton = new JButton("Change Image");
+		changeButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "focusWidth:0;");
+		changeButton.addActionListener(this); // Button
 		profilePanel.add(changeButton);
 		
-		JButton removeButton = new JButton("Remove Image");
-		removeButton.putClientProperty(FlatClientProperties.STYLE, "font: +1;" + "focusWidth:0;");
+		removeButton = new JButton("Remove Image");
+		removeButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "focusWidth:0;");
+		removeButton.addActionListener(this); // Button
 		profilePanel.add(removeButton, "gapy 5");
 		
 		return profilePanel;
@@ -252,6 +276,122 @@ public class SettingPanel extends JFrame implements Theme
 					FlatLaf.updateUI();
 					ResourceHandler.changeSettings("true");
 				});
+			}
+		}
+	}
+	
+	private BufferedImage loadImageWithoutExtension(String baseName)
+	{
+		try
+		{
+			String[] extensions = { "jpg", "jpeg", "png" }; // List of possible extensions
+			BufferedImage image = null;
+			
+			for (String ext : extensions)
+			{
+				File file = null;
+				file = new File(getClass().getResource(baseName + "." + ext).getPath());
+				if (file.exists())
+				{
+					image = ImageIO.read(file);
+					if (image != null)
+						return image;
+				}
+			}
+		}
+		catch (Exception e)
+		{}
+		
+		return null;
+	}
+	
+	private File loadFilePath(String fileName)
+	{
+		try
+		{
+			String[] extensions = { "jpg", "jpeg", "png" }; // List of possible extensions
+			
+			for (String ext : extensions)
+			{
+				File file = null;
+				file = new File(getClass().getResource(fileName + "." + ext).getPath());
+				if (file.exists())
+					return file;
+			}
+		}
+		catch (Exception e)
+		{}
+		
+		return null;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		if (e.getSource() == changeButton)
+		{
+			JFileChooser chooser = new JFileChooser();
+			chooser.setDialogTitle("Select the Image File");
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png");
+			chooser.setAcceptAllFileFilterUsed(false);
+			chooser.setFileFilter(filter);
+			int userSelection = chooser.showOpenDialog(this);
+			
+			if (userSelection == JFileChooser.APPROVE_OPTION)
+			{
+				final File file = chooser.getSelectedFile();
+				String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
+				targetDirectoryPath = targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/"));
+				
+				Path sourcePath = file.toPath();
+				Path targetPath = new File(targetDirectoryPath, file.getName()).toPath();
+				
+				try
+				{
+					Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+				}
+				catch (IOException ex)
+				{}
+				
+				try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Natter", "root",
+						"8529499264"); PreparedStatement pstmt = conn
+								.prepareStatement("UPDATE pfp SET Profile_picture = ? WHERE Username = ?"))
+				{
+					
+					FileInputStream fileInputStream = new FileInputStream(file);
+					byte[] imageData = new byte[fileInputStream.available()];
+					fileInputStream.read(imageData);
+					pstmt.setBytes(1, imageData);
+					pstmt.setString(2, NatterMain.dbUsername);
+					pstmt.executeUpdate();
+					
+					JOptionPane.showMessageDialog(this, "Profile picture sucessfully Uploaded.");
+					fileInputStream.close();
+				}
+				catch (Exception e2)
+				{
+					JOptionPane.showMessageDialog(this, "Something went wrong.\nTry again later.");
+				}
+			}
+		}
+		
+		else if (e.getSource() == removeButton)
+		{
+			try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Natter", "root",
+					"8529499264"); PreparedStatement pstmt = conn
+							.prepareStatement("UPDATE pfp SET Profile_picture = NULL WHERE Username = ?"))
+			{
+				pstmt.setString(1, NatterMain.dbUsername);
+				pstmt.executeUpdate();
+				
+				File file = loadFilePath("01");
+				file.delete();
+				
+				JOptionPane.showMessageDialog(this, "Profile picture sucessfully removed.");
+			}
+			catch (Exception e2)
+			{
+				JOptionPane.showMessageDialog(this, "Unable to delete the profile picture.");
 			}
 		}
 	}

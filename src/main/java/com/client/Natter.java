@@ -16,7 +16,15 @@ import java.awt.event.MouseListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -25,6 +33,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -52,13 +61,13 @@ public class Natter extends JFrame implements Theme
 		addGuiComponents();
 	}
 	
-	private JPanel userComponentPanel(int i)
+	private JPanel userComponentPanel(String user)
 	{
 		JPanel chatItemPanel = new JPanel();
 		chatItemPanel.setLayout(new MigLayout("", "[][]", "[]"));
 		chatItemPanel.setBackground(transpentColor);
 		
-		Icon profileImage = new ImageIcon("profile/p" + (i) + ".png");
+		Icon profileImage = createProfilePic(user);
 		ProfilePicture avatar = new ProfilePicture();
 		avatar.setBorderSize(1);
 		avatar.setBorderSpace(1);
@@ -69,20 +78,25 @@ public class Natter extends JFrame implements Theme
 		JPanel detailsPanel = new JPanel(new MigLayout("al left, wrap, gapy 10", "[][]", "[][]"));
 		detailsPanel.setBackground(transpentColor);
 		
-		JLabel nameLabel = new JLabel("User " + i);
+		JLabel nameLabel = new JLabel(user);
 		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
 		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
 		
-		JLabel timestampLabel = new JLabel("10:15 AM");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+		
+		JLabel timestampLabel = new JLabel(LocalDateTime.now().format(formatter));
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
 		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		detailsPanel.add(timestampLabel);
 		
-		JLabel messageLabel = new JLabel("Message preview for User " + i);
-		messageLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 14f));
-		messageLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
-		detailsPanel.add(messageLabel, "pushx, growx, span2, w 220!");
+		/*
+		 * JLabel messageLabel = new JLabel("Message preview for User " + i);
+		 * messageLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 14f));
+		 * messageLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode,
+		 * "fontColor"))); detailsPanel.add(messageLabel,
+		 * "pushx, growx, span2, w 220!");
+		 */
 		
 		chatItemPanel.add(detailsPanel, "al center, w 230!");
 		
@@ -192,15 +206,23 @@ public class Natter extends JFrame implements Theme
 		RoundedButton roundedButton = new RoundedButton("+");
 		roundedButton.addActionListener(new ActionListener() {
 			
-			int i = 1;
-			
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				usersPanel.add(userComponentPanel(i), "pushx, growx, span1");
-				repaint();
-				revalidate();
-				i++;
+				String username = JOptionPane.showInputDialog(Natter.this, "Enter the Username: ", "");
+				if (!username.isBlank())
+				{
+					if (userExist(username))
+					{
+						usersPanel.add(userComponentPanel(username), "pushx, growx, span1");
+						repaint();
+						revalidate();
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(Natter.this, "User doesn't exist");
+					}
+				}
 			}
 		});
 		
@@ -215,6 +237,88 @@ public class Natter extends JFrame implements Theme
 		
 		this.add(scrollBody, BorderLayout.WEST);
 		this.add(appDesc(), BorderLayout.CENTER);
+	}
+	
+	private boolean userExist(String user)
+	{
+		try (Connection con = DriverManager.getConnection(DB.dbUrl, DB.username,
+				DB.password); PreparedStatement ps = con
+						.prepareStatement("Select * from account_info where username = ?"))
+		{
+			ps.setString(1, user);
+			ResultSet rs = ps.executeQuery();
+			
+			if (rs.next())
+				return true;
+		}
+		catch (Exception e)
+		{}
+		return false;
+	}
+	
+	private ImageIcon createProfilePic(String user)
+	{
+		String targetDirectoryPath = getClass().getResource("Natter.class").getPath();
+		targetDirectoryPath = targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
+		File imagePath = loadImageWithoutExtension(targetDirectoryPath, "profile/" + user);
+		
+		if (imagePath == null)
+		{
+			try (Connection con = DriverManager.getConnection(DB.dbUrl, DB.username,
+					DB.password); PreparedStatement ps = con
+							.prepareStatement("Select Profile_Picture, Image_extension from pfp where username = ?"))
+			{
+				ps.setString(1, user);
+				ResultSet rs = ps.executeQuery();
+				String fileExtension = null;
+				
+				if (rs.next())
+				{
+					byte[] imageData = rs.getBytes("Profile_Picture");
+					if (imageData != null)
+					{
+						fileExtension = rs.getString("Image_extension");
+						OutputStream outputStream = new FileOutputStream(
+								targetDirectoryPath + "profile/" + user + fileExtension);
+						outputStream.write(imageData);
+						outputStream.close();
+						
+						imagePath = new File(getClass().getResource("profile/" + user + fileExtension).getPath());
+						
+						if (imagePath.exists())
+							return new ImageIcon(imagePath.getPath());
+					}
+				}
+				
+			}
+			catch (Exception e)
+			{}
+			return new ImageIcon(getClass().getResource("profile/null.png"));
+		}
+		
+		else
+			return new ImageIcon(imagePath.getPath());
+	}
+	
+	private File loadImageWithoutExtension(String dir, String baseName)
+	{
+		try
+		{
+			String[] extensions = { "jpg", "jpeg", "png" };
+			
+			for (String ext : extensions)
+			{
+				File file = null;
+				file = new File(dir + baseName + "." + ext);
+				
+				if (file.exists())
+					return file;
+			}
+		}
+		catch (Exception e)
+		{}
+		
+		return null;
 	}
 	
 	class RoundedButton extends JButton

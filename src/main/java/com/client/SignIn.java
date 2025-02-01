@@ -172,7 +172,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		
 		else if (e.getSource() == submitButton)
 		{
-			Thread t1 = new Thread(() -> {
+			new Thread(() -> {
 				
 				submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				submitButton.setEnabled(false);
@@ -188,15 +188,12 @@ public class SignIn extends CustomComponent implements ActionListener
 				
 				else if (!(username.isBlank() && password.isBlank()))
 				{
-					final String URL = "jdbc:mysql://localhost:3306/Natter";
-					final String USER = "root";
-					final String PASSWORD = "8529499264";
 					
 					final String query = "SELECT * FROM account_info where Username = '" + username
 							+ "' and Password = '" + password + "'";
 					
-					try (Connection connection = DriverManager.getConnection(URL, USER,
-							PASSWORD); PreparedStatement preparedStatement = connection.prepareStatement(query))
+					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
+							DB.password); PreparedStatement preparedStatement = connection.prepareStatement(query))
 					{
 						ResultSet resultSet = preparedStatement.executeQuery();
 						
@@ -220,9 +217,7 @@ public class SignIn extends CustomComponent implements ActionListener
 						repaint();
 					}
 				}
-			});
-			
-			t1.start();
+			}).start();
 		}
 	}
 }

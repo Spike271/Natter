@@ -53,7 +53,6 @@ public class NatterMain implements Theme
 					
 					natter = new Natter();
 					// natter.setVisible(true);
-					
 				}
 			});
 		}

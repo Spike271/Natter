@@ -284,7 +284,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	{
 		try
 		{
-			String[] extensions = { "jpg", "jpeg", "png" }; // List of possible extensions
+			String[] extensions = { "jpg", "jpeg", "png" };
 			BufferedImage image = null;
 			
 			for (String ext : extensions)
@@ -309,7 +309,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	{
 		try
 		{
-			String[] extensions = { "jpg", "jpeg", "png" }; // List of possible extensions
+			String[] extensions = { "jpg", "jpeg", "png" };
 			
 			for (String ext : extensions)
 			{
@@ -353,16 +353,18 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				catch (IOException ex)
 				{}
 				
-				try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Natter", "root",
-						"8529499264"); PreparedStatement pstmt = conn
-								.prepareStatement("UPDATE pfp SET Profile_picture = ? WHERE Username = ?"))
+				try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username,
+						DB.password); PreparedStatement pstmt = conn.prepareStatement(
+								"UPDATE pfp SET Profile_picture = ?, Image_extension = ? WHERE Username = ?"))
 				{
 					
 					FileInputStream fileInputStream = new FileInputStream(file);
+					String fileExtension = getFileExtension(file.getName());
 					byte[] imageData = new byte[fileInputStream.available()];
 					fileInputStream.read(imageData);
 					pstmt.setBytes(1, imageData);
-					pstmt.setString(2, NatterMain.dbUsername);
+					pstmt.setString(2, fileExtension);
+					pstmt.setString(3, NatterMain.dbUsername);
 					pstmt.executeUpdate();
 					
 					JOptionPane.showMessageDialog(this, "Profile picture sucessfully Uploaded.");
@@ -377,9 +379,9 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		else if (e.getSource() == removeButton)
 		{
-			try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Natter", "root",
-					"8529499264"); PreparedStatement pstmt = conn
-							.prepareStatement("UPDATE pfp SET Profile_picture = NULL WHERE Username = ?"))
+			try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username,
+					DB.password); PreparedStatement pstmt = conn.prepareStatement(
+							"UPDATE pfp SET Profile_picture = NULL, Image_extension = NULL WHERE Username = ?"))
 			{
 				pstmt.setString(1, NatterMain.dbUsername);
 				pstmt.executeUpdate();
@@ -394,5 +396,14 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				JOptionPane.showMessageDialog(this, "Unable to delete the profile picture.");
 			}
 		}
+	}
+	
+	private String getFileExtension(String fileName)
+	{
+		int lastDotIndex = fileName.lastIndexOf('.');
+		if (lastDotIndex > 0)
+			return fileName.substring(lastDotIndex);
+		
+		return "";
 	}
 }

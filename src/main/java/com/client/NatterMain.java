@@ -17,11 +17,14 @@ public class NatterMain implements Theme
 	public static SignUp signUp;
 	public static Natter natter;
 	public static SettingPanel settingPanel;
-	public static String dbUsername;
 	
 	public static void main(String[] args)
 	{
-		
+		init();
+	}
+	
+	private static void init()
+	{
 		SwingUtilities.invokeLater(new Runnable() {
 			
 			@Override
@@ -60,6 +63,5 @@ public class NatterMain implements Theme
 		{
 			e.printStackTrace();
 		}
-		
 	}
 }

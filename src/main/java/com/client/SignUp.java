@@ -7,18 +7,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
 
 public class SignUp extends CustomComponent implements ActionListener
 {
@@ -109,12 +113,14 @@ public class SignUp extends CustomComponent implements ActionListener
 			@Override
 			public void mouseEntered(MouseEvent e)
 			{
+				clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
 				clickableLabel.setText("<html><U>Sign in</U></html>");
 			}
 			
 			@Override
 			public void mouseExited(MouseEvent e)
 			{
+				clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
 				clickableLabel.setText("<html>Sign in</html>");
 			}
 		});
@@ -132,6 +138,7 @@ public class SignUp extends CustomComponent implements ActionListener
 		FNbox.setBounds(100, 160, 200, 40);
 		FNbox.setSelectionColor(Color.BLUE);
 		FNbox.setSelectedTextColor(Color.WHITE);
+		makeTextFieldAcceptCharacterOnly(FNbox);
 		contentPane.add(FNbox);
 		
 		JLabel label2 = new JLabel("Last name:");
@@ -144,6 +151,7 @@ public class SignUp extends CustomComponent implements ActionListener
 		LNbox.setBounds(305, 160, 200, 40);
 		LNbox.setSelectionColor(Color.BLUE);
 		LNbox.setSelectedTextColor(Color.WHITE);
+		makeTextFieldAcceptCharacterOnly(LNbox);
 		contentPane.add(LNbox);
 		
 		JLabel label3 = new JLabel("Username:");
@@ -157,6 +165,7 @@ public class SignUp extends CustomComponent implements ActionListener
 		Userbox.setBounds(100, 240, 405, 40);
 		Userbox.setSelectionColor(Color.BLUE);
 		Userbox.setSelectedTextColor(Color.WHITE);
+		firstCharacterOfTheTextFieldShouldBeALetter(Userbox);
 		contentPane.add(Userbox);
 		
 		JLabel label4 = new JLabel("Password:");
@@ -205,62 +214,76 @@ public class SignUp extends CustomComponent implements ActionListener
 		}
 		else if (e.getSource() == submitButton)
 		{
-			new Thread(() -> {
-				
-				submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				submitButton.setEnabled(false);
-				
-				String firstName = FNbox.getText().trim();
-				String lastName = LNbox.getText().trim();
-				String userName = Userbox.getText().trim();
-				String password = String.valueOf(Passbox.getPassword()).trim();
-				String confirmPassword = String.valueOf(CFbox.getPassword()).trim();
-				
-				if (firstName.equalsIgnoreCase("First name") || lastName.equalsIgnoreCase("Last name")
-						|| userName.equalsIgnoreCase("Username") || password.equalsIgnoreCase("Password")
-						|| confirmPassword.equalsIgnoreCase("Confirm Password"))
-				{
-					JOptionPane.showMessageDialog(SignUp.this, "Please fill all the required fields.");
-				}
-				
-				else if (!password.equals(confirmPassword))
-				{
-					JOptionPane.showMessageDialog(SignUp.this, "Confirm Password doesn't match with password.");
-				}
-				
-				else if (!(firstName.isBlank() && lastName.isBlank() && userName.isBlank() && password.isBlank()
-						&& confirmPassword.isBlank()))
-				{
-					final String Query = "INSERT INTO account_info VALUES (NULL, ?, ?, ?, ?, ?)";
+			String password = String.valueOf(Passbox.getPassword()).trim();
+			String userName = Userbox.getText().trim();
+			
+			if (password.length() < 8)
+				JOptionPane.showMessageDialog(SignUp.this, "Password should be atleast 8 characters long.");
+			else if (userName.length() < 6)
+				JOptionPane.showMessageDialog(SignUp.this, "Username should be atleast 6 characters long.");
+			else
+			{
+				new Thread(() -> {
 					
-					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
-							DB.password); PreparedStatement preparedStatement = connection.prepareStatement(Query))
+					submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					submitButton.setEnabled(false);
+					
+					String firstName = FNbox.getText().trim();
+					String lastName = LNbox.getText().trim();
+					String confirmPassword = String.valueOf(CFbox.getPassword()).trim();
+					
+					if (firstName.equalsIgnoreCase("First name") || lastName.equalsIgnoreCase("Last name")
+							|| userName.equalsIgnoreCase("Username") || password.equalsIgnoreCase("Password")
+							|| confirmPassword.equalsIgnoreCase("Confirm Password"))
 					{
-						
-						preparedStatement.setString(1, firstName);
-						preparedStatement.setString(2, lastName);
-						preparedStatement.setString(3, userName);
-						preparedStatement.setString(4, password);
-						preparedStatement.setString(5, getMacAddress());
-						
-						preparedStatement.executeUpdate();
-						
-						JOptionPane.showMessageDialog(this, "Your username : " + userName + "\nPassword: " + password);
-						
-						NatterMain.natter.setVisible(true);
-						NatterMain.dbUsername = userName;
-						this.setVisible(false);
-						
+						JOptionPane.showMessageDialog(SignUp.this, "Please fill all the required fields.");
 					}
-					catch (SQLException e2)
-					{}
-					finally
+					
+					else if (!password.equals(confirmPassword))
 					{
-						submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-						submitButton.setEnabled(true);
+						JOptionPane.showMessageDialog(SignUp.this, "Confirm Password doesn't match with password.");
 					}
-				}
-			}).start();
+					
+					else if (!(firstName.isBlank() && lastName.isBlank() && userName.isBlank() && password.isBlank()
+							&& confirmPassword.isBlank()))
+					{
+						final String Query = "INSERT INTO account_info VALUES (NULL, ?, ?, ?, ?, ?)";
+						
+						try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
+								DB.password); PreparedStatement preparedStatement = connection.prepareStatement(Query))
+						{
+							
+							preparedStatement.setString(1, firstName);
+							preparedStatement.setString(2, lastName);
+							preparedStatement.setString(3, userName);
+							preparedStatement.setString(4, password);
+							preparedStatement.setString(5, getMacAddress());
+							
+							preparedStatement.executeUpdate();
+							
+							JOptionPane.showMessageDialog(this,
+									"Your username : " + userName + "\nPassword: " + password);
+							
+							String targetDirectoryPath = getClass().getResource("SignUp.class").getPath();
+							targetDirectoryPath = targetDirectoryPath.substring(0,
+									targetDirectoryPath.lastIndexOf("/") + 1);
+							FileWriter writer = new FileWriter(targetDirectoryPath + "Username.txt");
+							writer.write(userName);
+							writer.close();
+							
+							NatterMain.natter.setVisible(true);
+							this.setVisible(false);
+						}
+						catch (Exception e2)
+						{}
+						finally
+						{
+							submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+							submitButton.setEnabled(true);
+						}
+					}
+				}).start();
+			}
 		}
 	}
 	
@@ -277,23 +300,86 @@ public class SignUp extends CustomComponent implements ActionListener
 			{
 				StringBuilder sb = new StringBuilder();
 				for (byte b : macAddress)
-				{
 					sb.append(String.format("%02X-", b));
-				}
 				
 				return (sb.toString().substring(0, sb.length() - 1));
 			}
 			
 			else
-			{
 				System.out.println("No MAC address found for the network interface.");
-			}
-			
 		}
 		catch (Exception e)
 		{
 			System.err.println("Error retrieving network interfaces: " + e.getMessage());
 		}
 		return null;
+	}
+	
+	private void makeTextFieldAcceptCharacterOnly(RoundedJTextField textField)
+	{
+		PlainDocument doc = (PlainDocument) textField.getDocument();
+		
+		// Set a DocumentFilter to restrict input to a-z and A-Z
+		doc.setDocumentFilter(new DocumentFilter() {
+			@Override
+			public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
+					throws BadLocationException
+			{
+				StringBuilder sb = new StringBuilder();
+				for (char c : text.toCharArray())
+				{
+					if (Character.isLetter(c) || Character.isWhitespace(c))
+						sb.append(c);
+				}
+				super.insertString(fb, offset, sb.toString(), attr);
+			}
+			
+			@Override
+			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+					throws BadLocationException
+			{
+				StringBuilder sb = new StringBuilder();
+				for (char c : text.toCharArray())
+				{
+					if (Character.isLetter(c) || Character.isWhitespace(c))
+						sb.append(c);
+				}
+				super.replace(fb, offset, length, sb.toString(), attrs);
+			}
+		});
+	}
+	
+	private void firstCharacterOfTheTextFieldShouldBeALetter(RoundedJTextField textField)
+	{
+		PlainDocument doc = (PlainDocument) textField.getDocument();
+		
+		doc.setDocumentFilter(new DocumentFilter() {
+			@Override
+			public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
+					throws BadLocationException
+			{
+				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), text, offset);
+				super.insertString(fb, offset, newText, attr);
+			}
+			
+			@Override
+			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+					throws BadLocationException
+			{
+				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), text, offset);
+				super.replace(fb, offset, length, newText, attrs);
+			}
+			
+			private String validateInput(String currentText, String newText, int offset)
+			{
+				if (offset == 0 && !newText.isEmpty())
+				{
+					char firstChar = newText.charAt(0);
+					if (!Character.isLetter(firstChar))
+						return "";
+				}
+				return newText;
+			}
+		});
 	}
 }

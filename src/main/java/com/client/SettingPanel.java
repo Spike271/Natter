@@ -8,8 +8,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,6 +48,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	private JPanel placeHolderPanel;
 	private JPanel menuPanel;
 	private JButton changeButton, removeButton;
+	private String USERNAME;
 	private Thread t1;
 	
 	public SettingPanel()
@@ -68,6 +71,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	
 	private void init()
 	{
+		USERNAME = getUsername();
 		t1 = new Thread(() -> profilePanel = createProfilePanel());
 		t1.start();
 		
@@ -240,7 +244,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 			profilePanel.add(profilePic, "h 100, w 100, center");
 		}
 		
-		JLabel username = new JLabel(NatterMain.dbUsername);
+		JLabel username = new JLabel(USERNAME);
 		username.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
 		profilePanel.add(username, "center");
 		
@@ -325,6 +329,20 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		return null;
 	}
 	
+	private String getUsername()
+	{
+		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
+		targetDirectoryPath = targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
+		
+		try (BufferedReader reader = new BufferedReader(new FileReader(targetDirectoryPath + "Username.txt")))
+		{
+			return reader.readLine();
+		}
+		catch (Exception e)
+		{}
+		return null;
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -364,7 +382,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 					fileInputStream.read(imageData);
 					pstmt.setBytes(1, imageData);
 					pstmt.setString(2, fileExtension);
-					pstmt.setString(3, NatterMain.dbUsername);
+					pstmt.setString(3, USERNAME);
 					pstmt.executeUpdate();
 					
 					JOptionPane.showMessageDialog(this, "Profile picture sucessfully Uploaded.");
@@ -383,7 +401,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 					DB.password); PreparedStatement pstmt = conn.prepareStatement(
 							"UPDATE pfp SET Profile_picture = NULL, Image_extension = NULL WHERE Username = ?"))
 			{
-				pstmt.setString(1, NatterMain.dbUsername);
+				pstmt.setString(1, USERNAME);
 				pstmt.executeUpdate();
 				
 				File file = loadFilePath("01");

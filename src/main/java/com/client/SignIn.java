@@ -7,11 +7,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -111,12 +111,14 @@ public class SignIn extends CustomComponent implements ActionListener
 			@Override
 			public void mouseEntered(MouseEvent e)
 			{
+				clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
 				clickableLabel.setText("<html><U>Sign Up</U></html>");
 			}
 			
 			@Override
 			public void mouseExited(MouseEvent e)
 			{
+				clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
 				clickableLabel.setText("<html>Sign Up</html>");
 			}
 		});
@@ -199,16 +201,22 @@ public class SignIn extends CustomComponent implements ActionListener
 						
 						if (resultSet.next())
 						{
+							String targetDirectoryPath = getClass().getResource("SignIn.class").getPath();
+							targetDirectoryPath = targetDirectoryPath.substring(0,
+									targetDirectoryPath.lastIndexOf("/") + 1);
+							FileWriter writer = new FileWriter(targetDirectoryPath + "Username.txt");
+							writer.write(username);
+							writer.close();
+							
 							NatterMain.natter.setVisible(true);
 							this.setVisible(false);
-							NatterMain.dbUsername = username;
 						}
 						else
 						{
 							JOptionPane.showMessageDialog(this, "Wrong username or password.");
 						}
 					}
-					catch (SQLException e1)
+					catch (Exception e1)
 					{}
 					finally
 					{

@@ -12,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -50,6 +49,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	private JButton changeButton, removeButton;
 	private String USERNAME;
 	private Thread t1;
+	private JLabel profilePic;
 	
 	public SettingPanel()
 	{
@@ -211,38 +211,20 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		profilePanel.putClientProperty(FlatClientProperties.STYLE,
 				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
 		
+		BufferedImage originalImage = null;
+		
 		try
 		{
-			BufferedImage originalImage = loadImageWithoutExtension("01");
-			// Desired dimensions
-			int maxWidth = 400;
-			int maxHeight = 350;
-			
-			// Get original dimensions
-			int originalWidth = originalImage.getWidth();
-			int originalHeight = originalImage.getHeight();
-			
-			// Calculate the scaling factor
-			double widthRatio = (double) maxWidth / originalWidth;
-			double heightRatio = (double) maxHeight / originalHeight;
-			double scaleFactor = Math.min(widthRatio, heightRatio);
-			
-			// Calculate new dimensions
-			int newWidth = (int) (originalWidth * scaleFactor);
-			int newHeight = (int) (originalHeight * scaleFactor);
-			
-			// Scale the image
-			Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-			JLabel profilePic = new JLabel(new ImageIcon(scaledImage));
-			
-			profilePanel.add(profilePic, "center");
+			originalImage = loadImageWithoutExtension(USERNAME);
 		}
 		catch (Exception e)
-		{
-			JLabel profilePic = new JLabel("*No Image*");
-			profilePic.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
-			profilePanel.add(profilePic, "h 100, w 100, center");
-		}
+		{}
+		
+		if (originalImage == null)
+			originalImage = loadImageWithoutExtension("null");
+		
+		profilePic = new JLabel(new ImageIcon(getScaledImage(originalImage)));
+		profilePanel.add(profilePic, "center");
 		
 		JLabel username = new JLabel(USERNAME);
 		username.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
@@ -270,7 +252,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				EventQueue.invokeLater(() -> {
 					FlatMacLightLaf.setup();
 					FlatLaf.updateUI();
-					ResourceHandler.changeSettings("false");
+					ResourceHandler.changeSettings("Global.isDark", "false");
 				});
 			}
 			else
@@ -278,7 +260,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				EventQueue.invokeLater(() -> {
 					FlatMacDarkLaf.setup();
 					FlatLaf.updateUI();
-					ResourceHandler.changeSettings("true");
+					ResourceHandler.changeSettings("Global.isDark", "true");
 				});
 			}
 		}
@@ -294,7 +276,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 			for (String ext : extensions)
 			{
 				File file = null;
-				file = new File(getClass().getResource(baseName + "." + ext).getPath());
+				String path = getPathString() + "profile/";
+				file = new File(path + baseName + "." + ext);
 				if (file.exists())
 				{
 					image = ImageIO.read(file);
@@ -305,7 +288,6 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		}
 		catch (Exception e)
 		{}
-		
 		return null;
 	}
 	
@@ -318,23 +300,20 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 			for (String ext : extensions)
 			{
 				File file = null;
-				file = new File(getClass().getResource(fileName + "." + ext).getPath());
+				String path = getPathString() + "profile/";
+				file = new File(path + fileName + "." + ext);
 				if (file.exists())
 					return file;
 			}
 		}
 		catch (Exception e)
 		{}
-		
 		return null;
 	}
 	
 	private String getUsername()
 	{
-		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
-		targetDirectoryPath = targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
-		
-		try (BufferedReader reader = new BufferedReader(new FileReader(targetDirectoryPath + "Username.txt")))
+		try (BufferedReader reader = new BufferedReader(new FileReader(getPathString() + "Username.txt")))
 		{
 			return reader.readLine();
 		}
@@ -358,17 +337,17 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 			if (userSelection == JFileChooser.APPROVE_OPTION)
 			{
 				final File file = chooser.getSelectedFile();
-				String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
-				targetDirectoryPath = targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/"));
+				String targetDirectoryPath = getPathString() + "profile/";
 				
 				Path sourcePath = file.toPath();
-				Path targetPath = new File(targetDirectoryPath, file.getName()).toPath();
+				Path targetPath = new File(targetDirectoryPath, USERNAME + getFileExtension(file.getName())).toPath();
 				
 				try
 				{
+					loadFilePath(USERNAME).delete();
 					Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
 				}
-				catch (IOException ex)
+				catch (Exception ex)
 				{}
 				
 				try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username,
@@ -387,6 +366,9 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 					
 					JOptionPane.showMessageDialog(this, "Profile picture sucessfully Uploaded.");
 					fileInputStream.close();
+					
+					profilePic.setIcon(new ImageIcon(getScaledImage(loadImageWithoutExtension(USERNAME))));
+					repaint();
 				}
 				catch (Exception e2)
 				{
@@ -404,10 +386,12 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				pstmt.setString(1, USERNAME);
 				pstmt.executeUpdate();
 				
-				File file = loadFilePath("01");
+				File file = loadFilePath(USERNAME);
 				file.delete();
 				
 				JOptionPane.showMessageDialog(this, "Profile picture sucessfully removed.");
+				profilePic.setIcon(new ImageIcon(getScaledImage(loadImageWithoutExtension("null"))));
+				repaint();
 			}
 			catch (Exception e2)
 			{
@@ -423,5 +407,35 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 			return fileName.substring(lastDotIndex);
 		
 		return "";
+	}
+	
+	private String getPathString()
+	{
+		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
+		targetDirectoryPath = targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
+		return targetDirectoryPath;
+	}
+	
+	private Image getScaledImage(BufferedImage originalImage)
+	{
+		// Desired dimensions
+		int maxWidth = 400;
+		int maxHeight = 350;
+		
+		// Get original dimensions
+		int originalWidth = originalImage.getWidth();
+		int originalHeight = originalImage.getHeight();
+		
+		// Calculate the scaling factor
+		double widthRatio = (double) maxWidth / originalWidth;
+		double heightRatio = (double) maxHeight / originalHeight;
+		double scaleFactor = Math.min(widthRatio, heightRatio);
+		
+		// Calculate new dimensions
+		int newWidth = (int) (originalWidth * scaleFactor);
+		int newHeight = (int) (originalHeight * scaleFactor);
+		
+		// Scale the image
+		return originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
 	}
 }

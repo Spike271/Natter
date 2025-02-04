@@ -248,8 +248,7 @@ public class Natter extends JFrame implements Theme
 			ps.setString(1, user);
 			ResultSet rs = ps.executeQuery();
 			
-			if (rs.next())
-				return true;
+			return rs.next();
 		}
 		catch (Exception e)
 		{}

@@ -35,7 +35,7 @@ public class ResourceHandler
 		return null;
 	}
 	
-	public static void changeSettings(String key)
+	public static void changeSettings(String property, String key)
 	{
 		try
 		{
@@ -45,7 +45,7 @@ public class ResourceHandler
 			String path = ResourceHandler.class.getResource(settingFile).getFile();
 			fileHandler.load(new File(path));
 			
-			iniConfig.setProperty("Global.isDark", key);
+			iniConfig.setProperty(property, key);
 			iniConfig.write(new FileWriter(path));
 		}
 		catch (ConfigurationException | IOException e)
@@ -56,8 +56,12 @@ public class ResourceHandler
 	
 	public static boolean isDarkModeOn()
 	{
-		String check = getSettings("Global", "isDark");
-		return check.equals("true") ? true : false;
+		return getSettings("Global", "isDark").equals("true") ? true : false;
+	}
+	
+	public static boolean alreadyAUser()
+	{
+		return getSettings("Global", "alreadyAUser").equals("true") ? true : false;
 	}
 	
 	public static ImageIcon loadImageIcon(String resourcePath)

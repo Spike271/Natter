@@ -66,7 +66,7 @@ public class SignIn extends CustomComponent implements ActionListener
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				ResourceHandler.changeSettings(themeButton.isSelected() ? "true" : "false");
+				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
 				dispose();
 				repaint();
 			}
@@ -176,20 +176,19 @@ public class SignIn extends CustomComponent implements ActionListener
 		{
 			new Thread(() -> {
 				
-				submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				submitButton.setEnabled(false);
-				repaint();
-				
 				String username = textbox1.getText().trim();
 				String password = String.valueOf(textbox2.getPassword()).trim();
 				
-				if (username.equalsIgnoreCase("Username") || password.equalsIgnoreCase("Password"))
+				if (username.equals("Username") && password.equals("Password"))
 				{
 					JOptionPane.showMessageDialog(SignIn.this, "Please fill all the required fields.");
 				}
 				
 				else if (!(username.isBlank() && password.isBlank()))
 				{
+					submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					submitButton.setEnabled(false);
+					repaint();
 					
 					final String query = "SELECT * FROM account_info where Username = '" + username
 							+ "' and Password = '" + password + "'";
@@ -207,6 +206,8 @@ public class SignIn extends CustomComponent implements ActionListener
 							FileWriter writer = new FileWriter(targetDirectoryPath + "Username.txt");
 							writer.write(username);
 							writer.close();
+							
+							ResourceHandler.changeSettings("Global.alreadyAUser", "true");
 							
 							NatterMain.natter.setVisible(true);
 							this.setVisible(false);

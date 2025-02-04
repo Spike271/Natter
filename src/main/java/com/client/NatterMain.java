@@ -1,7 +1,7 @@
 package com.client;
 
-import java.awt.EventQueue;
 import java.awt.Font;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -18,9 +18,18 @@ public class NatterMain implements Theme
 	public static Natter natter;
 	public static SettingPanel settingPanel;
 	
-	public static void main(String[] args)
+	public static void main(String[] args) throws InvocationTargetException, InterruptedException
 	{
-		init();
+		if (ResourceHandler.alreadyAUser())
+		{
+			initMainUi();
+			natter.setVisible(true);
+		}
+		else
+		{
+			init();
+			initMainUi();
+		}
 	}
 	
 	private static void init()
@@ -37,31 +46,26 @@ public class NatterMain implements Theme
 				signUp.setVisible(false);
 			}
 		});
-		
-		try
-		{
-			EventQueue.invokeAndWait(new Runnable() {
+	}
+	
+	private static void initMainUi() throws InvocationTargetException, InterruptedException
+	{
+		SwingUtilities.invokeAndWait(new Runnable() {
+			
+			@Override
+			public void run()
+			{
+				FlatLaf.registerCustomDefaultsSource("res.com.themes");
+				FlatRobotoFont.install();
+				UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
 				
-				@Override
-				public void run()
-				{
-					FlatLaf.registerCustomDefaultsSource("res.com.themes");
-					FlatRobotoFont.install();
-					UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
-					
-					if (toggle)
-						FlatMacDarkLaf.setup();
-					else
-						FlatMacLightLaf.setup();
-					
-					natter = new Natter();
-					// natter.setVisible(true);
-				}
-			});
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+				if (toggle)
+					FlatMacDarkLaf.setup();
+				else
+					FlatMacLightLaf.setup();
+				
+				natter = new Natter();
+			}
+		});
 	}
 }

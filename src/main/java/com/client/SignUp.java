@@ -13,6 +13,7 @@ import java.net.NetworkInterface;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -71,7 +72,7 @@ public class SignUp extends CustomComponent implements ActionListener
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				ResourceHandler.changeSettings(themeButton.isSelected() ? "true" : "false");
+				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
 				dispose();
 				repaint();
 			}
@@ -217,16 +218,13 @@ public class SignUp extends CustomComponent implements ActionListener
 			String password = String.valueOf(Passbox.getPassword()).trim();
 			String userName = Userbox.getText().trim();
 			
-			if (password.length() < 8)
-				JOptionPane.showMessageDialog(SignUp.this, "Password should be atleast 8 characters long.");
+			if (password.length() < 10)
+				JOptionPane.showMessageDialog(SignUp.this, "Password should be atleast 10 characters long.");
 			else if (userName.length() < 6)
 				JOptionPane.showMessageDialog(SignUp.this, "Username should be atleast 6 characters long.");
 			else
 			{
 				new Thread(() -> {
-					
-					submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					submitButton.setEnabled(false);
 					
 					String firstName = FNbox.getText().trim();
 					String lastName = LNbox.getText().trim();
@@ -244,9 +242,18 @@ public class SignUp extends CustomComponent implements ActionListener
 						JOptionPane.showMessageDialog(SignUp.this, "Confirm Password doesn't match with password.");
 					}
 					
+					else if (checkIfUserAlreadyExist(userName))
+					{
+						JOptionPane.showMessageDialog(SignUp.this, "This username already exist.\nTry something else.");
+					}
+					
 					else if (!(firstName.isBlank() && lastName.isBlank() && userName.isBlank() && password.isBlank()
 							&& confirmPassword.isBlank()))
 					{
+						submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+						submitButton.setEnabled(false);
+						repaint();
+						
 						final String Query = "INSERT INTO account_info VALUES (NULL, ?, ?, ?, ?, ?)";
 						
 						try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
@@ -271,20 +278,42 @@ public class SignUp extends CustomComponent implements ActionListener
 							writer.write(userName);
 							writer.close();
 							
+							ResourceHandler.changeSettings("Global.alreadyAUser", "true");
+							
 							NatterMain.natter.setVisible(true);
 							this.setVisible(false);
 						}
 						catch (Exception e2)
-						{}
+						{
+							JOptionPane.showMessageDialog(SignUp.this, "Your machine is already registered");
+						}
 						finally
 						{
 							submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 							submitButton.setEnabled(true);
+							repaint();
 						}
 					}
 				}).start();
 			}
 		}
+	}
+	
+	private boolean checkIfUserAlreadyExist(String username)
+	{
+		final String query = "Select * from account_info where Username = ?";
+		
+		try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
+				DB.password); PreparedStatement preparedStatement = connection.prepareStatement(query))
+		{
+			preparedStatement.setString(1, username);
+			ResultSet rs = preparedStatement.executeQuery();
+			
+			return rs.next();
+		}
+		catch (Exception e)
+		{}
+		return false;
 	}
 	
 	private String getMacAddress()

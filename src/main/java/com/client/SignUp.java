@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.FileWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.sql.Connection;
@@ -32,8 +31,8 @@ public class SignUp extends CustomComponent implements ActionListener
 	private Color labelColor = toggle ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
 	private RoundedJButton submitButton;
-	RoundedJTextField FNbox, LNbox, Userbox;
-	RoundedJPasswordField Passbox, CFbox;
+	private RoundedJTextField FNbox, LNbox, Userbox;
+	private RoundedJPasswordField Passbox, CFbox;
 	
 	public SignUp()
 	{
@@ -213,6 +212,7 @@ public class SignUp extends CustomComponent implements ActionListener
 			this.setVisible(false);
 			NatterMain.signIn.setVisible(true);
 		}
+		
 		else if (e.getSource() == submitButton)
 		{
 			String password = String.valueOf(Passbox.getPassword()).trim();
@@ -220,8 +220,10 @@ public class SignUp extends CustomComponent implements ActionListener
 			
 			if (password.length() < 10)
 				JOptionPane.showMessageDialog(SignUp.this, "Password should be atleast 10 characters long.");
+			
 			else if (userName.length() < 6)
 				JOptionPane.showMessageDialog(SignUp.this, "Username should be atleast 6 characters long.");
+			
 			else
 			{
 				new Thread(() -> {
@@ -274,11 +276,9 @@ public class SignUp extends CustomComponent implements ActionListener
 							String targetDirectoryPath = getClass().getResource("SignUp.class").getPath();
 							targetDirectoryPath = targetDirectoryPath.substring(0,
 									targetDirectoryPath.lastIndexOf("/") + 1);
-							FileWriter writer = new FileWriter(targetDirectoryPath + "Username.txt");
-							writer.write(userName);
-							writer.close();
 							
-							ResourceHandler.changeSettings("Global.alreadyAUser", "true");
+							ResourceHandler.writePropertiesFile("username", userName);
+							ResourceHandler.writePropertiesFile("alreadyAUser", "true");
 							
 							NatterMain.natter.setVisible(true);
 							this.setVisible(false);

@@ -95,8 +95,8 @@ public abstract class CustomComponent extends JFrame implements Theme
 		BufferedImage originalImage = null;
 		try
 		{
-			File tempFile = new File(getClass().getResource(ResourceHandler.getSettings(mode, "iconPath")).getPath());
-			originalImage = ImageIO.read(tempFile);
+			originalImage = ImageIO
+					.read(new File(getClass().getResource(ResourceHandler.getSettings(mode, "iconPath")).getPath()));
 		}
 		catch (IOException e)
 		{

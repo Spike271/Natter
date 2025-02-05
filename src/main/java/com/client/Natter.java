@@ -122,8 +122,8 @@ public class Natter extends JFrame implements Theme
 		{
 			BufferedImage originalImage = ImageIO
 					.read(new File(getClass().getResource(ResourceHandler.getSettings(mode, "iconPath")).getPath()));
-			Image scaleddownImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-			JLabel img = new JLabel(new ImageIcon(scaleddownImage));
+			Image scaledDownImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+			JLabel img = new JLabel(new ImageIcon(scaledDownImage));
 			panel.add(img, "center, wrap");
 		}
 		catch (IOException e)
@@ -259,6 +259,7 @@ public class Natter extends JFrame implements Theme
 	{
 		String targetDirectoryPath = getClass().getResource("Natter.class").getPath();
 		targetDirectoryPath = targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
+		
 		File imagePath = loadImageWithoutExtension(targetDirectoryPath, "profile/" + user);
 		
 		if (imagePath == null)

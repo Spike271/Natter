@@ -3,8 +3,11 @@ package com.client;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -15,7 +18,8 @@ import org.apache.commons.configuration2.io.FileHandler;
 
 public class ResourceHandler
 {
-	private static final String settingFile = "../../res/Settings/config.ini";
+	private static final String settingFile = "../../res/Settings/settings.ini";
+	private static final String propertieFile = "../../res/Settings/config.properties";
 	
 	public static String getSettings(String section, String key)
 	{
@@ -35,7 +39,7 @@ public class ResourceHandler
 		return null;
 	}
 	
-	public static void changeSettings(String property, String key)
+	public static void changeSettings(String property, String value)
 	{
 		try
 		{
@@ -45,12 +49,48 @@ public class ResourceHandler
 			String path = ResourceHandler.class.getResource(settingFile).getFile();
 			fileHandler.load(new File(path));
 			
-			iniConfig.setProperty(property, key);
+			iniConfig.setProperty(property, value);
 			iniConfig.write(new FileWriter(path));
 		}
 		catch (ConfigurationException | IOException e)
 		{
 			System.err.println("cannot find the config file\ncalled from changeSettings");
+		}
+	}
+	
+	public static String readPropertiesFile(String key)
+	{
+		Properties properties = new Properties();
+		
+		String filePath = ResourceHandler.class.getResource(propertieFile).getFile();
+		
+		try (FileInputStream input = new FileInputStream(filePath))
+		{
+			properties.load(input);
+			
+			return properties.getProperty(key);
+		}
+		catch (IOException ex)
+		{
+			System.err.println("Can't read the propertie file");
+		}
+		return null;
+	}
+	
+	public static void writePropertiesFile(String key, String value)
+	{
+		Properties properties = new Properties();
+		properties.setProperty(key, value);
+		
+		String filePath = ResourceHandler.class.getResource(propertieFile).getFile();
+		
+		try (FileOutputStream output = new FileOutputStream(filePath))
+		{
+			properties.store(output, "Configuration File");
+		}
+		catch (IOException ex)
+		{
+			System.err.println("Can't write in the propertie file");
 		}
 	}
 	
@@ -61,7 +101,7 @@ public class ResourceHandler
 	
 	public static boolean alreadyAUser()
 	{
-		return getSettings("Global", "alreadyAUser").equals("true") ? true : false;
+		return readPropertiesFile("alreadyAUser").equals("true") ? true : false;
 	}
 	
 	public static ImageIcon loadImageIcon(String resourcePath)

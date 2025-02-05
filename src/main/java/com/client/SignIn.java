@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -203,11 +202,9 @@ public class SignIn extends CustomComponent implements ActionListener
 							String targetDirectoryPath = getClass().getResource("SignIn.class").getPath();
 							targetDirectoryPath = targetDirectoryPath.substring(0,
 									targetDirectoryPath.lastIndexOf("/") + 1);
-							FileWriter writer = new FileWriter(targetDirectoryPath + "Username.txt");
-							writer.write(username);
-							writer.close();
 							
-							ResourceHandler.changeSettings("Global.alreadyAUser", "true");
+							ResourceHandler.writePropertiesFile("username", username);
+							ResourceHandler.writePropertiesFile("alreadyAUser", "true");
 							
 							NatterMain.natter.setVisible(true);
 							this.setVisible(false);

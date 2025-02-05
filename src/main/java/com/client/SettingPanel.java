@@ -8,10 +8,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -71,7 +69,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	
 	private void init()
 	{
-		USERNAME = getUsername();
+		USERNAME = ResourceHandler.readPropertiesFile("username");
 		t1 = new Thread(() -> profilePanel = createProfilePanel());
 		t1.start();
 		
@@ -305,17 +303,6 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				if (file.exists())
 					return file;
 			}
-		}
-		catch (Exception e)
-		{}
-		return null;
-	}
-	
-	private String getUsername()
-	{
-		try (BufferedReader reader = new BufferedReader(new FileReader(getPathString() + "Username.txt")))
-		{
-			return reader.readLine();
 		}
 		catch (Exception e)
 		{}

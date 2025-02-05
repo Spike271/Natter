@@ -80,9 +80,18 @@ public class ResourceHandler
 	public static void writePropertiesFile(String key, String value)
 	{
 		Properties properties = new Properties();
-		properties.setProperty(key, value);
-		
 		String filePath = ResourceHandler.class.getResource(propertieFile).getFile();
+		
+		try (FileInputStream input = new FileInputStream(filePath))
+		{
+			properties.load(input);
+		}
+		catch (IOException ex)
+		{
+			System.err.println("File not found or unable to read. Creating a new file.");
+		}
+		
+		properties.setProperty(key, value);
 		
 		try (FileOutputStream output = new FileOutputStream(filePath))
 		{
@@ -130,7 +139,7 @@ public class ResourceHandler
 		}
 		catch (Exception e)
 		{
-			System.out.println("could not find the font\ncalled from getFont");
+			System.out.println("could not find the font\nCalled from getFont");
 		}
 		return font;
 	}

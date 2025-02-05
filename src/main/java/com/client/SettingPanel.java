@@ -315,6 +315,11 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		if (e.getSource() == changeButton)
 		{
 			JFileChooser chooser = new JFileChooser();
+			
+			String lastDirectory = ResourceHandler.readPropertiesFile("last_directory");
+			if (lastDirectory != null && !lastDirectory.isBlank())
+				chooser.setCurrentDirectory(new File(lastDirectory));
+			
 			chooser.setDialogTitle("Select the Image File");
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png");
 			chooser.setAcceptAllFileFilterUsed(false);
@@ -333,6 +338,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				{
 					loadFilePath(USERNAME).delete();
 					Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+					
+					ResourceHandler.writePropertiesFile("last_directory", file.getParent());
 				}
 				catch (Exception ex)
 				{}

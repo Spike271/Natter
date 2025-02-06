@@ -7,6 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -195,9 +198,8 @@ public class SignIn extends CustomComponent implements ActionListener
 					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
 							DB.password); PreparedStatement preparedStatement = connection.prepareStatement(query))
 					{
-						ResultSet resultSet = preparedStatement.executeQuery();
 						
-						if (resultSet.next())
+						if (preparedStatement.executeQuery().next())
 						{
 							String targetDirectoryPath = getClass().getResource("SignIn.class").getPath();
 							targetDirectoryPath = targetDirectoryPath.substring(0,
@@ -205,6 +207,33 @@ public class SignIn extends CustomComponent implements ActionListener
 							
 							ResourceHandler.writePropertiesFile("username", username);
 							ResourceHandler.writePropertiesFile("alreadyAUser", "true");
+							
+							if (!checkIfPfpAlreadyExistOrNot(username))
+							{
+								String query1 = "select Profile_Picture, Image_extension from pfp where Username = ?";
+								
+								try (PreparedStatement getPfp = connection.prepareStatement(query1))
+								{
+									getPfp.setString(1, username);
+									ResultSet rs = getPfp.executeQuery();
+									
+									if (rs.next())
+									{
+										byte[] imageData = rs.getBytes("Profile_picture");
+										
+										if (imageData != null)
+										{
+											String imageExtension = rs.getString("Image_extension");
+											String imagePath = getPathString() + "profile/" + username + imageExtension;
+											OutputStream outputStream = new FileOutputStream(imagePath);
+											outputStream.write(imageData);
+											outputStream.close();
+										}
+									}
+								}
+								catch (Exception e2)
+								{}
+							}
 							
 							NatterMain.natter.setVisible(true);
 							this.setVisible(false);
@@ -225,5 +254,28 @@ public class SignIn extends CustomComponent implements ActionListener
 				}
 			}).start();
 		}
+	}
+	
+	private boolean checkIfPfpAlreadyExistOrNot(String fileName)
+	{
+		String targetDirectoryPath = getPathString();
+		
+		String[] extensions = { "jpg", "jpeg", "png" };
+		
+		for (String ext : extensions)
+		{
+			File file = null;
+			String path = targetDirectoryPath + "profile/";
+			file = new File(path + fileName + "." + ext);
+			if (file.exists())
+				return true;
+		}
+		return false;
+	}
+	
+	private String getPathString()
+	{
+		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
+		return targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
 	}
 }

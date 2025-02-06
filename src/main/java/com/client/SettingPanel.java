@@ -315,8 +315,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		if (e.getSource() == changeButton)
 		{
 			JFileChooser chooser = new JFileChooser();
-			
 			String lastDirectory = ResourceHandler.readPropertiesFile("last_directory");
+			
 			if (lastDirectory != null && !lastDirectory.isBlank())
 				chooser.setCurrentDirectory(new File(lastDirectory));
 			
@@ -337,12 +337,20 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				try
 				{
 					loadFilePath(USERNAME).delete();
-					Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-					
-					ResourceHandler.writePropertiesFile("last_directory", file.getParent());
 				}
 				catch (Exception ex)
 				{}
+				finally
+				{
+					try
+					{
+						Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+					}
+					catch (Exception e1)
+					{}
+					
+					ResourceHandler.writePropertiesFile("last_directory", file.getParent());
+				}
 				
 				try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username,
 						DB.password); PreparedStatement pstmt = conn.prepareStatement(
@@ -406,8 +414,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	private String getPathString()
 	{
 		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
-		targetDirectoryPath = targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
-		return targetDirectoryPath;
+		return targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
 	}
 	
 	private Image getScaledImage(BufferedImage originalImage)

@@ -20,12 +20,14 @@ import java.sql.PreparedStatement;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -44,14 +46,17 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	private JPanel profilePanel;
 	private JPanel placeHolderPanel;
 	private JPanel menuPanel;
+	private JPanel securityPanel;
 	private JButton changeButton, removeButton;
 	private String USERNAME;
-	private Thread t1;
 	private JLabel profilePic;
+	private JPasswordField passwordField = null;
 	
 	public SettingPanel()
 	{
 		init();
+		this.setIconImage(
+				ResourceHandler.loadImageIcon(ResourceHandler.getSettings("dark_mode", "iconPath")).getImage());
 		this.setTitle("Settings");
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e)
@@ -70,14 +75,14 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	private void init()
 	{
 		USERNAME = ResourceHandler.readPropertiesFile("username");
-		t1 = new Thread(() -> profilePanel = createProfilePanel());
+		Thread t1 = new Thread(() -> profilePanel = createProfilePanel());
 		t1.start();
 		
 		this.setLayout(new MigLayout("fill, insets 20", "[center, fill]"));
 		
 		apperancePanel = createApperancePanel();
-		
 		placeHolderPanel = createPlaceHolderPanel();
+		securityPanel = createSecurityPanel();
 		
 		menuPanel = createMenuPanel();
 		
@@ -103,6 +108,50 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		placeHolderPanel.setMinimumSize(new Dimension(600, getHeight()));
 		
 		return placeHolderPanel;
+	}
+	
+	private JPanel createMenuPanel()
+	{
+		JPanel menuPanel = new JPanel();
+		menuPanel.setLayout(new MigLayout("wrap, gapy 10", "[230:400]"));
+		menuPanel.putClientProperty(FlatClientProperties.STYLE,
+				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
+		
+		JButton button1 = new JButton("Profile");
+		button1.setHorizontalAlignment(SwingConstants.LEFT);
+		button1.putClientProperty(FlatClientProperties.STYLE, "focusWidth:0;" + "font:bold +3");
+		button1.addActionListener(e -> {
+			placeHolderPanel.removeAll();
+			placeHolderPanel.add(profilePanel);
+			repaint();
+			revalidate();
+		});
+		
+		JButton button2 = new JButton("Appearance");
+		button2.setHorizontalAlignment(SwingConstants.LEFT);
+		button2.putClientProperty(FlatClientProperties.STYLE, "focusWidth:0;" + "font:bold +3");
+		button2.addActionListener(e -> {
+			placeHolderPanel.removeAll();
+			placeHolderPanel.add(apperancePanel);
+			repaint();
+			revalidate();
+		});
+		
+		JButton button3 = new JButton("Security");
+		button3.setHorizontalAlignment(SwingConstants.LEFT);
+		button3.putClientProperty(FlatClientProperties.STYLE, "focusWidth:0;" + "font:bold +3");
+		button3.addActionListener(e -> {
+			placeHolderPanel.removeAll();
+			placeHolderPanel.add(securityPanel);
+			repaint();
+			revalidate();
+		});
+		
+		menuPanel.add(button1, "growx");
+		menuPanel.add(button2, "growx");
+		menuPanel.add(button3, "growx");
+		
+		return menuPanel;
 	}
 	
 	private JPanel createApperancePanel()
@@ -148,7 +197,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		JButton buttonBG = new JButton("Select the image File");
 		buttonBG.putClientProperty(FlatClientProperties.STYLE,
-				"font: +2;" + "arc:1;" + "focusWidth:0;" + "minimumWidth:150;");
+				"font: +2;" + "arc: 1;" + "focusWidth: 0;" + "minimumWidth:150;");
 		apperancePanel.add(buttonBG);
 		
 		JLabel gradientColorStart = new JLabel("Gradient Start Color");
@@ -168,39 +217,6 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		apperancePanel.add(colorButton2);
 		
 		return apperancePanel;
-	}
-	
-	private JPanel createMenuPanel()
-	{
-		JPanel menuPanel = new JPanel();
-		menuPanel.setLayout(new MigLayout("wrap, gapy 10", "[230:400]"));
-		menuPanel.putClientProperty(FlatClientProperties.STYLE,
-				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
-		
-		JButton button1 = new JButton("Profile");
-		button1.setHorizontalAlignment(SwingConstants.LEFT);
-		button1.putClientProperty(FlatClientProperties.STYLE, "focusWidth:0;" + "font:bold +3");
-		button1.addActionListener(e -> {
-			placeHolderPanel.removeAll();
-			placeHolderPanel.add(profilePanel);
-			repaint();
-			revalidate();
-		});
-		
-		JButton button2 = new JButton("Appearance");
-		button2.setHorizontalAlignment(SwingConstants.LEFT);
-		button2.putClientProperty(FlatClientProperties.STYLE, "focusWidth:0;" + "font:bold +3");
-		button2.addActionListener(e -> {
-			placeHolderPanel.removeAll();
-			placeHolderPanel.add(apperancePanel);
-			repaint();
-			revalidate();
-		});
-		
-		menuPanel.add(button1, "growx");
-		menuPanel.add(button2, "growx");
-		
-		return menuPanel;
 	}
 	
 	private JPanel createProfilePanel()
@@ -239,6 +255,42 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		profilePanel.add(removeButton, "gapy 5");
 		
 		return profilePanel;
+	}
+	
+	private JPanel createSecurityPanel()
+	{
+		JPanel securityPanel = new JPanel(new MigLayout("wrap, fillx, insets 20 45 30 45, gapy 30", "[left][right]"));
+		securityPanel.putClientProperty(FlatClientProperties.STYLE,
+				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
+		
+		JLabel settingLabel = new JLabel("Privacy");
+		settingLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +25;");
+		securityPanel.add(settingLabel, "span, center");
+		
+		JLabel themeLabel = new JLabel("Application lock");
+		themeLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
+		securityPanel.add(themeLabel);
+		
+		JCheckBox checkBox = new JCheckBox("Enable");
+		checkBox.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;" + "icon.focusWidth: 0;");
+		checkBox.addActionListener(e -> {
+			if (checkBox.isSelected())
+				setPassword();
+		});
+		securityPanel.add(checkBox);
+		
+		JLabel passwordLabel = new JLabel("Password");
+		passwordLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
+		securityPanel.add(passwordLabel);
+		
+		passwordField = new JPasswordField();
+		passwordField.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;" + "showRevealButton: true;"
+				+ "focusWidth: 0;" + "minimumWidth: 150;" + "showClearButton: true;");
+		passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
+		passwordField.setText(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")));
+		securityPanel.add(passwordField);
+		
+		return securityPanel;
 	}
 	
 	private void changeThemes(boolean dark)
@@ -399,6 +451,19 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 			{
 				JOptionPane.showMessageDialog(this, "Unable to delete the profile picture.");
 			}
+		}
+	}
+	
+	private void setPassword()
+	{
+		String password = new String(passwordField.getPassword());
+		if (password != null && !password.isBlank())
+		{
+			ResourceHandler.writePropertiesFile("password", ResourceHandler.encode(password));
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(SettingPanel.this, "Please enter the password!");
 		}
 	}
 	

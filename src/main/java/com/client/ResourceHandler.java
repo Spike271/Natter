@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Properties;
 
 import javax.imageio.ImageIO;
@@ -111,6 +112,17 @@ public class ResourceHandler
 	public static boolean alreadyAUser()
 	{
 		return readPropertiesFile("alreadyAUser").equals("true") ? true : false;
+	}
+	
+	public static String encode(String text)
+	{
+		return Base64.getEncoder().encodeToString(text.getBytes());
+	}
+	
+	public static String decode(String encodedText)
+	{
+		byte[] decodedBytes = Base64.getDecoder().decode(encodedText);
+		return new String(decodedBytes);
 	}
 	
 	public static ImageIcon loadImageIcon(String resourcePath)

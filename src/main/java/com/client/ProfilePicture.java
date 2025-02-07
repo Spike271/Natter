@@ -89,6 +89,8 @@ public class ProfilePicture extends JComponent
 	{
 		Graphics2D g2 = (Graphics2D) grphcs.create();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		createBorder(g2);
 		if (image != null)
 		{
@@ -101,10 +103,12 @@ public class ProfilePicture extends JComponent
 			BufferedImage img = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g2_img = img.createGraphics();
 			g2_img.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2_img.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g2_img.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			g2_img.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
 			g2_img.fillOval(0, 0, diameter, diameter);
 			Composite composite = g2_img.getComposite();
 			g2_img.setComposite(AlphaComposite.SrcIn);
-			g2_img.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 			g2_img.drawImage(toImage(image), size.x, size.y, size.width, size.height, null);
 			g2_img.setComposite(composite);
 			g2_img.dispose();

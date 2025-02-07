@@ -17,13 +17,17 @@ public class NatterMain implements Theme
 	public static SignUp signUp;
 	public static Natter natter;
 	public static SettingPanel settingPanel;
+	private static PasswordWindow ps;
 	
 	public static void main(String[] args) throws InvocationTargetException, InterruptedException
 	{
 		if (ResourceHandler.alreadyAUser())
 		{
 			initMainUi();
-			natter.setVisible(true);
+			if (!ResourceHandler.readPropertiesFile("password").isBlank())
+			{
+				ps.setVisible(true);
+			}
 		}
 		else
 		{
@@ -64,6 +68,7 @@ public class NatterMain implements Theme
 				else
 					FlatMacLightLaf.setup();
 				
+				ps = new PasswordWindow();
 				natter = new Natter();
 			}
 		});

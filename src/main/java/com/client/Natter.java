@@ -210,7 +210,7 @@ public class Natter extends JFrame implements Theme
 			public void actionPerformed(ActionEvent e)
 			{
 				String username = JOptionPane.showInputDialog(Natter.this, "Enter the Username: ", "");
-				if (!username.isBlank())
+				if (!username.isBlank() && username != null)
 				{
 					if (userExist(username))
 					{

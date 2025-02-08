@@ -273,10 +273,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		JCheckBox checkBox = new JCheckBox("Enable");
 		checkBox.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;" + "icon.focusWidth: 0;");
-		checkBox.addActionListener(e -> {
-			if (checkBox.isSelected())
-				setPassword();
-		});
+		checkBox.setSelected(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).startsWith("true"));
 		securityPanel.add(checkBox);
 		
 		JLabel passwordLabel = new JLabel("Password");
@@ -287,8 +284,16 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		passwordField.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;" + "showRevealButton: true;"
 				+ "focusWidth: 0;" + "minimumWidth: 150;" + "showClearButton: true;");
 		passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
-		passwordField.setText(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")));
+		passwordField.setText(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).substring(4));
 		securityPanel.add(passwordField);
+		
+		JButton button = new JButton("Save");
+		button.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;" + "focusWidth: 0;"
+				+ "[dark]background : darken(@accentColor,5%);" + "[light]background : lighten(@accentColor,5%)");
+		button.addActionListener(e -> {
+			setPassword(checkBox);
+		});
+		securityPanel.add(button, "span, right");
 		
 		return securityPanel;
 	}
@@ -454,11 +459,16 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		}
 	}
 	
-	private void setPassword()
+	private void setPassword(JCheckBox chk)
 	{
 		String password = new String(passwordField.getPassword());
 		if (password != null && !password.isBlank())
 		{
+			if (chk.isSelected())
+				password = "true" + password;
+			else
+				password = "fals" + password;
+			
 			ResourceHandler.writePropertiesFile("password", ResourceHandler.encode(password));
 		}
 		else

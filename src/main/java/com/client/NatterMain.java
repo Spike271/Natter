@@ -3,6 +3,7 @@ package com.client;
 import java.awt.Font;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -26,7 +27,14 @@ public class NatterMain implements Theme
 			initMainUi();
 			if (!ResourceHandler.readPropertiesFile("password").isBlank())
 			{
-				ps.setVisible(true);
+				if (ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).startsWith("true"))
+					ps.setVisible(true);
+				else
+					natter.setVisible(true);
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "Something went wrong\nPlease reinstall the application.");
 			}
 		}
 		else

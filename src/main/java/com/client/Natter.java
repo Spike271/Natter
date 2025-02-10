@@ -38,12 +38,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
+import raven.test.ChatUI;
 
 public class Natter extends JFrame implements Theme
 {
 	private static final long serialVersionUID = 1L;
 	private final String mode = toggle ? "dark_mode" : "light_mode";
-	private JPanel usersPanel;
+	private JPanel usersPanel, appDesc;
 	private Color transpentColor = new Color(0, 0, 0, 0);
 	
 	public Natter()
@@ -90,14 +91,6 @@ public class Natter extends JFrame implements Theme
 		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		detailsPanel.add(timestampLabel);
 		
-		/*
-		 * JLabel messageLabel = new JLabel("Message preview for User " + i);
-		 * messageLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 14f));
-		 * messageLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode,
-		 * "fontColor"))); detailsPanel.add(messageLabel,
-		 * "pushx, growx, span2, w 220!");
-		 */
-		
 		chatItemPanel.add(detailsPanel, "al center, w 230!");
 		
 		chatItemPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -106,7 +99,7 @@ public class Natter extends JFrame implements Theme
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent evt)
 			{
-				// JOptionPane.showMessageDialog(null, "Opening chat with User ");
+				showChatUI(user, profileImage);
 			}
 		});
 		
@@ -137,6 +130,13 @@ public class Natter extends JFrame implements Theme
 		label1.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		panel.add(label1, "gapx 8, wrap, sg 1");
 		return panel;
+	}
+	
+	private void showChatUI(String title, Icon pfp)
+	{
+		this.remove(appDesc);
+		repaint();
+		this.add(new ChatUI().createChatUI(title, pfp), BorderLayout.CENTER);
 	}
 	
 	private JScrollPane createScroll()
@@ -236,7 +236,9 @@ public class Natter extends JFrame implements Theme
 		scrollBody.getViewport().setOpaque(false);
 		
 		this.add(scrollBody, BorderLayout.WEST);
-		this.add(appDesc(), BorderLayout.CENTER);
+		
+		appDesc = appDesc();
+		this.add(appDesc, BorderLayout.CENTER);
 	}
 	
 	private boolean userExist(String user)

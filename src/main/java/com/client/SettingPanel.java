@@ -196,9 +196,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		apperancePanel.add(chatBackgroundImage);
 		
 		JButton buttonBG = new JButton("Select the image File");
-		buttonBG.putClientProperty(FlatClientProperties.STYLE,
-				"font: +2;" + "arc: 1;" + "focusWidth: 0;" + "minimumWidth:150;");
-		apperancePanel.add(buttonBG);
+		buttonBG.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
+		apperancePanel.add(buttonBG, "w 160");
 		
 		JLabel gradientColorStart = new JLabel("Gradient Start Color");
 		gradientColorStart.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
@@ -206,7 +205,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		JButton colorButton1 = new JButton("Pick a Color");
 		colorButton1.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc:1;" + "focusWidth:0;");
-		apperancePanel.add(colorButton1);
+		apperancePanel.add(colorButton1, "w 160");
 		
 		JLabel gradientColorEnd = new JLabel("Gradient End Color");
 		gradientColorEnd.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
@@ -214,7 +213,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		JButton colorButton2 = new JButton("Pick a Color");
 		colorButton2.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc:1;" + "focusWidth:0;");
-		apperancePanel.add(colorButton2);
+		apperancePanel.add(colorButton2, "w 160");
 		
 		return apperancePanel;
 	}
@@ -246,12 +245,12 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		changeButton = new JButton("Change Image");
 		changeButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "focusWidth:0;");
-		changeButton.addActionListener(this); // Button
+		changeButton.addActionListener(this);
 		profilePanel.add(changeButton);
 		
 		removeButton = new JButton("Remove Image");
 		removeButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "focusWidth:0;");
-		removeButton.addActionListener(this); // Button
+		removeButton.addActionListener(this);
 		profilePanel.add(removeButton, "gapy 5");
 		
 		return profilePanel;
@@ -268,27 +267,27 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		securityPanel.add(settingLabel, "span, center");
 		
 		JLabel themeLabel = new JLabel("Application lock");
-		themeLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
+		themeLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;");
 		securityPanel.add(themeLabel);
 		
 		JCheckBox checkBox = new JCheckBox("Enable");
-		checkBox.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;" + "icon.focusWidth: 0;");
+		checkBox.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;" + "icon.focusWidth: 0;");
 		checkBox.setSelected(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).startsWith("true"));
 		securityPanel.add(checkBox);
 		
 		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
+		passwordLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;");
 		securityPanel.add(passwordLabel);
 		
 		passwordField = new JPasswordField();
-		passwordField.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;" + "showRevealButton: true;"
-				+ "focusWidth: 0;" + "minimumWidth: 150;" + "showClearButton: true;");
+		passwordField.putClientProperty(FlatClientProperties.STYLE,
+				"font:bold +5;" + "showRevealButton: true;" + "focusWidth: 0;" + "showClearButton: true;");
 		passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
 		passwordField.setText(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).substring(4));
-		securityPanel.add(passwordField);
+		securityPanel.add(passwordField, "w 150, h 30");
 		
 		JButton button = new JButton("Save");
-		button.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;" + "focusWidth: 0;"
+		button.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;" + "focusWidth: 0;"
 				+ "[dark]background : darken(@accentColor,5%);" + "[light]background : lighten(@accentColor,5%)");
 		button.addActionListener(e -> {
 			setPassword(checkBox);

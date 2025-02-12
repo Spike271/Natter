@@ -46,6 +46,7 @@ public class Natter extends JFrame implements Theme
 	private final String mode = toggle ? "dark_mode" : "light_mode";
 	private JPanel usersPanel, appDesc;
 	private Color transpentColor = new Color(0, 0, 0, 0);
+	private static ChatUI chatComponent;
 	
 	public Natter()
 	{
@@ -99,7 +100,7 @@ public class Natter extends JFrame implements Theme
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent evt)
 			{
-				showChatUI(user, profileImage);
+				showChatUI(user, createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
 			}
 		});
 		
@@ -132,11 +133,15 @@ public class Natter extends JFrame implements Theme
 		return panel;
 	}
 	
-	private void showChatUI(String title, Icon pfp)
+	private void showChatUI(String title, Icon senderIcon, Icon receiverIcon)
 	{
 		this.remove(appDesc);
+		if (chatComponent != null)
+			this.remove(chatComponent);
+		
 		repaint();
-		this.add(new ChatUI().createChatUI(title, pfp), BorderLayout.CENTER);
+		chatComponent = new ChatUI();
+		this.add(chatComponent.createChatUI(title, senderIcon, receiverIcon), BorderLayout.CENTER);
 	}
 	
 	private JScrollPane createScroll()

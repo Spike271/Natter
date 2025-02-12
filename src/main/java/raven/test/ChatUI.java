@@ -12,8 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+
+import com.client.ResourceHandler;
 
 import raven.chat.component.ChatBox;
 import raven.chat.model.ModelMessage;
@@ -39,7 +40,7 @@ public class ChatUI extends JPanel implements Theme
 		initComponents();
 	}
 	
-	public JPanel createChatUI(String user, Icon pfp)
+	public JPanel createChatUI(String user, Icon senderIcon, Icon receiverIcon)
 	{
 		chatArea.setTitle(user);
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
@@ -48,8 +49,8 @@ public class ChatUI extends JPanel implements Theme
 			@Override
 			public void mousePressedSendButton(ActionEvent evt)
 			{
-				Icon icon = pfp;
-				String name = user;
+				Icon icon = senderIcon;
+				String name = ResourceHandler.readPropertiesFile("username");
 				String date = df.format(new Date());
 				String inputMessage = chatArea.getText().trim();
 				chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
@@ -69,17 +70,17 @@ public class ChatUI extends JPanel implements Theme
 			{
 			}
 		});
-		new Thread(this::listenForMessages).start();
+		new Thread(() -> listenForMessages(user, receiverIcon)).start();
 		output.println(user);
 		return this;
 	}
 	
-	private void listenForMessages()
+	private void listenForMessages(String user, Icon pfp)
 	{
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
 		
-		Icon icon = new ImageIcon(getClass().getResource("../../libres/Profile_picture/p1.png"));
-		String name = "Mayank";
+		Icon icon = pfp;
+		String name = user;
 		try
 		{
 			String outputMessage;

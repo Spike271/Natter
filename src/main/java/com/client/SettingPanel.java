@@ -1,5 +1,6 @@
 package com.client;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Image;
@@ -287,6 +288,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		securityPanel.add(passwordField, "w 150, h 30");
 		
 		JButton button = new JButton("Save");
+		button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		button.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;" + "focusWidth: 0;"
 				+ "[dark]background : darken(@accentColor,5%);" + "[light]background : lighten(@accentColor,5%)");
 		button.addActionListener(e -> {

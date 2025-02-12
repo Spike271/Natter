@@ -1,6 +1,7 @@
 package com.client;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -37,13 +38,14 @@ public class PasswordWindow extends JFrame
 				"[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
 		
 		JLabel label = new JLabel("Enter your password:");
-		label.putClientProperty(FlatClientProperties.STYLE, "font: +2;");
+		label.putClientProperty(FlatClientProperties.STYLE, "font: +3;");
 		
 		passwordField = new JPasswordField();
 		passwordField.putClientProperty(FlatClientProperties.STYLE,
 				"font: +2;" + "arc:1;" + "focusWidth:1;" + "showClearButton: true;" + "showRevealButton: true;");
 		
 		JButton submitButton = new JButton("Submit");
+		submitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		submitButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc:1;" + "focusWidth:1;");
 		messageLabel = new JLabel(" ");
 		messageLabel.setForeground(Color.RED);

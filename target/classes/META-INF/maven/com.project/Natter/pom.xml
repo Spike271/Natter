@@ -11,13 +11,7 @@
 	</properties>  
 	
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
-		<dependency>
-		    <groupId>com.googlecode.json-simple</groupId>
-		    <artifactId>json-simple</artifactId>
-		    <version>1.1.1</version>
-		</dependency>
-		
+			
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-configuration2 -->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
@@ -37,6 +31,13 @@
 		    <groupId>com.mysql</groupId>
 		    <artifactId>mysql-connector-j</artifactId>
 		    <version>9.2.0</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/net.java.dev.timingframework/timingframework -->
+		<dependency>
+		    <groupId>net.java.dev.timingframework</groupId>
+		    <artifactId>timingframework</artifactId>
+		    <version>1.0</version>
 		</dependency>
 		
 		<dependency>

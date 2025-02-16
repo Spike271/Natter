@@ -237,7 +237,14 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		if (originalImage == null)
 			originalImage = loadImageWithoutExtension("null");
 		
-		profilePic = new JLabel(new ImageIcon(getScaledImage(originalImage)));
+		try
+		{
+			profilePic = new JLabel(new ImageIcon(getScaledImage(originalImage)));
+		}
+		catch (Exception e)
+		{
+			System.out.println(getPathString());
+		}
 		profilePanel.add(profilePic, "center");
 		
 		JLabel username = new JLabel(USERNAME);

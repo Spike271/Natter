@@ -152,6 +152,7 @@ public class ChatArea extends JPanel implements Theme
 			@Override
 			public void keyPressed(KeyEvent e)
 			{
+				runEventKeyPressed(e);
 				revalidate();
 			}
 			
@@ -291,6 +292,14 @@ public class ChatArea extends JPanel implements Theme
 		for (ChatEvent event : events)
 		{
 			event.keyTyped(evt);
+		}
+	}
+	
+	private void runEventKeyPressed(KeyEvent evt)
+	{
+		for (ChatEvent event : events)
+		{
+			event.keyPressed(evt);
 		}
 	}
 	

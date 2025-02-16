@@ -47,7 +47,6 @@ public class Server
 				this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				this.output = new PrintWriter(clientSocket.getOutputStream(), true);
 				
-				// Ask for the client's name
 				output.println("Enter your name: ");
 				clientName = input.readLine();
 				
@@ -57,7 +56,6 @@ public class Server
 					{
 						clients.put(clientName, this);
 					}
-					output.println("Welcome " + clientName + "!" + "\nEnter the message:");
 					clientSockets.put(clientSocket, clientName); // Associate the client socket with the name
 				}
 				else
@@ -83,7 +81,6 @@ public class Server
 					
 					if (recipient.equalsIgnoreCase("disconnect"))
 					{
-						output.println("disconnected");
 						break;
 					}
 					else if (clients.containsKey(recipient))
@@ -91,12 +88,8 @@ public class Server
 						ClientHandler recipientClient = clients.get(recipient);
 						if (recipientClient != this)
 						{
-							recipientClient.output.println(clientName + " says: " + text);
+							recipientClient.output.println(text);
 						}
-					}
-					else
-					{
-						output.println("User not found.");
 					}
 				}
 			}

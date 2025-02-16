@@ -26,6 +26,7 @@ import raven.resource.swing.GetImage;
 
 public class ChatUI extends JPanel implements Theme
 {
+	public static String userName = "";
 	private static final long serialVersionUID = 1L;
 	private Background background1;
 	private raven.chat.component.ChatArea chatArea;
@@ -42,47 +43,68 @@ public class ChatUI extends JPanel implements Theme
 	
 	public JPanel createChatUI(String user, Icon senderIcon, Icon receiverIcon)
 	{
+		userName = user;
 		chatArea.setTitle(user);
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
 		chatArea.addChatEvent(new ChatEvent() {
 			
+			Icon icon = senderIcon;
+			String name = ResourceHandler.readPropertiesFile("username");
+			
 			@Override
 			public void mousePressedSendButton(ActionEvent evt)
 			{
-				Icon icon = senderIcon;
-				String name = ResourceHandler.readPropertiesFile("username");
 				String date = df.format(new Date());
 				String inputMessage = chatArea.getText().trim();
 				chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
 				chatArea.clearTextAndGrabFocus();
 				
-				output.println(inputMessage);
+				output.println(user + " " + inputMessage);
 			}
 			
 			@Override
 			public void mousePressedFileButton(ActionEvent evt)
 			{
-				
 			}
 			
 			@Override
 			public void keyTyped(KeyEvent evt)
 			{
 			}
+			
+			@Override
+			public void keyPressed(KeyEvent evt)
+			{
+				if (evt.getKeyCode() == KeyEvent.VK_ENTER && (evt.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0)
+				{
+					String date = df.format(new Date());
+					String inputMessage = chatArea.getText().trim();
+					chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
+					chatArea.clearTextAndGrabFocus();
+					
+					output.println(user + " " + inputMessage);
+				}
+			}
 		});
 		new Thread(() -> listenForMessages(user, receiverIcon)).start();
-		output.println(user);
 		return this;
 	}
 	
 	private void listenForMessages(String user, Icon pfp)
 	{
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
+		output.println(user);
 		
 		Icon icon = pfp;
 		String name = user;
+		
 		try
 		{
+			chatArea.addChatBox(new ModelMessage(icon, name, df.format(new Date()), input.readLine()),
+					ChatBox.BoxType.LEFT);
+			chatArea.clearTextAndGrabFocus();
+			chatArea.clearChatBox();
+			
 			String outputMessage;
 			while ((outputMessage = input.readLine()) != null)
 			{
@@ -91,7 +113,7 @@ public class ChatUI extends JPanel implements Theme
 				chatArea.clearTextAndGrabFocus();
 				System.out.println(outputMessage);
 				
-				if (outputMessage.equalsIgnoreCase("disconnected"))
+				if (outputMessage.equals("disconnected"))
 				{
 					isConnected = false;
 					break;

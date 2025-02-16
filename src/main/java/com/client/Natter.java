@@ -6,7 +6,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -14,10 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,8 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -36,6 +33,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import net.miginfocom.swing.MigLayout;
 import raven.test.ChatUI;
@@ -47,6 +46,7 @@ public class Natter extends JFrame implements Theme
 	private JPanel usersPanel, appDesc;
 	private Color transpentColor = new Color(0, 0, 0, 0);
 	private static ChatUI chatComponent;
+	private HashMap<String, ChatUI> usersMap = new HashMap<>(5);
 	
 	public Natter()
 	{
@@ -112,18 +112,10 @@ public class Natter extends JFrame implements Theme
 		JPanel panel = new JPanel(new MigLayout("al center center", "[][]", "[]"));
 		panel.setBackground(transpentColor);
 		
-		try
-		{
-			BufferedImage originalImage = ImageIO
-					.read(new File(getClass().getResource(ResourceHandler.getSettings(mode, "iconPath")).getPath()));
-			Image scaledDownImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-			JLabel img = new JLabel(new ImageIcon(scaledDownImage));
-			panel.add(img, "center, wrap");
-		}
-		catch (IOException e)
-		{
-			System.err.println("cannot find the logo");
-		}
+		FlatSVGIcon scaledDownImage = new FlatSVGIcon(getClass().getResource("../../res/icon/logo.svg"));
+		scaledDownImage = scaledDownImage.derive(100, 100);
+		JLabel img = new JLabel(scaledDownImage);
+		panel.add(img, "center, wrap");
 		
 		JLabel label1 = new JLabel("<html>" + "<center><b>Chatting app for all PC's</b></center>" + "<br/>"
 				+ "No conversations selected" + "</html>");
@@ -136,12 +128,27 @@ public class Natter extends JFrame implements Theme
 	private void showChatUI(String title, Icon senderIcon, Icon receiverIcon)
 	{
 		this.remove(appDesc);
-		if (chatComponent != null)
-			this.remove(chatComponent);
 		
-		repaint();
-		chatComponent = new ChatUI();
-		this.add(chatComponent.createChatUI(title, senderIcon, receiverIcon), BorderLayout.CENTER);
+		if (ChatUI.userName != title)
+		{
+			if (chatComponent != null)
+			{
+				usersMap.put(ChatUI.userName, chatComponent);
+				this.remove(chatComponent);
+			}
+			
+			if (usersMap.containsKey(title))
+			{
+				this.add(usersMap.get(ChatUI.userName), BorderLayout.CENTER);
+			}
+			else
+			{
+				chatComponent = new ChatUI();
+				this.add(chatComponent.createChatUI(title, senderIcon, receiverIcon), BorderLayout.CENTER);
+			}
+			
+			repaint();
+		}
 	}
 	
 	private JScrollPane createScroll()
@@ -166,8 +173,10 @@ public class Natter extends JFrame implements Theme
 		usersPanel.add(userPanelHeading, "gapx 20, w 40, h 40, split");
 		
 		// setting icon
-		JLabel setting = new JLabel(new ImageIcon(
-				ResourceHandler.loadImageIcon(ResourceHandler.getSettings(mode, "settingIcon")).getImage()));
+		FlatSVGIcon settingIcon = new FlatSVGIcon(getClass().getResource("../../res/icon/setting.svg"));
+		settingIcon = settingIcon.derive(25, 25);
+		
+		JLabel setting = new JLabel(settingIcon);
 		setting.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		setting.addMouseListener(new MouseListener() {
 			
@@ -215,17 +224,18 @@ public class Natter extends JFrame implements Theme
 			public void actionPerformed(ActionEvent e)
 			{
 				String username = JOptionPane.showInputDialog(Natter.this, "Enter the Username: ", "");
-				if (!username.isBlank() && username != null)
+				if (username != null)
 				{
-					if (userExist(username))
+					if (!username.isBlank())
 					{
-						usersPanel.add(userComponentPanel(username), "pushx, growx, span1");
-						repaint();
-						revalidate();
-					}
-					else
-					{
-						JOptionPane.showMessageDialog(Natter.this, "User doesn't exist");
+						if (userExist(username))
+						{
+							usersPanel.add(userComponentPanel(username), "pushx, growx, span1");
+							repaint();
+							revalidate();
+						}
+						else
+							JOptionPane.showMessageDialog(Natter.this, "User doesn't exist");
 					}
 				}
 			}

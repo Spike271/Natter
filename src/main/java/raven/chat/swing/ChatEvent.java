@@ -10,4 +10,6 @@ public interface ChatEvent
 	public void mousePressedFileButton(ActionEvent evt);
 	
 	public void keyTyped(KeyEvent evt);
+	
+	public void keyPressed(KeyEvent evt);
 }

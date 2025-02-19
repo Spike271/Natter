@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,8 +25,7 @@ public class PasswordWindow extends JFrame
 	
 	public PasswordWindow()
 	{
-		this.setIconImage(
-				ResourceHandler.loadImageIcon(ResourceHandler.getSettings("dark_mode", "iconPath")).getImage());
+		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icon/logo32_32.png")).getImage());
 		this.setTitle("Password Window");
 		this.setSize(340, 170);
 		this.setResizable(false);

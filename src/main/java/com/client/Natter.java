@@ -10,6 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.RoundRectangle2D;
@@ -30,9 +31,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
@@ -45,14 +49,14 @@ public class Natter extends JFrame implements Theme
 	private final String mode = toggle ? "dark_mode" : "light_mode";
 	private JPanel usersPanel, appDesc;
 	private Color transpentColor = new Color(0, 0, 0, 0);
-	private static ChatUI chatComponent;
+	private ChatUI chatComponent;
 	private HashMap<String, ChatUI> usersMap = new HashMap<>(5);
 	
 	public Natter()
 	{
 		super("Natter");
 		
-		this.setIconImage(ResourceHandler.loadImageIcon(ResourceHandler.getSettings(mode, "iconPath")).getImage());
+		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icon/logo32_32.png")).getImage());
 		this.setLayout(new BorderLayout());
 		this.setSize(1100, 850);
 		this.setMinimumSize(new Dimension(1000, 800));
@@ -63,13 +67,13 @@ public class Natter extends JFrame implements Theme
 		addGuiComponents();
 	}
 	
-	private JPanel userComponentPanel(String user)
+	private JPanel userComponentPanel(String receiver)
 	{
 		JPanel chatItemPanel = new JPanel();
 		chatItemPanel.setLayout(new MigLayout("", "[][]", "[]"));
 		chatItemPanel.setBackground(transpentColor);
 		
-		Icon profileImage = createProfilePic(user);
+		Icon profileImage = createProfilePic(receiver);
 		ProfilePicture avatar = new ProfilePicture();
 		avatar.setBorderSize(1);
 		avatar.setBorderSpace(1);
@@ -80,7 +84,7 @@ public class Natter extends JFrame implements Theme
 		JPanel detailsPanel = new JPanel(new MigLayout("al left, wrap, gapy 10", "[][]", "[][]"));
 		detailsPanel.setBackground(transpentColor);
 		
-		JLabel nameLabel = new JLabel(user);
+		JLabel nameLabel = new JLabel(receiver);
 		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
 		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
@@ -92,15 +96,45 @@ public class Natter extends JFrame implements Theme
 		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		detailsPanel.add(timestampLabel);
 		
+		JPopupMenu popupMenu = new JPopupMenu();
+		
+		JMenuItem close = new JMenuItem("Close Chat");
+		close.addActionListener(e -> {
+			this.remove(chatComponent);
+			usersMap.put(receiver, chatComponent);
+			chatComponent = null;
+			this.add(appDesc, BorderLayout.CENTER);
+			repaint();
+		});
+		popupMenu.add(close);
+		
 		chatItemPanel.add(detailsPanel, "al center, w 230!");
 		
 		chatItemPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		chatItemPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+		chatItemPanel.addMouseListener(new MouseAdapter() {
 			
 			@Override
-			public void mouseClicked(java.awt.event.MouseEvent evt)
+			public void mouseClicked(MouseEvent evt)
 			{
-				showChatUI(user, createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
+				if (SwingUtilities.isLeftMouseButton(evt))
+				{
+					if (usersMap.containsKey(receiver))
+					{
+						chatComponent = usersMap.get(receiver);
+						add(usersMap.get(receiver));
+						remove(appDesc);
+						repaint();
+					}
+					else
+						showChatUI(ResourceHandler.readPropertiesFile("username"), receiver,
+								createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
+				}
+				
+				if (SwingUtilities.isRightMouseButton(evt) && chatComponent != null)
+				{
+					popupMenu.show(chatItemPanel, evt.getX(), evt.getY());
+					repaint();
+				}
 			}
 		});
 		
@@ -125,29 +159,32 @@ public class Natter extends JFrame implements Theme
 		return panel;
 	}
 	
-	private void showChatUI(String title, Icon senderIcon, Icon receiverIcon)
+	private void showChatUI(String sender, String receiver, Icon senderIcon, Icon receiverIcon)
 	{
 		this.remove(appDesc);
 		
-		if (ChatUI.userName != title)
+		if (ChatUI.userName != receiver)
 		{
 			if (chatComponent != null)
 			{
 				usersMap.put(ChatUI.userName, chatComponent);
 				this.remove(chatComponent);
+				repaint();
 			}
 			
-			if (usersMap.containsKey(title))
+			if (usersMap.containsKey(receiver))
 			{
-				this.add(usersMap.get(ChatUI.userName), BorderLayout.CENTER);
+				ChatUI temp = usersMap.get(ChatUI.userName);
+				this.add(temp, BorderLayout.CENTER);
+				repaint();
 			}
 			else
 			{
 				chatComponent = new ChatUI();
-				this.add(chatComponent.createChatUI(title, senderIcon, receiverIcon), BorderLayout.CENTER);
+				this.add(chatComponent.createChatUI(sender, receiver, senderIcon, receiverIcon), BorderLayout.CENTER);
+				repaint();
 			}
-			
-			repaint();
+			revalidate();
 		}
 	}
 	

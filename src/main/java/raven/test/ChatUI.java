@@ -26,7 +26,7 @@ import raven.resource.swing.GetImage;
 
 public class ChatUI extends JPanel implements Theme
 {
-	public static String userName = "";
+	public static String userName = "", globalSender;
 	private static final long serialVersionUID = 1L;
 	private Background background1;
 	private raven.chat.component.ChatArea chatArea;
@@ -41,10 +41,13 @@ public class ChatUI extends JPanel implements Theme
 		initComponents();
 	}
 	
-	public JPanel createChatUI(String user, Icon senderIcon, Icon receiverIcon)
+	public JPanel createChatUI(String sender, String receiver, Icon senderIcon, Icon receiverIcon)
 	{
-		userName = user;
-		chatArea.setTitle(user);
+		if (globalSender == null)
+			globalSender = sender;
+		
+		userName = receiver;
+		chatArea.setTitle(receiver);
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
 		chatArea.addChatEvent(new ChatEvent() {
 			
@@ -59,7 +62,8 @@ public class ChatUI extends JPanel implements Theme
 				chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
 				chatArea.clearTextAndGrabFocus();
 				
-				output.println(user + " " + inputMessage);
+				output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+				System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
 			}
 			
 			@Override
@@ -82,18 +86,19 @@ public class ChatUI extends JPanel implements Theme
 					chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
 					chatArea.clearTextAndGrabFocus();
 					
-					output.println(user + " " + inputMessage);
+					output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+					System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
 				}
 			}
 		});
-		new Thread(() -> listenForMessages(user, receiverIcon)).start();
+		new Thread(() -> listenForMessages(receiver, receiverIcon)).start();
 		return this;
 	}
 	
 	private void listenForMessages(String user, Icon pfp)
 	{
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
-		output.println(user);
+		output.println(globalSender);
 		
 		Icon icon = pfp;
 		String name = user;
@@ -106,17 +111,29 @@ public class ChatUI extends JPanel implements Theme
 			chatArea.clearChatBox();
 			
 			String outputMessage;
+			StringBuilder messageBuilder = new StringBuilder(); // To store multi-line messages
 			while ((outputMessage = input.readLine()) != null)
 			{
-				chatArea.addChatBox(new ModelMessage(icon, name, df.format(new Date()), outputMessage),
-						ChatBox.BoxType.LEFT);
-				chatArea.clearTextAndGrabFocus();
-				System.out.println(outputMessage);
-				
-				if (outputMessage.equals("disconnected"))
+				if (outputMessage.equals("END_OF_MESSAGE"))
+				{
+					String fullMessage = messageBuilder.toString();
+					chatArea.addChatBox(new ModelMessage(icon, name, df.format(new Date()), fullMessage),
+							ChatBox.BoxType.LEFT);
+					chatArea.clearTextAndGrabFocus();
+					System.out.println(fullMessage);
+					
+					messageBuilder.setLength(0);
+				}
+				else if (outputMessage.equals("disconnected"))
 				{
 					isConnected = false;
 					break;
+				}
+				else
+				{
+					if (messageBuilder.length() > 0)
+						messageBuilder.append("\n");
+					messageBuilder.append(outputMessage);
 				}
 			}
 		}

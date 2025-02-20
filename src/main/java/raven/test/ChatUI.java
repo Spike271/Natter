@@ -57,13 +57,7 @@ public class ChatUI extends JPanel implements Theme
 			@Override
 			public void mousePressedSendButton(ActionEvent evt)
 			{
-				String date = df.format(new Date());
-				String inputMessage = chatArea.getText().trim();
-				chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
-				chatArea.clearTextAndGrabFocus();
-				
-				output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
-				System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+				addMessages();
 			}
 			
 			@Override
@@ -81,14 +75,19 @@ public class ChatUI extends JPanel implements Theme
 			{
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER && (evt.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0)
 				{
-					String date = df.format(new Date());
-					String inputMessage = chatArea.getText().trim();
-					chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
-					chatArea.clearTextAndGrabFocus();
-					
-					output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
-					System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+					addMessages();
 				}
+			}
+			
+			private void addMessages()
+			{
+				String date = df.format(new Date());
+				String inputMessage = chatArea.getText().trim();
+				chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
+				chatArea.clearTextAndGrabFocus();
+				
+				output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+				System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
 			}
 		});
 		new Thread(() -> listenForMessages(receiver, receiverIcon)).start();

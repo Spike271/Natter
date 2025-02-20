@@ -118,16 +118,23 @@ public class Natter extends JFrame implements Theme
 			{
 				if (SwingUtilities.isLeftMouseButton(evt))
 				{
-					if (usersMap.containsKey(receiver))
+					if (ChatUI.userName != receiver)
 					{
-						chatComponent = usersMap.get(receiver);
-						add(usersMap.get(receiver));
-						remove(appDesc);
-						repaint();
+						if (usersMap.containsKey(receiver))
+						{
+							if (chatComponent != null)
+								remove(chatComponent);
+							
+							chatComponent = usersMap.get(receiver);
+							add(chatComponent);
+							remove(appDesc);
+							ChatUI.userName = receiver;
+							repaint();
+						}
+						else
+							showChatUI(ResourceHandler.readPropertiesFile("username"), receiver,
+									createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
 					}
-					else
-						showChatUI(ResourceHandler.readPropertiesFile("username"), receiver,
-								createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
 				}
 				
 				if (SwingUtilities.isRightMouseButton(evt) && chatComponent != null)
@@ -167,23 +174,21 @@ public class Natter extends JFrame implements Theme
 		{
 			if (chatComponent != null)
 			{
-				usersMap.put(ChatUI.userName, chatComponent);
-				this.remove(chatComponent);
-				repaint();
+				remove(chatComponent);
 			}
 			
 			if (usersMap.containsKey(receiver))
 			{
-				ChatUI temp = usersMap.get(ChatUI.userName);
-				this.add(temp, BorderLayout.CENTER);
-				repaint();
+				add(usersMap.get(ChatUI.userName));
 			}
 			else
 			{
 				chatComponent = new ChatUI();
-				this.add(chatComponent.createChatUI(sender, receiver, senderIcon, receiverIcon), BorderLayout.CENTER);
-				repaint();
+				ChatUI.userName = receiver;
+				usersMap.put(ChatUI.userName, chatComponent);
+				add(chatComponent.createChatUI(sender, receiver, senderIcon, receiverIcon), BorderLayout.CENTER);
 			}
+			repaint();
 			revalidate();
 		}
 	}

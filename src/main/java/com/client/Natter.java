@@ -38,7 +38,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter;
 
 import net.miginfocom.swing.MigLayout;
 import raven.test.ChatUI;
@@ -62,7 +64,6 @@ public class Natter extends JFrame implements Theme
 		this.setMinimumSize(new Dimension(1000, 800));
 		this.setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());
 		this.setLocationRelativeTo(null);
-		this.setFocusable(false);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		addGuiComponents();
 	}
@@ -98,7 +99,10 @@ public class Natter extends JFrame implements Theme
 		
 		JPopupMenu popupMenu = new JPopupMenu();
 		
-		JMenuItem close = new JMenuItem("Close Chat");
+		JMenuItem close = new JMenuItem("Close Chat",
+				new FlatSVGIcon(getClass().getResource("../../res/icon/close icon.svg")).derive(13, 13)
+						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
+		
 		close.addActionListener(e -> {
 			this.remove(chatComponent);
 			usersMap.put(receiver, chatComponent);
@@ -129,7 +133,6 @@ public class Natter extends JFrame implements Theme
 							add(chatComponent);
 							remove(appDesc);
 							ChatUI.userName = receiver;
-							repaint();
 						}
 						else
 							showChatUI(ResourceHandler.readPropertiesFile("username"), receiver,
@@ -139,9 +142,13 @@ public class Natter extends JFrame implements Theme
 				
 				if (SwingUtilities.isRightMouseButton(evt) && chatComponent != null)
 				{
-					popupMenu.show(chatItemPanel, evt.getX(), evt.getY());
-					repaint();
+					if (ChatUI.userName.equals(receiver))
+					{
+						popupMenu.show(chatItemPanel, evt.getX(), evt.getY());
+					}
 				}
+				repaint();
+				revalidate();
 			}
 		});
 		
@@ -215,10 +222,8 @@ public class Natter extends JFrame implements Theme
 		usersPanel.add(userPanelHeading, "gapx 20, w 40, h 40, split");
 		
 		// setting icon
-		FlatSVGIcon settingIcon = new FlatSVGIcon(getClass().getResource("../../res/icon/setting.svg"));
-		settingIcon = settingIcon.derive(25, 25);
-		
-		JLabel setting = new JLabel(settingIcon);
+		JLabel setting = new JLabel(
+				new FlatSVGIcon(getClass().getResource("../../res/icon/setting.svg")).derive(25, 25));
 		setting.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		setting.addMouseListener(new MouseListener() {
 			

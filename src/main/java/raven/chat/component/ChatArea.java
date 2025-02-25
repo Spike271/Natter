@@ -145,6 +145,7 @@ public class ChatArea extends JPanel implements Theme
 		cmdSend.setFocusable(false);
 		cmdFile.setIcon(iconFile.toIcon());
 		cmdSend.setIcon(iconSend.toIcon());
+		cmdSend.setToolTipText("Press Enter for next Line." + "\nPress Shift + Enter to send the message.");
 		textMessage = new TextField();
 		textMessage.setHint("Write a message here ...");
 		textMessage.addKeyListener(new KeyAdapter() {
@@ -210,14 +211,8 @@ public class ChatArea extends JPanel implements Theme
 		button.setRound(40);
 		button.setBackground(new Color(100, 100, 100, 100));
 		button.setPaintBackground(true);
-		button.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum());
-			}
-		});
+		button.addActionListener(
+				e -> animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));
 		
 		return button;
 	}

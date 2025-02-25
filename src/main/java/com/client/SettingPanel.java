@@ -56,8 +56,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	public SettingPanel()
 	{
 		init();
-		this.setIconImage(
-				ResourceHandler.loadImageIcon(ResourceHandler.getSettings("dark_mode", "iconPath")).getImage());
+		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icon/logo32_32.png")).getImage());
 		this.setTitle("Settings");
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e)
@@ -88,7 +87,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		menuPanel = createMenuPanel();
 		
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, menuPanel, placeHolderPanel);
-		splitPane.putClientProperty(FlatClientProperties.STYLE, "style:plain;");
+		splitPane.putClientProperty(FlatClientProperties.STYLE, "style: plain;");
 		
 		this.add(splitPane, "h 500");
 		
@@ -104,8 +103,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	{
 		JPanel placeHolderPanel = new JPanel();
 		placeHolderPanel.setLayout(new MigLayout("fillx", "[fill]", "[]"));
-		placeHolderPanel.putClientProperty(FlatClientProperties.STYLE,
-				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
+		placeHolderPanel.putClientProperty(FlatClientProperties.STYLE, "arc: 20;"
+				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		placeHolderPanel.setMinimumSize(new Dimension(600, getHeight()));
 		
 		return placeHolderPanel;
@@ -115,8 +114,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	{
 		JPanel menuPanel = new JPanel();
 		menuPanel.setLayout(new MigLayout("wrap, gapy 10", "[230:400]"));
-		menuPanel.putClientProperty(FlatClientProperties.STYLE,
-				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
+		menuPanel.putClientProperty(FlatClientProperties.STYLE, "arc: 20;"
+				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		
 		JButton button1 = new JButton("Profile");
 		button1.setHorizontalAlignment(SwingConstants.LEFT);

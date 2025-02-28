@@ -58,7 +58,7 @@ public class Natter extends JFrame implements Theme
 	{
 		super("Natter");
 		
-		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icon/logo32_32.png")).getImage());
+		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icons/logo32_32.png")).getImage());
 		this.setLayout(new BorderLayout());
 		this.setSize(1100, 850);
 		this.setMinimumSize(new Dimension(1000, 800));
@@ -100,7 +100,7 @@ public class Natter extends JFrame implements Theme
 		JPopupMenu popupMenu = new JPopupMenu();
 		
 		JMenuItem close = new JMenuItem("Close Chat",
-				new FlatSVGIcon(getClass().getResource("../../res/icon/close icon.svg")).derive(13, 13)
+				new FlatSVGIcon(getClass().getResource("../../res/icons/close icon.svg")).derive(13, 13)
 						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
 		
 		close.addActionListener(e -> {
@@ -160,7 +160,7 @@ public class Natter extends JFrame implements Theme
 		JPanel panel = new JPanel(new MigLayout("al center center", "[][]", "[]"));
 		panel.setBackground(transpentColor);
 		
-		FlatSVGIcon scaledDownImage = new FlatSVGIcon(getClass().getResource("../../res/icon/logo.svg"));
+		FlatSVGIcon scaledDownImage = new FlatSVGIcon(getClass().getResource("../../res/icons/logo.svg"));
 		scaledDownImage = scaledDownImage.derive(100, 100);
 		JLabel img = new JLabel(scaledDownImage);
 		panel.add(img, "center, wrap");
@@ -223,7 +223,7 @@ public class Natter extends JFrame implements Theme
 		
 		// setting icon
 		JLabel setting = new JLabel(
-				new FlatSVGIcon(getClass().getResource("../../res/icon/setting.svg")).derive(25, 25));
+				new FlatSVGIcon(getClass().getResource("../../res/icons/setting.svg")).derive(25, 25));
 		setting.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		setting.addMouseListener(new MouseListener() {
 			

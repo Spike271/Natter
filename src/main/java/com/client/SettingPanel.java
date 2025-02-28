@@ -35,6 +35,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
@@ -56,9 +57,11 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	public SettingPanel()
 	{
 		init();
-		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icon/logo32_32.png")).getImage());
+		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icons/logo32_32.png")).getImage());
 		this.setTitle("Settings");
 		this.addWindowListener(new WindowAdapter() {
+			
+			@Override
 			public void windowClosing(WindowEvent e)
 			{
 				new Thread(() -> {
@@ -117,9 +120,11 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		menuPanel.putClientProperty(FlatClientProperties.STYLE, "arc: 20;"
 				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		
-		JButton button1 = new JButton("Profile");
+		JButton button1 = new JButton("Profile",
+				new FlatSVGIcon(getClass().getResource("../../res/icons/user.svg")).derive(18, 18));
+		button1.setIconTextGap(15);
 		button1.setHorizontalAlignment(SwingConstants.LEFT);
-		button1.putClientProperty(FlatClientProperties.STYLE, "focusWidth:0;" + "font:bold +3");
+		button1.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
 		button1.addActionListener(e -> {
 			placeHolderPanel.removeAll();
 			placeHolderPanel.add(profilePanel);
@@ -127,9 +132,11 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 			revalidate();
 		});
 		
-		JButton button2 = new JButton("Appearance");
+		JButton button2 = new JButton("Appearance",
+				new FlatSVGIcon(getClass().getResource("../../res/icons/appearance.svg")).derive(18, 18));
+		button2.setIconTextGap(15);
 		button2.setHorizontalAlignment(SwingConstants.LEFT);
-		button2.putClientProperty(FlatClientProperties.STYLE, "focusWidth:0;" + "font:bold +3");
+		button2.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
 		button2.addActionListener(e -> {
 			placeHolderPanel.removeAll();
 			placeHolderPanel.add(apperancePanel);
@@ -137,9 +144,11 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 			revalidate();
 		});
 		
-		JButton button3 = new JButton("Security");
+		JButton button3 = new JButton("Security",
+				new FlatSVGIcon(getClass().getResource("../../res/icons/security.svg")).derive(18, 18));
+		button3.setIconTextGap(15);
 		button3.setHorizontalAlignment(SwingConstants.LEFT);
-		button3.putClientProperty(FlatClientProperties.STYLE, "focusWidth:0;" + "font:bold +3");
+		button3.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
 		button3.addActionListener(e -> {
 			placeHolderPanel.removeAll();
 			placeHolderPanel.add(securityPanel);
@@ -157,8 +166,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	private JPanel createApperancePanel()
 	{
 		JPanel apperancePanel = new JPanel(new MigLayout("wrap, fillx, insets 20 45 30 45, gapy 30", "[left][right]"));
-		apperancePanel.putClientProperty(FlatClientProperties.STYLE,
-				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
+		apperancePanel.putClientProperty(FlatClientProperties.STYLE, "arc:20;"
+				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		
 		JLabel settingLabel = new JLabel("Settings");
 		settingLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +25;");
@@ -172,8 +181,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		JComboBox<String> dropDown = new JComboBox<>(new String[] { "Light Mode", "Dark Mode" });
 		dropDown.setSelectedIndex(toggle ? 1 : 0);
 		int check = dropDown.getSelectedIndex();
-		dropDown.putClientProperty(FlatClientProperties.STYLE, "font: +3;" + "arc: 1;" + "minimumWidth:160;"
-				+ "arrowType:traingle;" + "buttonStyle:none;" + "focusWidth:0;");
+		dropDown.putClientProperty(FlatClientProperties.STYLE, "font: +3;" + "arc: 1;" + "minimumWidth: 160;"
+				+ "arrowType: traingle;" + "buttonStyle: none;" + "focusWidth: 0;");
 		
 		dropDown.addActionListener(new ActionListener() {
 			
@@ -186,6 +195,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 					changeThemes(selectedItem.startsWith("D"));
 					JOptionPane.showMessageDialog(SettingPanel.this,
 							"Restart the Application to take the full effect.");
+					System.exit(0);
 				}
 			}
 		});
@@ -204,7 +214,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		apperancePanel.add(gradientColorStart);
 		
 		JButton colorButton1 = new JButton("Pick a Color");
-		colorButton1.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc:1;" + "focusWidth:0;");
+		colorButton1.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
 		apperancePanel.add(colorButton1, "w 160");
 		
 		JLabel gradientColorEnd = new JLabel("Gradient End Color");
@@ -212,7 +222,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		apperancePanel.add(gradientColorEnd);
 		
 		JButton colorButton2 = new JButton("Pick a Color");
-		colorButton2.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc:1;" + "focusWidth:0;");
+		colorButton2.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
 		apperancePanel.add(colorButton2, "w 160");
 		
 		return apperancePanel;
@@ -221,8 +231,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	private JPanel createProfilePanel()
 	{
 		JPanel profilePanel = new JPanel(new MigLayout("wrap, fillx, insets 20 45 30 45", "[]"));
-		profilePanel.putClientProperty(FlatClientProperties.STYLE,
-				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
+		profilePanel.putClientProperty(FlatClientProperties.STYLE, "arc:20;"
+				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		
 		BufferedImage originalImage = null;
 		
@@ -251,12 +261,12 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		profilePanel.add(username, "center");
 		
 		changeButton = new JButton("Change Image");
-		changeButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "focusWidth:0;");
+		changeButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "focusWidth: 0;");
 		changeButton.addActionListener(this);
 		profilePanel.add(changeButton);
 		
 		removeButton = new JButton("Remove Image");
-		removeButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "focusWidth:0;");
+		removeButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "focusWidth: 0;");
 		removeButton.addActionListener(this);
 		profilePanel.add(removeButton, "gapy 5");
 		
@@ -266,8 +276,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	private JPanel createSecurityPanel()
 	{
 		JPanel securityPanel = new JPanel(new MigLayout("wrap, fillx, insets 20 45 30 45, gapy 30", "[left][right]"));
-		securityPanel.putClientProperty(FlatClientProperties.STYLE,
-				"arc:20;" + "[light]background:darken(@background,5%);" + "[dark]background:lighten(@background,5%);");
+		securityPanel.putClientProperty(FlatClientProperties.STYLE, "arc:20;"
+				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		
 		JLabel settingLabel = new JLabel("Privacy");
 		settingLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +25;");
@@ -297,9 +307,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		button.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;" + "focusWidth: 0;"
 				+ "[dark]background : darken(@accentColor,5%);" + "[light]background : lighten(@accentColor,5%)");
-		button.addActionListener(e -> {
-			setPassword(checkBox);
-		});
+		button.addActionListener(e -> setPassword(checkBox));
 		securityPanel.add(button, "span, right");
 		
 		return securityPanel;

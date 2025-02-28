@@ -23,9 +23,8 @@ public class PasswordRevealIcon implements AnimatedIcon
 	
 	public PasswordRevealIcon()
 	{
-		FlatSVGIcon resizedIcon = new FlatSVGIcon(getClass().getResource("../../res/icon/eye.svg"));
-		resizedIcon = resizedIcon.derive(20, 20);
-		this.icon = resizedIcon;
+		FlatSVGIcon svgIcon = new FlatSVGIcon(getClass().getResource("../../res/icons/eye.svg")).derive(20, 20);
+		this.icon = svgIcon;
 		this.space = 3;
 	}
 	

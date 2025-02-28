@@ -67,7 +67,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 		titleBar.setLayout(new BorderLayout());
 		
 		// Add icon on the tray
-		setIconImage(new ImageIcon(getClass().getResource("../../res/icon/logo32_32.png")).getImage());
+		setIconImage(new ImageIcon(getClass().getResource("../../res/icons/logo32_32.png")).getImage());
 		JLabel iconLabel = createIconLabel();
 		titleBar.add(iconLabel, BorderLayout.WEST);
 		
@@ -95,7 +95,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 		BufferedImage originalImage = null;
 		try
 		{
-			originalImage = ImageIO.read(new File(getClass().getResource("../../res/icon/logo32_32.png").getPath()));
+			originalImage = ImageIO.read(new File(getClass().getResource("../../res/icons/logo32_32.png").getPath()));
 		}
 		catch (IOException e)
 		{

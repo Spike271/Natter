@@ -25,7 +25,7 @@ public class PasswordWindow extends JFrame
 	
 	public PasswordWindow()
 	{
-		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icon/logo32_32.png")).getImage());
+		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icons/logo32_32.png")).getImage());
 		this.setTitle("Password Window");
 		this.setSize(340, 170);
 		this.setResizable(false);

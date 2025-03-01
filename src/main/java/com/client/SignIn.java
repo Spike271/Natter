@@ -68,6 +68,8 @@ public class SignIn extends CustomComponent implements ActionListener
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
+				ResourceHandler.changeColorFileSettings("ColorMode.IsDark",
+						themeButton.isSelected() ? "true" : "false");
 				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
 				dispose();
 				repaint();

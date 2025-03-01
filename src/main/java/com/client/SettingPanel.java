@@ -212,6 +212,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		JButton buttonBG = new JButton("Select the image File");
 		buttonBG.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
+		buttonBG.setEnabled(false);
+		buttonBG.setToolTipText("This feature is currently unavailable.");
 		apperancePanel.add(buttonBG, "w 160");
 		
 		JLabel gradientColorStart = new JLabel("Gradient Start Color");
@@ -327,6 +329,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				EventQueue.invokeLater(() -> {
 					FlatMacLightLaf.setup();
 					FlatLaf.updateUI();
+					ResourceHandler.changeColorFileSettings("ColorMode.IsDark", "false");
 					ResourceHandler.changeSettings("Global.isDark", "false");
 				});
 			}
@@ -335,6 +338,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				EventQueue.invokeLater(() -> {
 					FlatMacDarkLaf.setup();
 					FlatLaf.updateUI();
+					ResourceHandler.changeColorFileSettings("ColorMode.IsDark", "true");
 					ResourceHandler.changeSettings("Global.isDark", "true");
 				});
 			}

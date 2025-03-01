@@ -21,6 +21,7 @@ public class ResourceHandler
 {
 	private static final String settingFile = "../../res/Settings/settings.ini";
 	private static final String propertieFile = "../../res/Settings/config.properties";
+	private static final String colorFile = "../../libres/Settings/Color.ini";
 	
 	public static String getSettings(String section, String key)
 	{
@@ -48,6 +49,25 @@ public class ResourceHandler
 			FileHandler fileHandler = new FileHandler(iniConfig);
 			
 			String path = ResourceHandler.class.getResource(settingFile).getFile();
+			fileHandler.load(new File(path));
+			
+			iniConfig.setProperty(property, value);
+			iniConfig.write(new FileWriter(path));
+		}
+		catch (ConfigurationException | IOException e)
+		{
+			System.err.println("cannot find the config file\ncalled from changeSettings");
+		}
+	}
+	
+	public static void changeColorFileSettings(String property, String value)
+	{
+		try
+		{
+			INIConfiguration iniConfig = new INIConfiguration();
+			FileHandler fileHandler = new FileHandler(iniConfig);
+			
+			String path = ResourceHandler.class.getResource(colorFile).getFile();
 			fileHandler.load(new File(path));
 			
 			iniConfig.setProperty(property, value);

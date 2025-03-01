@@ -91,8 +91,10 @@ public class Natter extends JFrame implements Theme
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+		String currentTime = LocalDateTime.now().format(formatter);
+		new Thread(() -> userInfo.addNewUser(receiver, currentTime)).start();
 		
-		JLabel timestampLabel = new JLabel(LocalDateTime.now().format(formatter));
+		JLabel timestampLabel = new JLabel(currentTime);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
 		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
 		detailsPanel.add(timestampLabel);
@@ -135,8 +137,10 @@ public class Natter extends JFrame implements Theme
 							ChatUI.userName = receiver;
 						}
 						else
+						{
 							showChatUI(ResourceHandler.readPropertiesFile("username"), receiver,
 									createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
+						}
 					}
 				}
 				
@@ -160,9 +164,7 @@ public class Natter extends JFrame implements Theme
 		JPanel panel = new JPanel(new MigLayout("al center center", "[][]", "[]"));
 		panel.setBackground(transpentColor);
 		
-		FlatSVGIcon scaledDownImage = new FlatSVGIcon(getClass().getResource("../../res/icons/logo.svg"));
-		scaledDownImage = scaledDownImage.derive(100, 100);
-		JLabel img = new JLabel(scaledDownImage);
+		JLabel img = new JLabel(new FlatSVGIcon(getClass().getResource("../../res/icons/logo.svg")).derive(100, 100));
 		panel.add(img, "center, wrap");
 		
 		JLabel label1 = new JLabel("<html>" + "<center><b>Chatting app for all PC's</b></center>" + "<br/>"
@@ -301,6 +303,11 @@ public class Natter extends JFrame implements Theme
 		
 		appDesc = appDesc();
 		this.add(appDesc, BorderLayout.CENTER);
+		
+		for (var users : userInfo.readExistingUsers())
+			usersPanel.add(initUserComponentPanel(users.getName(), users.getTime()), "pushx, growx, span1");
+		
+		repaint();
 	}
 	
 	private boolean userExist(String user)
@@ -383,6 +390,93 @@ public class Natter extends JFrame implements Theme
 		{}
 		
 		return null;
+	}
+	
+	private JPanel initUserComponentPanel(String receiver, String time)
+	{
+		JPanel chatItemPanel = new JPanel();
+		chatItemPanel.setLayout(new MigLayout("", "[][]", "[]"));
+		chatItemPanel.setBackground(transpentColor);
+		
+		Icon profileImage = createProfilePic(receiver);
+		ProfilePicture avatar = new ProfilePicture();
+		avatar.setBorderSize(1);
+		avatar.setBorderSpace(1);
+		avatar.setImage(profileImage);
+		chatItemPanel.add(avatar, "al left, w 60, h 60");
+		
+		// Chat details
+		JPanel detailsPanel = new JPanel(new MigLayout("al left, wrap, gapy 10", "[][]", "[][]"));
+		detailsPanel.setBackground(transpentColor);
+		
+		JLabel nameLabel = new JLabel(receiver);
+		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
+		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
+		
+		JLabel timestampLabel = new JLabel(time);
+		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
+		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		detailsPanel.add(timestampLabel);
+		
+		JPopupMenu popupMenu = new JPopupMenu();
+		
+		JMenuItem close = new JMenuItem("Close Chat",
+				new FlatSVGIcon(getClass().getResource("../../res/icons/close icon.svg")).derive(13, 13)
+						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
+		
+		close.addActionListener(e -> {
+			this.remove(chatComponent);
+			usersMap.put(receiver, chatComponent);
+			chatComponent = null;
+			this.add(appDesc, BorderLayout.CENTER);
+			repaint();
+		});
+		popupMenu.add(close);
+		
+		chatItemPanel.add(detailsPanel, "al center, w 230!");
+		
+		chatItemPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		chatItemPanel.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent evt)
+			{
+				if (SwingUtilities.isLeftMouseButton(evt))
+				{
+					if (ChatUI.userName != receiver)
+					{
+						if (usersMap.containsKey(receiver))
+						{
+							if (chatComponent != null)
+								remove(chatComponent);
+							
+							chatComponent = usersMap.get(receiver);
+							add(chatComponent);
+							remove(appDesc);
+							ChatUI.userName = receiver;
+						}
+						else
+						{
+							showChatUI(ResourceHandler.readPropertiesFile("username"), receiver,
+									createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
+						}
+					}
+				}
+				
+				if (SwingUtilities.isRightMouseButton(evt) && chatComponent != null)
+				{
+					if (ChatUI.userName.equals(receiver))
+					{
+						popupMenu.show(chatItemPanel, evt.getX(), evt.getY());
+					}
+				}
+				repaint();
+				revalidate();
+			}
+		});
+		
+		return chatItemPanel;
 	}
 	
 	class RoundedButton extends JButton

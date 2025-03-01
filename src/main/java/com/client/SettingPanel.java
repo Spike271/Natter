@@ -1,5 +1,6 @@
 package com.client;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -36,6 +37,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
@@ -120,8 +122,9 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		menuPanel.putClientProperty(FlatClientProperties.STYLE, "arc: 20;"
 				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		
-		JButton button1 = new JButton("Profile",
-				new FlatSVGIcon(getClass().getResource("../../res/icons/user.svg")).derive(18, 18));
+		JButton button1 = new JButton("Profile", new FlatSVGIcon(getClass().getResource("../../res/icons/user.svg"))
+				.derive(18, 18).setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
+		
 		button1.setIconTextGap(15);
 		button1.setHorizontalAlignment(SwingConstants.LEFT);
 		button1.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
@@ -133,8 +136,9 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		});
 		
 		JButton button2 = new JButton("Appearance",
-				new FlatSVGIcon(getClass().getResource("../../res/icons/appearance.svg")).derive(18, 18));
-		button2.setIconTextGap(15);
+				new FlatSVGIcon(getClass().getResource("../../res/icons/appearance.svg")).derive(18, 18)
+						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
+		button2.setIconTextGap(13);
 		button2.setHorizontalAlignment(SwingConstants.LEFT);
 		button2.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
 		button2.addActionListener(e -> {
@@ -145,7 +149,8 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		});
 		
 		JButton button3 = new JButton("Security",
-				new FlatSVGIcon(getClass().getResource("../../res/icons/security.svg")).derive(18, 18));
+				new FlatSVGIcon(getClass().getResource("../../res/icons/security.svg")).derive(18, 18)
+						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
 		button3.setIconTextGap(15);
 		button3.setHorizontalAlignment(SwingConstants.LEFT);
 		button3.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
@@ -252,7 +257,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		}
 		catch (Exception e)
 		{
-			System.out.println(getPathString());
+			System.err.println(getPathString());
 		}
 		profilePanel.add(profilePic, "center");
 		

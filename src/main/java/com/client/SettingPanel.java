@@ -23,6 +23,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -222,6 +223,23 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		JButton colorButton1 = new JButton("Pick a Color");
 		colorButton1.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
+		colorButton1.setToolTipText("Changes the chat background color");
+		colorButton1.addActionListener(new ActionListener() {
+			
+			String mode = toggle ? "dark_mode" : "light_mode";
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Color selectedColor = JColorChooser.showDialog(SettingPanel.this, "Choose a chat background color",
+						Color.decode(ResourceHandler.getColorFileSettings(mode, "Color1")));
+				
+				if (selectedColor != null)
+				{
+					ResourceHandler.changeColorFileSettings(mode + ".Color1", convertColorToHex(selectedColor));
+				}
+			}
+		});
 		apperancePanel.add(colorButton1, "w 160");
 		
 		JLabel gradientColorEnd = new JLabel("Gradient End Color");
@@ -230,6 +248,24 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		JButton colorButton2 = new JButton("Pick a Color");
 		colorButton2.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
+		colorButton2.setToolTipText("Changes the chat background color\n"
+				+ "Pick the same color if you don't want the gradient background");
+		colorButton2.addActionListener(new ActionListener() {
+			
+			String mode = toggle ? "dark_mode" : "light_mode";
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Color selectedColor = JColorChooser.showDialog(SettingPanel.this, "Choose a chat background color",
+						Color.decode(ResourceHandler.getColorFileSettings(mode, "Color2")));
+				
+				if (selectedColor != null)
+				{
+					ResourceHandler.changeColorFileSettings(mode + ".Color2", convertColorToHex(selectedColor));
+				}
+			}
+		});
 		apperancePanel.add(colorButton2, "w 160");
 		
 		return apperancePanel;
@@ -514,6 +550,19 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 	{
 		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
 		return targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
+	}
+	
+	private String convertColorToHex(Color color)
+	{
+		int red = color.getRed();
+		int green = color.getGreen();
+		int blue = color.getBlue();
+		
+		String hexRed = String.format("%02X", red);
+		String hexGreen = String.format("%02X", green);
+		String hexBlue = String.format("%02X", blue);
+		
+		return "#" + hexRed + hexGreen + hexBlue;
 	}
 	
 	private Image getScaledImage(BufferedImage originalImage)

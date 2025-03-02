@@ -75,8 +75,26 @@ public class ResourceHandler
 		}
 		catch (ConfigurationException | IOException e)
 		{
-			System.err.println("cannot find the config file\ncalled from changeSettings");
+			System.err.println("cannot find the config file\ncalled from changeColorFileSettings");
 		}
+	}
+	
+	public static String getColorFileSettings(String property, String value)
+	{
+		try
+		{
+			INIConfiguration iniConfig = new INIConfiguration();
+			FileHandler fileHandler = new FileHandler(iniConfig);
+			
+			String path = ResourceHandler.class.getResource(colorFile).getFile();
+			fileHandler.load(new File(path));
+			return iniConfig.getString(property + "." + value);
+		}
+		catch (ConfigurationException e)
+		{
+			System.err.println("cannot find the config file\ncalled from getColorFileSettings");
+		}
+		return null;
 	}
 	
 	public static String readPropertiesFile(String key)

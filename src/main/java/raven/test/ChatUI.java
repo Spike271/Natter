@@ -81,13 +81,17 @@ public class ChatUI extends JPanel implements Theme
 			
 			private void addMessages()
 			{
-				String date = df.format(new Date());
 				String inputMessage = chatArea.getText().trim();
-				chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
-				chatArea.clearTextAndGrabFocus();
 				
-				output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
-				System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+				if (!inputMessage.isBlank())
+				{
+					String date = df.format(new Date());
+					chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
+					chatArea.clearTextAndGrabFocus();
+					
+					output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+					System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+				}
 			}
 		});
 		new Thread(() -> listenForMessages(receiver, receiverIcon)).start();

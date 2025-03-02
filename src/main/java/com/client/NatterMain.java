@@ -34,7 +34,7 @@ public class NatterMain implements Theme
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(null, "Something went wrong\nPlease reinstall the application.");
+				JOptionPane.showMessageDialog(null, "Something went wrong\nPlease Reinstall the application.");
 			}
 		}
 		else

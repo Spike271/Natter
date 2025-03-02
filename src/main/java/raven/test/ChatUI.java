@@ -15,6 +15,7 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 
 import com.client.ResourceHandler;
+import com.client.userChats;
 
 import raven.chat.component.ChatBox;
 import raven.chat.model.ModelMessage;
@@ -90,6 +91,7 @@ public class ChatUI extends JPanel implements Theme
 					chatArea.clearTextAndGrabFocus();
 					
 					output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+					userChats.addUsersConversation(receiver, date, "sender", inputMessage);
 					System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
 				}
 			}
@@ -120,9 +122,10 @@ public class ChatUI extends JPanel implements Theme
 				if (outputMessage.equals("END_OF_MESSAGE"))
 				{
 					String fullMessage = messageBuilder.toString();
-					chatArea.addChatBox(new ModelMessage(icon, name, df.format(new Date()), fullMessage),
-							ChatBox.BoxType.LEFT);
+					String date = df.format(new Date());
+					chatArea.addChatBox(new ModelMessage(icon, name, date, fullMessage), ChatBox.BoxType.LEFT);
 					chatArea.clearTextAndGrabFocus();
+					userChats.addUsersConversation(name, date, "receiver", fullMessage);
 					System.out.println(fullMessage);
 					
 					messageBuilder.setLength(0);

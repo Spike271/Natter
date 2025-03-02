@@ -23,6 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -52,7 +53,8 @@ public class Natter extends JFrame implements Theme
 	private JPanel usersPanel, appDesc;
 	private Color transpentColor = new Color(0, 0, 0, 0);
 	private ChatUI chatComponent;
-	private HashMap<String, ChatUI> usersMap = new HashMap<>(5);
+	private ArrayList<String> usersList = new ArrayList<>();
+	private HashMap<String, ChatUI> usersMap = new HashMap<>();
 	
 	public Natter()
 	{
@@ -275,10 +277,11 @@ public class Natter extends JFrame implements Theme
 				String username = JOptionPane.showInputDialog(Natter.this, "Enter the Username: ", "");
 				if (username != null)
 				{
-					if (!username.isBlank())
+					if (!username.isBlank() && !usersList.contains(username))
 					{
 						if (userExist(username))
 						{
+							usersList.add(username);
 							usersPanel.add(userComponentPanel(username), "pushx, growx, span1");
 							repaint();
 							revalidate();
@@ -305,7 +308,10 @@ public class Natter extends JFrame implements Theme
 		this.add(appDesc, BorderLayout.CENTER);
 		
 		for (var users : userInfo.readExistingUsers())
+		{
 			usersPanel.add(initUserComponentPanel(users.getName(), users.getTime()), "pushx, growx, span1");
+			usersList.add(users.getName());
+		}
 		
 		repaint();
 	}

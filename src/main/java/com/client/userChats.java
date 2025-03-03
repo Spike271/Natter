@@ -109,7 +109,7 @@ public class userChats
 		}
 	}
 	
-	static class Message
+	public static class Message
 	{
 		private String type;
 		private String date;

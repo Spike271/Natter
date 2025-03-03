@@ -9,7 +9,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -28,9 +31,10 @@ import raven.resource.swing.GetImage;
 public class ChatUI extends JPanel implements Theme
 {
 	public static String userName = "", globalSender;
+	public static ArrayList<ChatBoxList> chatBoxLists = null;
 	private static final long serialVersionUID = 1L;
 	private Background background1;
-	private raven.chat.component.ChatArea chatArea;
+	public raven.chat.component.ChatArea chatArea;
 	private String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 	private PrintWriter output;
 	private BufferedReader input;
@@ -47,6 +51,7 @@ public class ChatUI extends JPanel implements Theme
 		if (globalSender == null)
 			globalSender = sender;
 		
+		chatBoxLists = new ArrayList<>();
 		userName = receiver;
 		chatArea.setTitle(receiver);
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
@@ -96,8 +101,51 @@ public class ChatUI extends JPanel implements Theme
 				}
 			}
 		});
+		
+		var msg = loadExistingMessages(receiver);
+		if (msg != null)
+			addMessagesToChatUi(msg, sender, receiver, senderIcon, receiverIcon);
+		
 		new Thread(() -> listenForMessages(receiver, receiverIcon)).start();
 		return this;
+	}
+	
+	private List<userChats.Message> loadExistingMessages(String userID)
+	{
+		Map<String, List<userChats.Message>> conversations = userChats.readAllConversations();
+		
+		for (Map.Entry<String, List<userChats.Message>> entry : conversations.entrySet())
+		{
+			String userId = entry.getKey();
+			List<userChats.Message> messages = entry.getValue();
+			
+			if (userId.equals(userID))
+			{
+				System.out.println("User ID: " + userId);
+				return messages;
+			}
+		}
+		
+		return null;
+	}
+	
+	private void addMessagesToChatUi(List<userChats.Message> messages, String sender, String receiver, Icon senderIcon,
+			Icon receiverIcon)
+	{
+		for (var msg : messages)
+		{
+			if (msg.getType().equals("sender"))
+			{
+				chatBoxLists.add(new ChatBoxList(new ModelMessage(senderIcon, sender, msg.getDate(), msg.getContent()),
+						ChatBox.BoxType.RIGHT));
+			}
+			else
+			{
+				chatBoxLists
+						.add(new ChatBoxList(new ModelMessage(receiverIcon, receiver, msg.getDate(), msg.getContent()),
+								ChatBox.BoxType.LEFT));
+			}
+		}
 	}
 	
 	private void listenForMessages(String user, Icon pfp)
@@ -221,5 +269,27 @@ public class ChatUI extends JPanel implements Theme
 			e.printStackTrace();
 		}
 		isConnected = false;
+	}
+	
+	public class ChatBoxList
+	{
+		ModelMessage modal;
+		ChatBox.BoxType type;
+		
+		public ChatBoxList(ModelMessage modal, ChatBox.BoxType type)
+		{
+			this.modal = modal;
+			this.type = type;
+		}
+		
+		public ModelMessage getModal()
+		{
+			return modal;
+		}
+		
+		public ChatBox.BoxType getType()
+		{
+			return type;
+		}
 	}
 }

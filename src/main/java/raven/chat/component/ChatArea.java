@@ -265,7 +265,7 @@ public class ChatArea extends JPanel implements Theme
 		body.revalidate();
 	}
 	
-	private void scrollToBottom()
+	private synchronized void scrollToBottom()
 	{
 		animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum());
 	}

@@ -45,6 +45,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter;
 
 import net.miginfocom.swing.MigLayout;
 import raven.test.ChatUI;
+import raven.test.ChatUI.ChatBoxList;
 
 public class Natter extends JFrame implements Theme
 {
@@ -112,6 +113,7 @@ public class Natter extends JFrame implements Theme
 			usersMap.put(receiver, chatComponent);
 			chatComponent = null;
 			this.add(appDesc, BorderLayout.CENTER);
+			ChatUI.userName = "";
 			repaint();
 		});
 		popupMenu.add(close);
@@ -198,6 +200,16 @@ public class Natter extends JFrame implements Theme
 				ChatUI.userName = receiver;
 				usersMap.put(ChatUI.userName, chatComponent);
 				add(chatComponent.createChatUI(sender, receiver, senderIcon, receiverIcon), BorderLayout.CENTER);
+				
+				var temp = ChatUI.chatBoxLists;
+				if (temp != null)
+				{
+					for (ChatBoxList chatBoxList : temp)
+					{
+						chatComponent.chatArea.addChatBox(chatBoxList.getModal(), chatBoxList.getType());
+					}
+					ChatUI.chatBoxLists = null;
+				}
 			}
 			repaint();
 			revalidate();
@@ -436,6 +448,7 @@ public class Natter extends JFrame implements Theme
 			usersMap.put(receiver, chatComponent);
 			chatComponent = null;
 			this.add(appDesc, BorderLayout.CENTER);
+			ChatUI.userName = "";
 			repaint();
 		});
 		popupMenu.add(close);

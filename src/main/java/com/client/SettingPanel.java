@@ -75,6 +75,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		});
 		this.setSize(1000, 700);
 		this.setResizable(false);
+		this.setFocusable(true);
 		this.setLocationRelativeTo(null);
 	}
 	

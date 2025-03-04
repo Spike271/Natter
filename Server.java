@@ -59,7 +59,6 @@ public class Server
 						clients.put(clientName, this);
 					}
 					clientSockets.put(clientSocket, clientName); // Associate the client socket with the name
-					output.println("Welcome, " + clientName + "! You can now send messages.");
 				}
 				else
 				{

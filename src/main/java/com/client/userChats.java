@@ -49,6 +49,9 @@ public class userChats
 			System.err.println("File 'Conversations.json' not found.");
 		}
 		
+		if (data == null)
+			return null;
+		
 		return data.getConversations();
 	}
 	

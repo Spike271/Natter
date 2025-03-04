@@ -114,18 +114,17 @@ public class ChatUI extends JPanel implements Theme
 	{
 		Map<String, List<userChats.Message>> conversations = userChats.readAllConversations();
 		
-		for (Map.Entry<String, List<userChats.Message>> entry : conversations.entrySet())
+		if (conversations != null)
 		{
-			String userId = entry.getKey();
-			List<userChats.Message> messages = entry.getValue();
-			
-			if (userId.equals(userID))
+			for (Map.Entry<String, List<userChats.Message>> entry : conversations.entrySet())
 			{
-				System.out.println("User ID: " + userId);
-				return messages;
+				String userId = entry.getKey();
+				List<userChats.Message> messages = entry.getValue();
+				
+				if (userId.equals(userID))
+					return messages;
 			}
 		}
-		
 		return null;
 	}
 	
@@ -255,7 +254,7 @@ public class ChatUI extends JPanel implements Theme
 						javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
 	}
 	
-	private void closeConnection()
+	public void closeConnection()
 	{
 		try
 		{

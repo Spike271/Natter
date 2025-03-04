@@ -43,8 +43,11 @@ public class userInfo
 				{
 					List<Receiver> receivers = wrapper.Receivers;
 					
-					for (Receiver receiver : receivers)
-						users.add(receiver);
+					if (receivers != null)
+					{
+						for (Receiver receiver : receivers)
+							users.add(receiver);
+					}
 				}
 			}
 			catch (IOException e)

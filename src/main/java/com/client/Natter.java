@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -67,6 +69,16 @@ public class Natter extends JFrame implements Theme
 		this.setMinimumSize(new Dimension(1000, 800));
 		this.setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());
 		this.setLocationRelativeTo(null);
+		this.addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				for (var entry : usersMap.values())
+					entry.closeConnection();
+			}
+		});
+		this.setFocusable(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		addGuiComponents();
 	}

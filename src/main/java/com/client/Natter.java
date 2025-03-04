@@ -319,10 +319,15 @@ public class Natter extends JFrame implements Theme
 		appDesc = appDesc();
 		this.add(appDesc, BorderLayout.CENTER);
 		
-		for (var users : userInfo.readExistingUsers())
+		var temp = userInfo.readExistingUsers();
+		
+		if (temp != null)
 		{
-			usersPanel.add(initUserComponentPanel(users.getName(), users.getTime()), "pushx, growx, span1");
-			usersList.add(users.getName());
+			for (var users : temp)
+			{
+				usersPanel.add(initUserComponentPanel(users.getName(), users.getTime()), "pushx, growx, span1");
+				usersList.add(users.getName());
+			}
 		}
 		
 		repaint();

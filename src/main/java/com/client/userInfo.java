@@ -38,10 +38,14 @@ public class userInfo
 			try (FileReader reader = new FileReader(file))
 			{
 				ReceiversWrapper wrapper = gson.fromJson(reader, ReceiversWrapper.class);
-				List<Receiver> receivers = wrapper.Receivers;
 				
-				for (Receiver receiver : receivers)
-					users.add(receiver);
+				if (wrapper != null)
+				{
+					List<Receiver> receivers = wrapper.Receivers;
+					
+					for (Receiver receiver : receivers)
+						users.add(receiver);
+				}
 			}
 			catch (IOException e)
 			{

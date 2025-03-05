@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -20,6 +18,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
+import net.miginfocom.swing.MigLayout;
 
 public abstract class CustomComponent extends JFrame implements Theme
 {
@@ -118,13 +118,9 @@ public abstract class CustomComponent extends JFrame implements Theme
 	
 	private JPanel createTitlePanel(JLabel titleLabel)
 	{
-		JPanel titlePanel = new JPanel(new GridBagLayout());
-		titlePanel.setOpaque(false); // transparent
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0; // Column = 0
-		gbc.gridy = 0; // Row = 0
-		gbc.anchor = GridBagConstraints.CENTER; // Center the component
-		titlePanel.add(titleLabel, gbc);
+		JPanel titlePanel = new JPanel(new MigLayout("fill, insets 0"));
+		titlePanel.setOpaque(false);
+		titlePanel.add(titleLabel, "align center, grow");
 		return titlePanel;
 	}
 	

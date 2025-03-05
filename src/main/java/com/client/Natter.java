@@ -39,6 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 
 import com.formdev.flatlaf.FlatLaf;
@@ -56,6 +57,7 @@ public class Natter extends JFrame implements Theme
 	private JPanel usersPanel, appDesc;
 	private Color transpentColor = new Color(0, 0, 0, 0);
 	private ChatUI chatComponent;
+	private static JPanel selectedPanel;
 	private ArrayList<String> usersList = new ArrayList<>();
 	private HashMap<String, ChatUI> usersMap = new HashMap<>();
 	
@@ -126,6 +128,7 @@ public class Natter extends JFrame implements Theme
 			chatComponent = null;
 			this.add(appDesc, BorderLayout.CENTER);
 			ChatUI.userName = "";
+			chatItemPanel.setBackground(transpentColor);
 			repaint();
 		});
 		popupMenu.add(close);
@@ -140,8 +143,14 @@ public class Natter extends JFrame implements Theme
 			{
 				if (SwingUtilities.isLeftMouseButton(evt))
 				{
-					if (ChatUI.userName != receiver)
+					if (!ChatUI.userName.equals(receiver))
 					{
+						if (selectedPanel != null)
+							selectedPanel.setBackground(transpentColor);
+						
+						selectedPanel = chatItemPanel;
+						selectedPanel.setBackground(new Color(81, 81, 81));
+						
 						if (usersMap.containsKey(receiver))
 						{
 							if (chatComponent != null)
@@ -225,6 +234,7 @@ public class Natter extends JFrame implements Theme
 			}
 			repaint();
 			revalidate();
+			chatComponent.chatArea.scrollToBottom();
 		}
 	}
 	
@@ -241,7 +251,7 @@ public class Natter extends JFrame implements Theme
 		usersPanel = new JPanel();
 		usersPanel.setLayout(new MigLayout("wrap, insets 10, gapy 4", "[290:310:320]", ""));
 		usersPanel.setBackground(Color.decode(ResourceHandler.getSettings(mode, "userPanel")));
-		usersPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.gray)); // Top and right border only
+		usersPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.GRAY)); // Top and right border only
 		
 		// chats heading
 		JLabel userPanelHeading = new JLabel("Chats");
@@ -301,12 +311,12 @@ public class Natter extends JFrame implements Theme
 				String username = JOptionPane.showInputDialog(Natter.this, "Enter the Username: ", "");
 				if (username != null)
 				{
-					if (!username.isBlank() && !usersList.contains(username))
+					if (!username.isBlank() && !usersList.contains(username.toLowerCase()))
 					{
 						if (userExist(username))
 						{
 							usersList.add(username);
-							usersPanel.add(userComponentPanel(username), "pushx, growx, span1");
+							usersPanel.add(userComponentPanel(username.toLowerCase()), "pushx, growx, span1");
 							repaint();
 							revalidate();
 						}
@@ -319,6 +329,7 @@ public class Natter extends JFrame implements Theme
 		
 		roundedButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		usersPanel.add(roundedButton, "gapx 130, w 20, h 20, wrap");
+		usersPanel.add(new JSeparator(), "gapy 5");
 		
 		JScrollPane scrollBody = createScroll();
 		scrollBody.setViewportView(usersPanel);
@@ -338,7 +349,7 @@ public class Natter extends JFrame implements Theme
 			for (var users : temp)
 			{
 				usersPanel.add(initUserComponentPanel(users.getName(), users.getTime()), "pushx, growx, span1");
-				usersList.add(users.getName());
+				usersList.add(users.getName().toLowerCase());
 			}
 		}
 		
@@ -466,6 +477,7 @@ public class Natter extends JFrame implements Theme
 			chatComponent = null;
 			this.add(appDesc, BorderLayout.CENTER);
 			ChatUI.userName = "";
+			chatItemPanel.setBackground(transpentColor);
 			repaint();
 		});
 		popupMenu.add(close);
@@ -480,8 +492,14 @@ public class Natter extends JFrame implements Theme
 			{
 				if (SwingUtilities.isLeftMouseButton(evt))
 				{
-					if (ChatUI.userName != receiver)
+					if (!ChatUI.userName.equals(receiver))
 					{
+						if (selectedPanel != null)
+							selectedPanel.setBackground(transpentColor);
+						
+						selectedPanel = chatItemPanel;
+						selectedPanel.setBackground(new Color(81, 81, 81));
+						
 						if (usersMap.containsKey(receiver))
 						{
 							if (chatComponent != null)

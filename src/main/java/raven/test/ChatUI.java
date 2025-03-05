@@ -104,7 +104,7 @@ public class ChatUI extends JPanel implements Theme
 		
 		var msg = loadExistingMessages(receiver);
 		if (msg != null)
-			addMessagesToChatUi(msg, sender, receiver, senderIcon, receiverIcon);
+			addMessagesToList(msg, sender, receiver, senderIcon, receiverIcon);
 		
 		new Thread(() -> listenForMessages(receiver, receiverIcon)).start();
 		return this;
@@ -128,7 +128,7 @@ public class ChatUI extends JPanel implements Theme
 		return null;
 	}
 	
-	private void addMessagesToChatUi(List<userChats.Message> messages, String sender, String receiver, Icon senderIcon,
+	private void addMessagesToList(List<userChats.Message> messages, String sender, String receiver, Icon senderIcon,
 			Icon receiverIcon)
 	{
 		for (var msg : messages)
@@ -173,8 +173,6 @@ public class ChatUI extends JPanel implements Theme
 					chatArea.addChatBox(new ModelMessage(icon, name, date, fullMessage), ChatBox.BoxType.LEFT);
 					chatArea.clearTextAndGrabFocus();
 					userChats.addUsersConversation(name, date, "receiver", fullMessage);
-					System.out.println(fullMessage);
-					
 					messageBuilder.setLength(0);
 				}
 				else if (outputMessage.equals("disconnected"))

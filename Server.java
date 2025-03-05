@@ -59,6 +59,7 @@ public class Server
 						clients.put(clientName, this);
 					}
 					clientSockets.put(clientSocket, clientName); // Associate the client socket with the name
+					output.println("END_OF_MESSAGE");
 				}
 				else
 				{

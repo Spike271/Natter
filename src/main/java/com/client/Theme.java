@@ -2,5 +2,6 @@ package com.client;
 
 public interface Theme
 {
-	boolean toggle = ResourceHandler.isDarkModeOn();
+	boolean isDarkModeOn = ResourceHandler.isDarkModeOn();
+	String currentTheme = isDarkModeOn ? "dark_mode" : "light_mode";
 }

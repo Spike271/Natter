@@ -24,7 +24,7 @@ import javax.swing.SwingConstants;
 public class SignIn extends CustomComponent implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
-	private Color labelColor = toggle ? Color.WHITE : Color.BLACK;
+	private Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
 	private JButton clickableLabel;
 	private RoundedJButton submitButton;
@@ -45,7 +45,7 @@ public class SignIn extends CustomComponent implements ActionListener
 	{
 		// Theme Button
 		themeButton = new GradientToggleButton();
-		themeButton.setSelected(toggle);
+		themeButton.setSelected(Theme.isDarkModeOn);
 		themeButton.setToolTipText("Dark Mode");
 		themeButton.addActionListener(new ActionListener() {
 			
@@ -194,7 +194,7 @@ public class SignIn extends CustomComponent implements ActionListener
 					submitButton.setEnabled(false);
 					repaint();
 					
-					final String query = "SELECT * FROM account_info where Username = '" + username
+					final String query = "SELECT * FROM account_info where BINARY Username = '" + username
 							+ "' and Password = '" + password + "'";
 					
 					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,

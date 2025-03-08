@@ -44,7 +44,7 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import net.miginfocom.swing.MigLayout;
 
-public class SettingPanel extends JFrame implements Theme, ActionListener
+public class SettingPanel extends JFrame implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
 	private JPanel apperancePanel;
@@ -186,7 +186,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		
 		// Create a drop down menu
 		JComboBox<String> dropDown = new JComboBox<>(new String[] { "Light Mode", "Dark Mode" });
-		dropDown.setSelectedIndex(toggle ? 1 : 0);
+		dropDown.setSelectedIndex(Theme.isDarkModeOn ? 1 : 0);
 		int check = dropDown.getSelectedIndex();
 		dropDown.putClientProperty(FlatClientProperties.STYLE, "font: +3;" + "arc: 1;" + "minimumWidth: 160;"
 				+ "arrowType: traingle;" + "buttonStyle: none;" + "focusWidth: 0;");
@@ -227,7 +227,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 		colorButton1.setToolTipText("Changes the chat background color");
 		colorButton1.addActionListener(new ActionListener() {
 			
-			String mode = toggle ? "dark_mode" : "light_mode";
+			String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 			
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -253,7 +253,7 @@ public class SettingPanel extends JFrame implements Theme, ActionListener
 				+ "Pick the same color if you don't want the gradient background");
 		colorButton2.addActionListener(new ActionListener() {
 			
-			String mode = toggle ? "dark_mode" : "light_mode";
+			String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 			
 			@Override
 			public void actionPerformed(ActionEvent e)

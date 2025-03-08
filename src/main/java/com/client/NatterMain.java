@@ -71,7 +71,7 @@ public class NatterMain implements Theme
 				FlatRobotoFont.install();
 				UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
 				
-				if (toggle)
+				if (isDarkModeOn)
 					FlatMacDarkLaf.setup();
 				else
 					FlatMacLightLaf.setup();

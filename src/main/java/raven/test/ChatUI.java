@@ -2,21 +2,20 @@ package raven.test;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.swing.Icon;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.client.MessagesSendAndReceive;
 import com.client.ResourceHandler;
 import com.client.userChats;
 
@@ -30,16 +29,15 @@ import raven.resource.swing.GetImage;
 
 public class ChatUI extends JPanel implements Theme
 {
-	public static String userName = "", globalSender;
-	public static ArrayList<ChatBoxList> chatBoxLists = null;
 	private static final long serialVersionUID = 1L;
+	
+	private final String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
+	public static String userName = "";
 	private Background background1;
+	public static ArrayList<ChatBoxList> chatBoxLists = null;
 	public raven.chat.component.ChatArea chatArea;
-	private String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
-	private PrintWriter output;
-	private BufferedReader input;
-	private Socket clientSocket;
-	private volatile boolean isConnected = true;
+	public static BlockingQueue<String> messageQueue = new LinkedBlockingDeque<>();
+	private Icon receiverIcon;
 	
 	public ChatUI()
 	{
@@ -48,9 +46,7 @@ public class ChatUI extends JPanel implements Theme
 	
 	public JPanel createChatUI(String sender, String receiver, Icon senderIcon, Icon receiverIcon)
 	{
-		if (globalSender == null)
-			globalSender = sender;
-		
+		this.receiverIcon = receiverIcon;
 		chatBoxLists = new ArrayList<>();
 		userName = receiver;
 		chatArea.setTitle(receiver);
@@ -95,9 +91,8 @@ public class ChatUI extends JPanel implements Theme
 					chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
 					chatArea.clearTextAndGrabFocus();
 					
-					output.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
+					MessagesSendAndReceive.sendMessage(sender, receiver, inputMessage);
 					userChats.addUsersConversation(receiver, date, "sender", inputMessage);
-					System.out.println(receiver + "\n" + inputMessage + "\nEND_OF_MESSAGE");
 				}
 			}
 		});
@@ -106,8 +101,38 @@ public class ChatUI extends JPanel implements Theme
 		if (msg != null)
 			addMessagesToList(msg, sender, receiver, senderIcon, receiverIcon);
 		
-		new Thread(() -> listenForMessages(receiver, receiverIcon)).start();
+		Thread.startVirtualThread(() -> listenMessageAndAddToUi(receiver));
+		
 		return this;
+	}
+	
+	private void listenMessageAndAddToUi(String receiver)
+	{
+		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
+		
+		try
+		{
+			while (true)
+			{
+				String message = messageQueue.take();
+				if (message.startsWith(receiver))
+				{
+					String date = df.format(new Date());
+					var temp = message.substring(message.indexOf(" ") + 1, message.length());
+					chatArea.addChatBox(new ModelMessage(receiverIcon, receiver, date, temp), ChatBox.BoxType.LEFT);
+					userChats.addUsersConversation(receiver, date, "receiver", temp);
+					System.out.println(temp);
+				}
+				else if (message.startsWith("Error"))
+				{
+					JOptionPane.showMessageDialog(null, "Receiver is current unavailable");
+				}
+			}
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private List<userChats.Message> loadExistingMessages(String userID)
@@ -147,73 +172,9 @@ public class ChatUI extends JPanel implements Theme
 		}
 	}
 	
-	private void listenForMessages(String user, Icon pfp)
-	{
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
-		output.println(globalSender);
-		
-		Icon icon = pfp;
-		String name = user;
-		
-		try
-		{
-			chatArea.addChatBox(new ModelMessage(icon, name, df.format(new Date()), input.readLine()),
-					ChatBox.BoxType.LEFT);
-			chatArea.clearTextAndGrabFocus();
-			chatArea.clearChatBox();
-			
-			String outputMessage;
-			StringBuilder messageBuilder = new StringBuilder(); // To store multi-line messages
-			while ((outputMessage = input.readLine()) != null)
-			{
-				if (outputMessage.equals("END_OF_MESSAGE"))
-				{
-					String fullMessage = messageBuilder.toString();
-					String date = df.format(new Date());
-					chatArea.addChatBox(new ModelMessage(icon, name, date, fullMessage), ChatBox.BoxType.LEFT);
-					chatArea.clearTextAndGrabFocus();
-					userChats.addUsersConversation(name, date, "receiver", fullMessage);
-					messageBuilder.setLength(0);
-				}
-				else if (outputMessage.equals("disconnected"))
-				{
-					isConnected = false;
-					break;
-				}
-				else
-				{
-					if (messageBuilder.length() > 0)
-						messageBuilder.append("\n");
-					messageBuilder.append(outputMessage);
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			if (isConnected)
-			{
-				System.out.println("Connection to the server was lost.");
-				isConnected = false;
-			}
-		}
-		finally
-		{
-			closeConnection();
-		}
-	}
-	
 	private void initComponents()
 	{
 		String temp = GetAndSetColor.getSettings(mode, "chatbackgroundImage");
-		
-		try
-		{
-			clientSocket = new Socket("localhost", 8000);
-			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			output = new PrintWriter(clientSocket.getOutputStream(), true);
-		}
-		catch (Exception e)
-		{}
 		
 		try
 		{
@@ -250,22 +211,6 @@ public class ChatUI extends JPanel implements Theme
 		layout.setVerticalGroup(
 				layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(background1,
 						javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
-	}
-	
-	public void closeConnection()
-	{
-		try
-		{
-			if (clientSocket != null && !clientSocket.isClosed())
-			{
-				clientSocket.close();
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		isConnected = false;
 	}
 	
 	public class ChatBoxList

@@ -53,7 +53,6 @@ import raven.test.ChatUI.ChatBoxList;
 public class Natter extends JFrame implements Theme
 {
 	private static final long serialVersionUID = 1L;
-	private final String mode = toggle ? "dark_mode" : "light_mode";
 	private JPanel usersPanel, appDesc;
 	private Color transpentColor = new Color(0, 0, 0, 0);
 	private ChatUI chatComponent;
@@ -70,19 +69,20 @@ public class Natter extends JFrame implements Theme
 		this.setSize(1100, 850);
 		this.setMinimumSize(new Dimension(1000, 800));
 		this.setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());
-		this.setLocationRelativeTo(null);
 		this.addWindowListener(new WindowAdapter() {
 			
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
-				for (var entry : usersMap.values())
-					entry.closeConnection();
+				MessagesSendAndReceive.stopMessageListening();
 			}
 		});
+		this.setLocationRelativeTo(null);
 		this.setFocusable(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		addGuiComponents();
+		
+		MessagesSendAndReceive.startMessageListening();
 	}
 	
 	private JPanel userComponentPanel(String receiver)
@@ -104,7 +104,7 @@ public class Natter extends JFrame implements Theme
 		
 		JLabel nameLabel = new JLabel(receiver);
 		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
-		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -113,7 +113,7 @@ public class Natter extends JFrame implements Theme
 		
 		JLabel timestampLabel = new JLabel(currentTime);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
-		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
 		detailsPanel.add(timestampLabel);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
@@ -149,7 +149,8 @@ public class Natter extends JFrame implements Theme
 							selectedPanel.setBackground(transpentColor);
 						
 						selectedPanel = chatItemPanel;
-						selectedPanel.setBackground(new Color(81, 81, 81));
+						selectedPanel
+								.setBackground(FlatLaf.isLafDark() ? new Color(81, 81, 81) : new Color(210, 210, 210));
 						
 						if (usersMap.containsKey(receiver))
 						{
@@ -163,8 +164,8 @@ public class Natter extends JFrame implements Theme
 						}
 						else
 						{
-							showChatUI(ResourceHandler.readPropertiesFile("username"), receiver,
-									createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
+							String userString = ResourceHandler.readPropertiesFile("username");
+							showChatUI(userString, receiver, createProfilePic(userString), profileImage);
 						}
 					}
 				}
@@ -195,7 +196,7 @@ public class Natter extends JFrame implements Theme
 		JLabel label1 = new JLabel("<html>" + "<center><b>Chatting app for all PC's</b></center>" + "<br/>"
 				+ "No conversations selected" + "</html>");
 		label1.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 18f));
-		label1.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		label1.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
 		panel.add(label1, "gapx 8, wrap, sg 1");
 		return panel;
 	}
@@ -225,11 +226,14 @@ public class Natter extends JFrame implements Theme
 				var temp = ChatUI.chatBoxLists;
 				if (temp != null)
 				{
-					for (ChatBoxList chatBoxList : temp)
+					if (!temp.isEmpty())
 					{
-						chatComponent.chatArea.addChatBox(chatBoxList.getModal(), chatBoxList.getType());
+						for (ChatBoxList chatBoxList : temp)
+						{
+							chatComponent.chatArea.addChatBox(chatBoxList.getModal(), chatBoxList.getType());
+						}
+						ChatUI.chatBoxLists.clear();
 					}
-					ChatUI.chatBoxLists = null;
 				}
 			}
 			repaint();
@@ -250,13 +254,13 @@ public class Natter extends JFrame implements Theme
 	{
 		usersPanel = new JPanel();
 		usersPanel.setLayout(new MigLayout("wrap, insets 10, gapy 4", "[290:310:320]", ""));
-		usersPanel.setBackground(Color.decode(ResourceHandler.getSettings(mode, "userPanel")));
+		usersPanel.setBackground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "userPanel")));
 		usersPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.GRAY)); // Top and right border only
 		
 		// chats heading
 		JLabel userPanelHeading = new JLabel("Chats");
 		userPanelHeading.setFont(ResourceHandler.getFont("Roboto-Black.ttf", 24f));
-		userPanelHeading.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		userPanelHeading.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
 		usersPanel.add(userPanelHeading, "gapx 20, w 40, h 40, split");
 		
 		// setting icon
@@ -311,12 +315,12 @@ public class Natter extends JFrame implements Theme
 				String username = JOptionPane.showInputDialog(Natter.this, "Enter the Username: ", "");
 				if (username != null)
 				{
-					if (!username.isBlank() && !usersList.contains(username.toLowerCase()))
+					if (!username.isBlank() && !containsIgnoreCase(usersList, username))
 					{
 						if (userExist(username))
 						{
 							usersList.add(username);
-							usersPanel.add(userComponentPanel(username.toLowerCase()), "pushx, growx, span1");
+							usersPanel.add(userComponentPanel(username), "pushx, growx, span1");
 							repaint();
 							revalidate();
 						}
@@ -360,7 +364,7 @@ public class Natter extends JFrame implements Theme
 	{
 		try (Connection con = DriverManager.getConnection(DB.dbUrl, DB.username,
 				DB.password); PreparedStatement ps = con
-						.prepareStatement("Select * from account_info where username = ?"))
+						.prepareStatement("Select * from account_info where BINARY username = ?"))
 		{
 			ps.setString(1, user);
 			ResultSet rs = ps.executeQuery();
@@ -438,6 +442,16 @@ public class Natter extends JFrame implements Theme
 		return null;
 	}
 	
+	public boolean containsIgnoreCase(ArrayList<String> list, String target)
+	{
+		for (String s : list)
+		{
+			if (s != null && s.equalsIgnoreCase(target))
+				return true;
+		}
+		return false;
+	}
+	
 	private JPanel initUserComponentPanel(String receiver, String time)
 	{
 		JPanel chatItemPanel = new JPanel();
@@ -457,12 +471,12 @@ public class Natter extends JFrame implements Theme
 		
 		JLabel nameLabel = new JLabel(receiver);
 		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
-		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
 		
 		JLabel timestampLabel = new JLabel(time);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
-		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(mode, "fontColor")));
+		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
 		detailsPanel.add(timestampLabel);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
@@ -498,7 +512,8 @@ public class Natter extends JFrame implements Theme
 							selectedPanel.setBackground(transpentColor);
 						
 						selectedPanel = chatItemPanel;
-						selectedPanel.setBackground(new Color(81, 81, 81));
+						selectedPanel
+								.setBackground(FlatLaf.isLafDark() ? new Color(81, 81, 81) : new Color(210, 210, 210));
 						
 						if (usersMap.containsKey(receiver))
 						{
@@ -512,8 +527,8 @@ public class Natter extends JFrame implements Theme
 						}
 						else
 						{
-							showChatUI(ResourceHandler.readPropertiesFile("username"), receiver,
-									createProfilePic(ResourceHandler.readPropertiesFile("username")), profileImage);
+							String userString = ResourceHandler.readPropertiesFile("username");
+							showChatUI(userString, receiver, createProfilePic(userString), profileImage);
 						}
 					}
 				}

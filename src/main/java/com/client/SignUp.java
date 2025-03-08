@@ -28,7 +28,7 @@ public class SignUp extends CustomComponent implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
 	private JButton clickableLabel;
-	private Color labelColor = toggle ? Color.WHITE : Color.BLACK;
+	private Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
 	private RoundedJButton submitButton;
 	private RoundedJTextField FNbox, LNbox, Userbox;
@@ -48,7 +48,7 @@ public class SignUp extends CustomComponent implements ActionListener
 	{
 		// Theme Button
 		themeButton = new GradientToggleButton();
-		themeButton.setSelected(toggle);
+		themeButton.setSelected(Theme.isDarkModeOn);
 		themeButton.setToolTipText("Dark Mode");
 		themeButton.addActionListener(new ActionListener() {
 			
@@ -303,7 +303,7 @@ public class SignUp extends CustomComponent implements ActionListener
 	
 	private boolean checkIfUserAlreadyExist(String username)
 	{
-		final String query = "Select * from account_info where Username = ?";
+		final String query = "Select * from account_info where BINARY Username = ?";
 		
 		try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
 				DB.password); PreparedStatement preparedStatement = connection.prepareStatement(query))
@@ -352,6 +352,7 @@ public class SignUp extends CustomComponent implements ActionListener
 		
 		// Set a DocumentFilter to restrict input to a-z and A-Z
 		doc.setDocumentFilter(new DocumentFilter() {
+			
 			@Override
 			public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
 					throws BadLocationException

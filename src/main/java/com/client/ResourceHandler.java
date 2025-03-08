@@ -36,7 +36,7 @@ public class ResourceHandler
 		}
 		catch (ConfigurationException e)
 		{
-			System.err.println("cannot find the config file\ncalled from getSettings");
+			System.err.println("cannot find the config file\ncalled from getSettings()");
 		}
 		return null;
 	}
@@ -56,7 +56,7 @@ public class ResourceHandler
 		}
 		catch (ConfigurationException | IOException e)
 		{
-			System.err.println("cannot find the config file\ncalled from changeSettings");
+			System.err.println("cannot find the config file\ncalled from changeSettings()");
 		}
 	}
 	
@@ -75,7 +75,7 @@ public class ResourceHandler
 		}
 		catch (ConfigurationException | IOException e)
 		{
-			System.err.println("cannot find the config file\ncalled from changeColorFileSettings");
+			System.err.println("cannot find the config file\ncalled from changeColorFileSettings()");
 		}
 	}
 	
@@ -92,12 +92,12 @@ public class ResourceHandler
 		}
 		catch (ConfigurationException e)
 		{
-			System.err.println("cannot find the config file\ncalled from getColorFileSettings");
+			System.err.println("cannot find the config file\ncalled from getColorFileSettings()");
 		}
 		return null;
 	}
 	
-	public static String readPropertiesFile(String key)
+	public static synchronized String readPropertiesFile(String key)
 	{
 		Properties properties = new Properties();
 		

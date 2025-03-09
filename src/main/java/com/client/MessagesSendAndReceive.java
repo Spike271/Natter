@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JOptionPane;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 import raven.test.ChatUI;
 
@@ -20,6 +23,7 @@ public class MessagesSendAndReceive
 	private static Socket clientSocket;
 	private volatile static boolean isConnected = true;
 	private static final Thread listenMessageThread = new Thread(() -> listen());
+	private static final Gson gson = new GsonBuilder().create();
 	
 	public static void startMessageListening()
 	{
@@ -72,6 +76,7 @@ public class MessagesSendAndReceive
 				clientSocket = new Socket("localhost", 8000);
 				input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				output = new PrintWriter(clientSocket.getOutputStream(), true);
+				input.readLine();
 				output.println(user);
 			}
 			catch (Exception _)
@@ -83,11 +88,24 @@ public class MessagesSendAndReceive
 		try
 		{
 			String outputMessage;
+			SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
 			while ((outputMessage = input.readLine()) != null)
 			{
-				String fullMessage = outputMessage;
-				ChatUI.messageQueue.put(fullMessage);
-				System.out.println(fullMessage);
+				try
+				{
+					ForwardedMessage receivedMessage = gson.fromJson(outputMessage, ForwardedMessage.class);
+					String date = df.format(new Date());
+					String receiver = receivedMessage.getSender();
+					String finalMessage = receivedMessage.getMessage();
+					userChats.addUsersConversation(receiver, date, "receiver", finalMessage);
+					
+					ChatUI.messageQueue.put(receiver + ": " + finalMessage);
+					System.out.println(finalMessage);
+				}
+				catch (JsonSyntaxException e)
+				{
+					System.err.println("Invalid message format: " + outputMessage);
+				}
 			}
 		}
 		catch (IOException e)
@@ -102,7 +120,7 @@ public class MessagesSendAndReceive
 		{
 			if (isConnected)
 			{
-				System.out.println("Connection to the server was lost.");
+				System.out.println("Connection interrupted.");
 				isConnected = false;
 			}
 		}
@@ -149,6 +167,22 @@ public class MessagesSendAndReceive
 		public String getReceiver()
 		{
 			return receiver;
+		}
+		
+		public String getMessage()
+		{
+			return message;
+		}
+	}
+	
+	static class ForwardedMessage
+	{
+		private String sender;
+		private String message;
+		
+		public String getSender()
+		{
+			return sender;
 		}
 		
 		public String getMessage()

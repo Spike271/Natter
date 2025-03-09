@@ -120,7 +120,6 @@ public class ChatUI extends JPanel implements Theme
 					String date = df.format(new Date());
 					var temp = message.substring(message.indexOf(" ") + 1, message.length());
 					chatArea.addChatBox(new ModelMessage(receiverIcon, receiver, date, temp), ChatBox.BoxType.LEFT);
-					userChats.addUsersConversation(receiver, date, "receiver", temp);
 					System.out.println(temp);
 				}
 				else if (message.startsWith("Error"))

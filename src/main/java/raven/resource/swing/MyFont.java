@@ -7,13 +7,15 @@ import raven.test.ChatUI;
 
 public class MyFont
 {
+	private static final String path = "../../../libres/Fonts/";
+	
 	public static Font getFont(String name, float size)
 	{
 		File FontFile = null;
 		Font font = null;
 		try
 		{
-			FontFile = getFontFile("../../../libres/Fonts/" + name);
+			FontFile = getFontFile(path + name);
 			font = Font.createFont(Font.TRUETYPE_FONT, FontFile).deriveFont(size);
 		}
 		catch (Exception e)

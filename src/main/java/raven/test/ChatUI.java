@@ -23,15 +23,13 @@ import raven.chat.component.ChatBox;
 import raven.chat.model.ModelMessage;
 import raven.chat.swing.Background;
 import raven.chat.swing.ChatEvent;
-import raven.color.theme.Theme;
-import raven.resource.swing.GetAndSetColor;
+import raven.color.theme.ChatComponentsColor;
 import raven.resource.swing.GetImage;
 
-public class ChatUI extends JPanel implements Theme
+public class ChatUI extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	
-	private final String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 	public static String userName = "";
 	private Background background1;
 	public static ArrayList<ChatBoxList> chatBoxLists = null;
@@ -173,7 +171,7 @@ public class ChatUI extends JPanel implements Theme
 	
 	private void initComponents()
 	{
-		String temp = GetAndSetColor.getSettings(mode, "chatbackgroundImage");
+		String temp = ChatComponentsColor.chatbackgroundImage;
 		
 		try
 		{

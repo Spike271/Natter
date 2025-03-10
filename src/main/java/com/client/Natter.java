@@ -104,7 +104,7 @@ public class Natter extends JFrame implements Theme
 		
 		JLabel nameLabel = new JLabel(receiver);
 		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
-		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
+		nameLabel.setForeground(ComponetsColor.fontColor);
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -113,7 +113,7 @@ public class Natter extends JFrame implements Theme
 		
 		JLabel timestampLabel = new JLabel(currentTime);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
-		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
+		timestampLabel.setForeground(ComponetsColor.fontColor);
 		detailsPanel.add(timestampLabel);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
@@ -196,7 +196,7 @@ public class Natter extends JFrame implements Theme
 		JLabel label1 = new JLabel("<html>" + "<center><b>Chatting app for all PC's</b></center>" + "<br/>"
 				+ "No conversations selected" + "</html>");
 		label1.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 18f));
-		label1.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
+		label1.setForeground(ComponetsColor.fontColor);
 		panel.add(label1, "gapx 8, wrap, sg 1");
 		return panel;
 	}
@@ -254,13 +254,13 @@ public class Natter extends JFrame implements Theme
 	{
 		usersPanel = new JPanel();
 		usersPanel.setLayout(new MigLayout("wrap, insets 10, gapy 4", "[290:310:320]", ""));
-		usersPanel.setBackground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "userPanel")));
+		usersPanel.setBackground(ComponetsColor.userPanel);
 		usersPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.GRAY)); // Top and right border only
 		
 		// chats heading
 		JLabel userPanelHeading = new JLabel("Chats");
 		userPanelHeading.setFont(ResourceHandler.getFont("Roboto-Black.ttf", 24f));
-		userPanelHeading.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
+		userPanelHeading.setForeground(ComponetsColor.fontColor);
 		usersPanel.add(userPanelHeading, "gapx 20, w 40, h 40, split");
 		
 		// setting icon
@@ -471,12 +471,12 @@ public class Natter extends JFrame implements Theme
 		
 		JLabel nameLabel = new JLabel(receiver);
 		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
-		nameLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
+		nameLabel.setForeground(ComponetsColor.fontColor);
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
 		
 		JLabel timestampLabel = new JLabel(time);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
-		timestampLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "fontColor")));
+		timestampLabel.setForeground(ComponetsColor.fontColor);
 		detailsPanel.add(timestampLabel);
 		
 		JPopupMenu popupMenu = new JPopupMenu();

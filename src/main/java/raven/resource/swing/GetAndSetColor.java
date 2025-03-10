@@ -58,6 +58,6 @@ public class GetAndSetColor
 		{
 			return false;
 		}
-		return check.equals("true") ? true : false;
+		return check.equals("true");
 	}
 }

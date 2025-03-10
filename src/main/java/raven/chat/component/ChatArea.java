@@ -32,17 +32,16 @@ import raven.chat.swing.ChatEvent;
 import raven.chat.swing.RoundPanel;
 import raven.chat.swing.TextField;
 import raven.chat.swing.scroll.ScrollBar;
+import raven.color.theme.ChatComponentsColor;
 import raven.color.theme.Theme;
-import raven.resource.swing.GetAndSetColor;
 import raven.resource.swing.MyFont;
 
-public class ChatArea extends JPanel implements Theme
+public class ChatArea extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	private AnimationScroll animationScroll;
 	private AnimationFloatingButton animationFloatingButton;
 	private List<ChatEvent> events = new ArrayList<>();
-	String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 	
 	public void addChatEvent(ChatEvent event)
 	{
@@ -110,11 +109,11 @@ public class ChatArea extends JPanel implements Theme
 	{
 		RoundPanel panel = new RoundPanel();
 		panel.setLayout(new MigLayout("fill, inset 2"));
-		panel.setBackground(Color.decode(GetAndSetColor.getSettings(mode, "userNameBarColor")));
+		panel.setBackground(ChatComponentsColor.userNameBarColor);
 		labelTitle = new JLabel();
 		labelTitle.setFont(MyFont.getFont("Roboto-Medium.ttf", 16f)); //
 		labelTitle.setBorder(new EmptyBorder(5, 10, 5, 10));
-		labelTitle.setForeground(Color.decode(GetAndSetColor.getSettings(mode, "userNameColor")));
+		labelTitle.setForeground(ChatComponentsColor.userNameColor);
 		panel.add(labelTitle);
 		return panel;
 	}
@@ -132,7 +131,7 @@ public class ChatArea extends JPanel implements Theme
 		Color iconColor = Theme.isDarkModeOn ? Color.white : Color.black;
 		
 		RoundPanel panel = new RoundPanel();
-		panel.setBackground(Color.decode(GetAndSetColor.getSettings(mode, "chatInputBoxColor")));
+		panel.setBackground(ChatComponentsColor.chatInputBoxColor);
 		panel.setLayout(new MigLayout("fill, inset 2", "[fill,34!]2[fill]2[fill,34!]", "[center]"));
 		GoogleMaterialIcon iconFile = new GoogleMaterialIcon(GoogleMaterialDesignIcon.ATTACH_FILE,
 				GradientType.VERTICAL, iconColor, iconColor, 20);

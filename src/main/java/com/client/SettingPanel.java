@@ -202,6 +202,7 @@ public class SettingPanel extends JFrame implements ActionListener
 					changeThemes(selectedItem.startsWith("D"));
 					JOptionPane.showMessageDialog(SettingPanel.this,
 							"Restart the Application to take the full effect.");
+					MessagesSendAndReceive.stopMessageListening();
 					System.exit(0);
 				}
 			}

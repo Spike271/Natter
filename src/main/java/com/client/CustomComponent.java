@@ -1,7 +1,6 @@
 package com.client;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
@@ -62,7 +61,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 	private JPanel createTitleBar()
 	{
 		JPanel titleBar = new JPanel();
-		titleBar.setBackground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "titleBarColor")));
+		titleBar.setBackground(ComponetsColor.titleBarColor);
 		titleBar.setLayout(new BorderLayout());
 		
 		// Add icon on the tray
@@ -109,7 +108,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 	private JLabel createTitleLabel()
 	{
 		JLabel titleLabel = new JLabel(title);
-		titleLabel.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "titleTextColor")));
+		titleLabel.setForeground(ComponetsColor.titleTextColor);
 		titleLabel.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
 		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		return titleLabel;
@@ -126,7 +125,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 	private JPanel createContentPane()
 	{
 		JPanel contentPane = new JPanel();
-		contentPane.setBackground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "frameBGColor")));
+		contentPane.setBackground(ComponetsColor.frameBGColor);
 		contentPane.setLayout(null);
 		return contentPane;
 	}
@@ -151,11 +150,10 @@ public abstract class CustomComponent extends JFrame implements Theme
 	
 	private ModernButton createMinimizeButton()
 	{
-		ModernButton minimizeButton = new ModernButton("_",
-				Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "minbtnBGColor")),
-				Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "minbtnHoverColor")));
+		ModernButton minimizeButton = new ModernButton("_", ComponetsColor.minbtnBGColor,
+				ComponetsColor.minbtnHoverColor);
 		
-		minimizeButton.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "minbtnColor")));
+		minimizeButton.setForeground(ComponetsColor.minbtnColor);
 		minimizeButton.setFocusPainted(false);
 		minimizeButton.addActionListener(e -> setState(CustomComponent.ICONIFIED)); // Minimize the window
 		return minimizeButton;
@@ -163,11 +161,10 @@ public abstract class CustomComponent extends JFrame implements Theme
 	
 	private ModernButton createCloseButton()
 	{
-		ModernButton closeButton = new ModernButton("X",
-				Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "closebtnBGColor")),
-				Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "closebtnHoverColor")));
+		ModernButton closeButton = new ModernButton("X", ComponetsColor.closebtnBGColor,
+				ComponetsColor.closebtnHoverColor);
 		
-		closeButton.setForeground(Color.decode(ResourceHandler.getSettings(Theme.currentTheme, "closebtnColor")));
+		closeButton.setForeground(ComponetsColor.closebtnColor);
 		return closeButton;
 	}
 	

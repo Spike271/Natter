@@ -47,7 +47,6 @@ public class MessagesSendAndReceive
 		
 		output.println(json);
 		output.flush();
-		System.out.println(json);
 	}
 	
 	private static void listen()
@@ -82,6 +81,7 @@ public class MessagesSendAndReceive
 			catch (Exception _)
 			{
 				JOptionPane.showMessageDialog(null, "Unable to connect with server.");
+				return;
 			}
 		}
 		
@@ -100,7 +100,6 @@ public class MessagesSendAndReceive
 					userChats.addUsersConversation(receiver, date, "receiver", finalMessage);
 					
 					ChatUI.messageQueue.put(receiver + ": " + finalMessage);
-					System.out.println(finalMessage);
 				}
 				catch (JsonSyntaxException e)
 				{

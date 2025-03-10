@@ -1,6 +1,5 @@
 package raven.chat.swing;
 
-import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -13,14 +12,12 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import raven.color.theme.Theme;
-import raven.resource.swing.GetAndSetColor;
+import raven.color.theme.ChatComponentsColor;
 
-public class Background extends JPanel implements Theme
+public class Background extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	private BufferedImage backgroundImage;
-	String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 	
 	public Background(File file)
 	{
@@ -134,8 +131,7 @@ public class Background extends JPanel implements Theme
 			int width = getWidth();
 			int height = getHeight();
 			
-			g2.setPaint(new GradientPaint(0, 0, Color.decode(GetAndSetColor.getSettings(mode, "Color1")), width, 0,
-					Color.decode(GetAndSetColor.getSettings(mode, "Color2"))));
+			g2.setPaint(new GradientPaint(0, 0, ChatComponentsColor.Color1, width, 0, ChatComponentsColor.Color2));
 			
 			g2.fillRect(0, 0, width, height);
 			g2.dispose();

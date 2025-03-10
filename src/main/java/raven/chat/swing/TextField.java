@@ -16,14 +16,12 @@ import javax.swing.event.DocumentListener;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
 
-import raven.color.theme.Theme;
-import raven.resource.swing.GetAndSetColor;
+import raven.color.theme.ChatComponentsColor;
 import raven.resource.swing.MyFont;
 
-public class TextField extends JTextPane implements Theme
+public class TextField extends JTextPane
 {
 	private static final long serialVersionUID = 1L;
-	String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 	
 	public String getHint()
 	{
@@ -46,7 +44,7 @@ public class TextField extends JTextPane implements Theme
 		setOpaque(false);
 		setBorder(new EmptyBorder(9, 1, 9, 1));
 		setBackground(new Color(0, 0, 0, 0));
-		setForeground(Color.decode(GetAndSetColor.getSettings(mode, "chatInputBoxTextColor")));
+		setForeground(ChatComponentsColor.chatInputBoxTextColor);
 		setFont(MyFont.getFont("GoogleSans-Regular.ttf", 17f)); //////////////////////////////////////////////////
 		setSelectionColor(new Color(200, 200, 200, 100));
 		autoWrapText();
@@ -146,7 +144,7 @@ public class TextField extends JTextPane implements Theme
 			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			Insets ins = getInsets();
 			FontMetrics fm = g.getFontMetrics();
-			g2.setColor(Color.decode(GetAndSetColor.getSettings(mode, "placeholderText")));
+			g2.setColor(ChatComponentsColor.placeholderText);
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f - animate));
 			g2.drawString(hint, ins.left + (animate * 30), h / 2 + fm.getAscent() / 2 - 1);
 			g2.dispose();

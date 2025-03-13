@@ -73,6 +73,7 @@ public class SignIn extends CustomComponent implements ActionListener
 				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
 				dispose();
 				repaint();
+				System.exit(0);
 			}
 		});
 	}

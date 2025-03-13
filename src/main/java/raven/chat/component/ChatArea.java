@@ -231,30 +231,23 @@ public class ChatArea extends JPanel
 	public void addChatBox(ModelMessage message, ChatBox.BoxType type)
 	{
 		int values = scrollBody.getVerticalScrollBar().getValue();
-		if (type == ChatBox.BoxType.LEFT)
-		{
-			body.add(new ChatBox(type, message), "width ::80%");
-		}
-		else
-		{
-			body.add(new ChatBox(type, message), "al right,width ::80%");
-		}
 		
-		SwingUtilities.invokeLater(new Runnable() {
-			
-			@Override
-			public void run()
+		SwingUtilities.invokeLater(() -> {
+			if (type == ChatBox.BoxType.LEFT)
 			{
-				body.revalidate();
-				scrollBody.getVerticalScrollBar().setValue(values);
-				bottom.revalidate();
+				body.add(new ChatBox(type, message), "width ::80%");
 			}
+			else
+			{
+				body.add(new ChatBox(type, message), "al right,width ::80%");
+			}
+			body.revalidate();
+			scrollBody.getVerticalScrollBar().setValue(values);
+			bottom.revalidate();
+			body.repaint();
+			scrollBody.revalidate();
+			scrollToBottom();
 		});
-		
-		body.repaint();
-		body.revalidate();
-		scrollBody.revalidate();
-		scrollToBottom();
 	}
 	
 	public void clearChatBox()
@@ -264,7 +257,7 @@ public class ChatArea extends JPanel
 		body.revalidate();
 	}
 	
-	public synchronized void scrollToBottom()
+	public void scrollToBottom()
 	{
 		animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum());
 	}

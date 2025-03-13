@@ -21,7 +21,7 @@ public class MessagesSendAndReceive
 	private static PrintWriter output;
 	private static BufferedReader input;
 	private static Socket clientSocket;
-	private volatile static boolean isConnected = true;
+	private volatile static boolean isConnected = false;
 	private static final Thread listenMessageThread = new Thread(() -> listen());
 	private static final Gson gson = new GsonBuilder().create();
 	
@@ -36,6 +36,11 @@ public class MessagesSendAndReceive
 	public static void stopMessageListening()
 	{
 		closeConnection();
+	}
+	
+	public static boolean isConnected()
+	{
+		return isConnected;
 	}
 	
 	public static void sendMessage(String sender, String receiver, String messageContent)
@@ -87,6 +92,7 @@ public class MessagesSendAndReceive
 		
 		try
 		{
+			isConnected = true;
 			String outputMessage;
 			SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
 			while ((outputMessage = input.readLine()) != null)

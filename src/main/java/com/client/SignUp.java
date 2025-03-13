@@ -76,6 +76,7 @@ public class SignUp extends CustomComponent implements ActionListener
 				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
 				dispose();
 				repaint();
+				System.exit(0);
 			}
 		});
 	}
@@ -287,7 +288,7 @@ public class SignUp extends CustomComponent implements ActionListener
 						}
 						catch (Exception e2)
 						{
-							JOptionPane.showMessageDialog(SignUp.this, "Your machine is already registered");
+							JOptionPane.showMessageDialog(SignUp.this, "Something Went wrong");
 						}
 						finally
 						{

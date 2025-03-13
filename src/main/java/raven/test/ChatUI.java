@@ -83,14 +83,17 @@ public class ChatUI extends JPanel
 			{
 				String inputMessage = chatArea.getText().trim();
 				
-				if (!inputMessage.isBlank())
+				if (MessagesSendAndReceive.isConnected())
 				{
-					String date = df.format(new Date());
-					chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
-					chatArea.clearTextAndGrabFocus();
-					
-					MessagesSendAndReceive.sendMessage(sender, receiver, inputMessage);
-					userChats.addUsersConversation(receiver, date, "sender", inputMessage);
+					if (!inputMessage.isBlank())
+					{
+						String date = df.format(new Date());
+						chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
+						chatArea.clearTextAndGrabFocus();
+						
+						MessagesSendAndReceive.sendMessage(sender, receiver, inputMessage);
+						userChats.addUsersConversation(receiver, date, "sender", inputMessage);
+					}
 				}
 			}
 		});

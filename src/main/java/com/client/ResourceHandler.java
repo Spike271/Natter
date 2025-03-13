@@ -144,12 +144,12 @@ public class ResourceHandler
 	
 	public static boolean isDarkModeOn()
 	{
-		return getSettings("Global", "isDark").equals("true") ? true : false;
+		return getSettings("Global", "isDark").equals("true");
 	}
 	
 	public static boolean alreadyAUser()
 	{
-		return readPropertiesFile("alreadyAUser").equals("true") ? true : false;
+		return readPropertiesFile("alreadyAUser").equals("true");
 	}
 	
 	public static String encode(String text)

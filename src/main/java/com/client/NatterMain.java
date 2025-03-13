@@ -12,7 +12,7 @@ import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
-public class NatterMain implements Theme
+public class NatterMain
 {
 	public static SignIn signIn;
 	public static SignUp signUp;
@@ -71,7 +71,7 @@ public class NatterMain implements Theme
 				FlatRobotoFont.install();
 				UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
 				
-				if (isDarkModeOn)
+				if (Theme.isDarkModeOn)
 					FlatMacDarkLaf.setup();
 				else
 					FlatMacLightLaf.setup();

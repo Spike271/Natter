@@ -50,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 import raven.test.ChatUI;
 import raven.test.ChatUI.ChatBoxList;
 
-public class Natter extends JFrame implements Theme
+public class Natter extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	private JPanel usersPanel, appDesc;
@@ -219,6 +219,7 @@ public class Natter extends JFrame implements Theme
 			else
 			{
 				chatComponent = new ChatUI();
+				
 				ChatUI.userName = receiver;
 				usersMap.put(ChatUI.userName, chatComponent);
 				add(chatComponent.createChatUI(sender, receiver, senderIcon, receiverIcon), BorderLayout.CENTER);
@@ -364,7 +365,7 @@ public class Natter extends JFrame implements Theme
 	{
 		try (Connection con = DriverManager.getConnection(DB.dbUrl, DB.username,
 				DB.password); PreparedStatement ps = con
-						.prepareStatement("Select * from account_info where BINARY username = ?"))
+						.prepareStatement("Select * from account_info where BINARY Username = ?"))
 		{
 			ps.setString(1, user);
 			ResultSet rs = ps.executeQuery();

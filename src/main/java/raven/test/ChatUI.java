@@ -8,11 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.swing.Icon;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.client.MessagesSendAndReceive;
@@ -25,6 +22,8 @@ import raven.chat.swing.Background;
 import raven.chat.swing.ChatEvent;
 import raven.color.theme.ChatComponentsColor;
 import raven.resource.swing.GetImage;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
 public class ChatUI extends JPanel
 {
@@ -32,9 +31,10 @@ public class ChatUI extends JPanel
 	
 	public static String userName = "";
 	private Background background1;
-	public static ArrayList<ChatBoxList> chatBoxLists = null;
+	public static ArrayList<ChatBoxList> chatBoxLists = new ArrayList<>();
 	public raven.chat.component.ChatArea chatArea;
-	public static BlockingQueue<String> messageQueue = new LinkedBlockingDeque<>();
+	public static Sinks.Many<String> sink = Sinks.many().multicast().directBestEffort();
+	private static Flux<String> flux = sink.asFlux().share();
 	private Icon receiverIcon;
 	
 	public ChatUI()
@@ -45,7 +45,6 @@ public class ChatUI extends JPanel
 	public JPanel createChatUI(String sender, String receiver, Icon senderIcon, Icon receiverIcon)
 	{
 		this.receiverIcon = receiverIcon;
-		chatBoxLists = new ArrayList<>();
 		userName = receiver;
 		chatArea.setTitle(receiver);
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
@@ -90,6 +89,7 @@ public class ChatUI extends JPanel
 						String date = df.format(new Date());
 						chatArea.addChatBox(new ModelMessage(icon, name, date, inputMessage), ChatBox.BoxType.RIGHT);
 						chatArea.clearTextAndGrabFocus();
+						chatArea.scrollToBottom();
 						
 						MessagesSendAndReceive.sendMessage(sender, receiver, inputMessage);
 						userChats.addUsersConversation(receiver, date, "sender", inputMessage);
@@ -111,28 +111,16 @@ public class ChatUI extends JPanel
 	{
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
 		
-		try
-		{
-			while (true)
+		flux.subscribe(msg -> {
+			if (msg.startsWith(receiver))
 			{
-				String message = messageQueue.take();
-				if (message.startsWith(receiver))
-				{
-					String date = df.format(new Date());
-					var temp = message.substring(message.indexOf(" ") + 1, message.length());
-					chatArea.addChatBox(new ModelMessage(receiverIcon, receiver, date, temp), ChatBox.BoxType.LEFT);
-					System.out.println(temp);
-				}
-				else if (message.startsWith("Error"))
-				{
-					JOptionPane.showMessageDialog(null, "Receiver is current unavailable");
-				}
+				String date = df.format(new Date());
+				String content = msg.substring(msg.indexOf(" ") + 1);
+				
+				chatArea.addChatBox(new ModelMessage(receiverIcon, receiver, date, content), ChatBox.BoxType.LEFT);
+				chatArea.scrollToBottom();
 			}
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		});
 	}
 	
 	private List<userChats.Message> loadExistingMessages(String userID)

@@ -79,5 +79,4 @@ public class PasswordRevealIcon implements AnimatedIcon
 	{
 		return icon.getIconHeight();
 	}
-	
 }

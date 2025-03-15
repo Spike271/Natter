@@ -93,6 +93,6 @@ public class RoundedJButton extends JButton
 	@Override
 	public Dimension getPreferredSize()
 	{
-		return new Dimension(100, 40); // Set your preferred size here
+		return new Dimension(100, 40);
 	}
 }

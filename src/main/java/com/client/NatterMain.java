@@ -46,17 +46,13 @@ public class NatterMain
 	
 	private static void init()
 	{
-		SwingUtilities.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(() -> {
 			
-			@Override
-			public void run()
-			{
-				signIn = new SignIn();
-				signIn.setVisible(true);
-				
-				signUp = new SignUp();
-				signUp.setVisible(false);
-			}
+			signIn = new SignIn();
+			signUp = new SignUp();
+			
+			signIn.setVisible(true);
+			signUp.setVisible(false);
 		});
 	}
 	

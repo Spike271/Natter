@@ -50,7 +50,7 @@ public class ChatBox extends JComponent
 		JTextPane text = new JTextPane();
 		text.setEditorKit(new AutoWrapText());
 		text.setText(message.getMessage());
-		text.setFont(MyFont.getFont("Roboto-Medium.ttf", 18f)); ///////////////////////////////////////////////
+		text.setFont(MyFont.getFont("Roboto-Medium.ttf", 18f)); //
 		text.setBackground(new Color(0, 0, 0, 0));
 		text.setForeground(ChatComponentsColor.messageTextColor);
 		text.setSelectionColor(new Color(200, 200, 200, 100));
@@ -58,7 +58,7 @@ public class ChatBox extends JComponent
 		text.setOpaque(false);
 		text.setEditable(false);
 		JLabel labelDate = new JLabel(message.getName() + " | " + message.getDate());
-		labelDate.setFont(MyFont.getFont("GoogleSans-Medium.ttf", 16f)); ///////////////////////////////////////
+		labelDate.setFont(MyFont.getFont("GoogleSans-Medium.ttf", 16f)); //
 		labelDate.setForeground(ChatComponentsColor.dateColor);
 		add(avatar, "height 40,width 40");
 		add(text, "gapy 20, wrap");

@@ -239,7 +239,6 @@ public class Natter extends JFrame
 			}
 			repaint();
 			revalidate();
-			chatComponent.chatArea.scrollToBottom();
 		}
 	}
 	

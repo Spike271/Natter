@@ -246,7 +246,6 @@ public class ChatArea extends JPanel
 			bottom.revalidate();
 			body.repaint();
 			scrollBody.revalidate();
-			scrollToBottom();
 		});
 	}
 	
@@ -259,7 +258,8 @@ public class ChatArea extends JPanel
 	
 	public void scrollToBottom()
 	{
-		animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum());
+		SwingUtilities.invokeLater(
+				() -> animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));
 	}
 	
 	private void runEventMousePressedSendButton(ActionEvent evt)

@@ -105,11 +105,11 @@ public class MessagesSendAndReceive
 					String finalMessage = receivedMessage.getMessage();
 					userChats.addUsersConversation(receiver, date, "receiver", finalMessage);
 					
-					ChatUI.messageQueue.put(receiver + ": " + finalMessage);
+					ChatUI.sink.tryEmitNext(receiver + ": " + finalMessage);
 				}
 				catch (JsonSyntaxException e)
 				{
-					System.err.println("Invalid message format: " + outputMessage);
+					JOptionPane.showMessageDialog(null, outputMessage);
 				}
 			}
 		}
@@ -117,15 +117,7 @@ public class MessagesSendAndReceive
 		{
 			if (isConnected)
 			{
-				System.out.println("Connection to the server was lost.");
-				isConnected = false;
-			}
-		}
-		catch (InterruptedException e)
-		{
-			if (isConnected)
-			{
-				System.out.println("Connection interrupted.");
+				JOptionPane.showMessageDialog(null, "Connection to the server was lost.");
 				isConnected = false;
 			}
 		}

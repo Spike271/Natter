@@ -229,7 +229,7 @@ public class SignUp extends CustomComponent implements ActionListener
 			
 			else
 			{
-				new Thread(() -> {
+				Thread.startVirtualThread(() -> {
 					
 					String firstName = FNbox.getText().trim();
 					String lastName = LNbox.getText().trim();
@@ -297,7 +297,8 @@ public class SignUp extends CustomComponent implements ActionListener
 							repaint();
 						}
 					}
-				}).start();
+				});
+				// VT Close
 			}
 		}
 	}

@@ -179,7 +179,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		
 		else if (e.getSource() == submitButton)
 		{
-			new Thread(() -> {
+			Thread.startVirtualThread(() -> {
 				
 				String username = textbox1.getText().trim();
 				String password = String.valueOf(textbox2.getPassword()).trim();
@@ -255,7 +255,8 @@ public class SignIn extends CustomComponent implements ActionListener
 						repaint();
 					}
 				}
-			}).start();
+			});
+			// VT Close
 		}
 	}
 	

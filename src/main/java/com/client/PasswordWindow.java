@@ -2,8 +2,6 @@ package com.client;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -55,23 +53,18 @@ public class PasswordWindow extends JFrame
 		panel.add(submitButton, "span 2, align center");
 		panel.add(messageLabel, "span 2, align center");
 		
-		submitButton.addActionListener(new ActionListener() {
+		submitButton.addActionListener(e -> {
 			
-			@Override
-			public void actionPerformed(ActionEvent e)
+			String password = new String(passwordField.getPassword());
+			if (!password.equals(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).substring(4)))
 			{
-				String password = new String(passwordField.getPassword());
-				if (!password
-						.equals(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).substring(4)))
-				{
-					messageLabel.setText("Incorrect password!");
-					messageLabel.setForeground(Color.RED);
-				}
-				else
-				{
-					NatterMain.natter.setVisible(true);
-					dispose();
-				}
+				messageLabel.setText("Incorrect password!");
+				messageLabel.setForeground(Color.RED);
+			}
+			else
+			{
+				NatterMain.natter.setVisible(true);
+				dispose();
 			}
 		});
 		

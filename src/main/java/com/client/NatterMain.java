@@ -58,23 +58,19 @@ public class NatterMain
 	
 	private static void initMainUi() throws InvocationTargetException, InterruptedException
 	{
-		SwingUtilities.invokeAndWait(new Runnable() {
+		SwingUtilities.invokeAndWait(() -> {
 			
-			@Override
-			public void run()
-			{
-				FlatLaf.registerCustomDefaultsSource("res.com.themes");
-				FlatRobotoFont.install();
-				UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
-				
-				if (Theme.isDarkModeOn)
-					FlatMacDarkLaf.setup();
-				else
-					FlatMacLightLaf.setup();
-				
-				ps = new PasswordWindow();
-				natter = new Natter();
-			}
+			FlatLaf.registerCustomDefaultsSource("res.com.themes");
+			FlatRobotoFont.install();
+			UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
+			
+			if (Theme.isDarkModeOn)
+				FlatMacDarkLaf.setup();
+			else
+				FlatMacLightLaf.setup();
+			
+			ps = new PasswordWindow();
+			natter = new Natter();
 		});
 	}
 }

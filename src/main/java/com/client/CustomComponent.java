@@ -1,16 +1,9 @@
 package com.client;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -18,9 +11,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+
 import net.miginfocom.swing.MigLayout;
 
-public abstract class CustomComponent extends JFrame implements Theme
+abstract class CustomComponent extends JFrame implements Theme
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -46,6 +41,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 		// Set frame properties
 		this.setUndecorated(true); // Removes the default title bar
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setResizable(false);
 		
 		// Create a custom title bar panel
 		titleBar = createTitleBar();
@@ -87,21 +83,8 @@ public abstract class CustomComponent extends JFrame implements Theme
 	private JLabel createIconLabel()
 	{
 		JLabel iconLabel = new JLabel();
-		iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 12, 5, 0));
-		iconLabel.setPreferredSize(new Dimension(45, 38));
-		
-		BufferedImage originalImage = null;
-		try
-		{
-			originalImage = ImageIO.read(new File(getClass().getResource("../../res/icons/logo32_32.png").getPath()));
-		}
-		catch (IOException e)
-		{
-			return null;
-		}
-		
-		Image scaledImage = originalImage.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-		iconLabel.setIcon(new ImageIcon(scaledImage));
+		iconLabel.setBorder(BorderFactory.createEmptyBorder(3, 10, 3, 0));
+		iconLabel.setIcon(new FlatSVGIcon(getClass().getResource("../../res/icons/logo.svg")).derive(32, 32));
 		return iconLabel;
 	}
 	
@@ -118,7 +101,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 	{
 		JPanel titlePanel = new JPanel(new MigLayout("fill, insets 0"));
 		titlePanel.setOpaque(false);
-		titlePanel.add(titleLabel, "align center, grow");
+		titlePanel.add(titleLabel, "gapx 80, grow");
 		return titlePanel;
 	}
 	
@@ -126,31 +109,31 @@ public abstract class CustomComponent extends JFrame implements Theme
 	{
 		JPanel contentPane = new JPanel();
 		contentPane.setBackground(ComponetsColor.frameBGColor);
-		contentPane.setLayout(null);
+		contentPane.setLayout(new MigLayout("al center, insets 0", "[fill, 65%]"));
 		return contentPane;
 	}
 	
 	private JPanel createButtonPanel()
 	{
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JPanel buttonPanel = new JPanel(new MigLayout("right", "[]"));
 		buttonPanel.setOpaque(false); // Make it transparent
 		
 		addThemeButton(buttonPanel);
 		
 		// Minimize button
 		ModernButton minimizeButton = createMinimizeButton();
-		buttonPanel.add(minimizeButton);
+		buttonPanel.add(minimizeButton, "w 40!");
 		
 		// Close button
 		closeButton = createCloseButton();
-		buttonPanel.add(closeButton);
+		buttonPanel.add(closeButton, "w 40!");
 		
 		return buttonPanel;
 	}
 	
 	private ModernButton createMinimizeButton()
 	{
-		ModernButton minimizeButton = new ModernButton("_", ComponetsColor.minbtnBGColor,
+		ModernButton minimizeButton = new ModernButton("_", ComponetsColor.minbtnBGColor, ComponetsColor.titleBarColor,
 				ComponetsColor.minbtnHoverColor);
 		
 		minimizeButton.setForeground(ComponetsColor.minbtnColor);
@@ -161,7 +144,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 	
 	private ModernButton createCloseButton()
 	{
-		ModernButton closeButton = new ModernButton("X", ComponetsColor.closebtnBGColor,
+		ModernButton closeButton = new ModernButton("X", ComponetsColor.closebtnBGColor, ComponetsColor.titleBarColor,
 				ComponetsColor.closebtnHoverColor);
 		
 		closeButton.setForeground(ComponetsColor.closebtnColor);

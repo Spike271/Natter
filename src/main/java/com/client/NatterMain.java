@@ -22,6 +22,15 @@ public class NatterMain
 	
 	public static void main(String[] args) throws InvocationTargetException, InterruptedException
 	{
+		FlatLaf.registerCustomDefaultsSource("res.com.themes");
+		FlatRobotoFont.install();
+		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
+		
+		if (Theme.isDarkModeOn)
+			FlatMacDarkLaf.setup();
+		else
+			FlatMacLightLaf.setup();
+		
 		if (ResourceHandler.alreadyAUser())
 		{
 			initMainUi();
@@ -59,15 +68,6 @@ public class NatterMain
 	private static void initMainUi() throws InvocationTargetException, InterruptedException
 	{
 		SwingUtilities.invokeAndWait(() -> {
-			
-			FlatLaf.registerCustomDefaultsSource("res.com.themes");
-			FlatRobotoFont.install();
-			UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
-			
-			if (Theme.isDarkModeOn)
-				FlatMacDarkLaf.setup();
-			else
-				FlatMacLightLaf.setup();
 			
 			ps = new PasswordWindow();
 			natter = new Natter();

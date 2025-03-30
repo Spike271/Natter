@@ -109,7 +109,7 @@ public class Natter extends JFrame
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 		String currentTime = LocalDateTime.now().format(formatter);
-		new Thread(() -> userInfo.addNewUser(receiver, currentTime)).start();
+		Thread.startVirtualThread(() -> userInfo.addNewUser(receiver, currentTime));
 		
 		JLabel timestampLabel = new JLabel(currentTime);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));

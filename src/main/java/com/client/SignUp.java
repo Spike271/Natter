@@ -26,7 +26,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
-class SignUp extends CustomComponent implements ActionListener
+public class SignUp extends CustomComponent implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
 	private JXHyperlink clickableLabel;

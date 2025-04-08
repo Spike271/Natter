@@ -15,7 +15,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import net.miginfocom.swing.MigLayout;
 
-abstract class CustomComponent extends JFrame implements Theme
+public abstract class CustomComponent extends JFrame implements Theme
 {
 	private static final long serialVersionUID = 1L;
 	

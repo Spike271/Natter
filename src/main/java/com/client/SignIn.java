@@ -24,7 +24,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
-class SignIn extends CustomComponent implements ActionListener
+public class SignIn extends CustomComponent implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
 	private Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
@@ -130,6 +130,7 @@ class SignIn extends CustomComponent implements ActionListener
 		label2.setForeground(labelColor);
 		contentPane.add(label2, "gapx 5, gapy 15, wrap");
 		
+		// password field
 		textbox2 = new JPasswordField();
 		textbox2.setSelectedTextColor(Color.WHITE);
 		textbox2.setSelectionColor(Color.decode("#00c8fa"));
@@ -142,6 +143,7 @@ class SignIn extends CustomComponent implements ActionListener
 		textbox2.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
 		contentPane.add(textbox2, "wrap, h 45");
 		
+		// login button
 		submitButton = new JButton("Login");
 		submitButton.setFont(font);
 		submitButton.setBackground(new Color(0, 50, 255));
@@ -219,7 +221,7 @@ class SignIn extends CustomComponent implements ActionListener
 										}
 									}
 								}
-								catch (Exception e2)
+								catch (Exception _)
 								{}
 							}
 							
@@ -231,7 +233,7 @@ class SignIn extends CustomComponent implements ActionListener
 							JOptionPane.showMessageDialog(this, "Wrong username or password.");
 						}
 					}
-					catch (Exception e1)
+					catch (Exception _)
 					{}
 					finally
 					{

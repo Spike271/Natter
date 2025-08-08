@@ -15,7 +15,6 @@ import com.formdev.flatlaf.util.UIScale;
 
 public class GradientToggleButton extends JToggleButton
 {
-	private static final long serialVersionUID = 1L;
 	private final Color thumbColor = Color.WHITE;
 	private final int height = UIScale.scale(28); // Scale for DPI
 	private final int width = UIScale.scale(58);
@@ -37,7 +36,7 @@ public class GradientToggleButton extends JToggleButton
 		
 		putClientProperty(FlatClientProperties.STYLE, "buttonType: roundRect;" + "arc: 999");
 		
-		addActionListener(e -> repaint());
+		addActionListener(_ -> repaint());
 	}
 	
 	@Override

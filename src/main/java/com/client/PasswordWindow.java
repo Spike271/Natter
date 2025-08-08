@@ -17,13 +17,12 @@ import net.miginfocom.swing.MigLayout;
 
 public class PasswordWindow extends JFrame
 {
-	private static final long serialVersionUID = 1L;
-	private JPasswordField passwordField;
-	private JLabel messageLabel;
+	private final JPasswordField passwordField;
+	private final JLabel messageLabel;
 	
 	public PasswordWindow()
 	{
-		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icons/logo32_32.png")).getImage());
+		this.setIconImage(new ImageIcon(Application.jarFilePath + "res/icons/logo32_32.png").getImage());
 		this.setTitle("Password Window");
 		this.setSize(340, 170);
 		this.setResizable(false);
@@ -53,17 +52,18 @@ public class PasswordWindow extends JFrame
 		panel.add(submitButton, "span 2, align center");
 		panel.add(messageLabel, "span 2, align center");
 		
-		submitButton.addActionListener(e -> {
+		submitButton.addActionListener(_ -> {
 			
 			String password = new String(passwordField.getPassword());
-			if (!password.equals(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).substring(4)))
+			if (!password.equals(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")
+					.orElseThrow()).substring(4)))
 			{
 				messageLabel.setText("Incorrect password!");
 				messageLabel.setForeground(Color.RED);
 			}
 			else
 			{
-				NatterMain.natter.setVisible(true);
+				Application.natter.setVisible(true);
 				dispose();
 			}
 		});

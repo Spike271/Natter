@@ -8,8 +8,6 @@ import com.formdev.flatlaf.FlatClientProperties;
 
 public class ModernButton extends JButton
 {
-	private static final long serialVersionUID = 1;
-	
 	public ModernButton(String label, Color defaultColor, Color bgColor, Color hoverColor)
 	{
 		super(label);

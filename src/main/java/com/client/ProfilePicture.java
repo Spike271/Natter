@@ -14,6 +14,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.io.Serial;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -21,8 +22,6 @@ import javax.swing.JComponent;
 
 public class ProfilePicture extends JComponent
 {
-	private static final long serialVersionUID = 1L;
-	
 	public Icon getImage()
 	{
 		return image;
@@ -131,7 +130,7 @@ public class ProfilePicture extends JComponent
 			g2.fillOval(x, y, diameter, diameter);
 		}
 		Area area = new Area(new Ellipse2D.Double(x, y, diameter, diameter));
-		int s = diameter -= (borderSize * 2);
+		int s = diameter - (borderSize * 2);
 		area.subtract(new Area(new Ellipse2D.Double(x + borderSize, y + borderSize, s, s)));
 		g2.setPaint(new GradientPaint(0, 0, gradientColor1, width, height, gradientColor2));
 		g2.fill(area);
@@ -139,12 +138,10 @@ public class ProfilePicture extends JComponent
 	
 	private Rectangle getAutoSize(Icon image, int size)
 	{
-		int w = size;
-		int h = size;
-		int iw = image.getIconWidth();
+        int iw = image.getIconWidth();
 		int ih = image.getIconHeight();
-		double xScale = (double) w / iw;
-		double yScale = (double) h / ih;
+		double xScale = (double) size / iw;
+		double yScale = (double) size / ih;
 		double scale = Math.max(xScale, yScale);
 		int width = (int) (scale * iw);
 		int height = (int) (scale * ih);
@@ -156,10 +153,8 @@ public class ProfilePicture extends JComponent
 		{
 			height = 1;
 		}
-		int cw = size;
-		int ch = size;
-		int x = (cw - width) / 2;
-		int y = (ch - height) / 2;
+        int x = (size - width) / 2;
+		int y = (size - height) / 2;
 		return new Rectangle(new Point(x, y), new Dimension(width, height));
 	}
 	

@@ -1,10 +1,17 @@
 package com.client;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Image;
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
+import net.miginfocom.swing.MigLayout;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -16,49 +23,25 @@ import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
-import com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
-import com.formdev.flatlaf.themes.FlatMacLightLaf;
-
-import net.miginfocom.swing.MigLayout;
+import java.util.Objects;
+import java.util.Optional;
 
 public class SettingPanel extends JFrame implements ActionListener
 {
-	private static final long serialVersionUID = 1L;
-	private JPanel apperancePanel;
+	private JPanel appearancePanel;
 	private JPanel profilePanel;
 	private JPanel placeHolderPanel;
-	private JPanel menuPanel;
-	private JPanel securityPanel;
+    private JPanel securityPanel;
 	private JButton changeButton, removeButton;
 	private String USERNAME;
 	private JLabel profilePic;
 	private JPasswordField passwordField = null;
-	
+	private Thread thread;
+
 	public SettingPanel()
 	{
 		init();
-		this.setIconImage(new ImageIcon(getClass().getResource("../../res/icons/logo32_32.png")).getImage());
+		this.setIconImage(new ImageIcon(Application.jarFilePath + "res/icons/logo32_32.png").getImage());
 		this.setTitle("Settings");
 		this.setSize(1000, 700);
 		this.setResizable(false);
@@ -68,29 +51,28 @@ public class SettingPanel extends JFrame implements ActionListener
 	
 	private void init()
 	{
-		USERNAME = ResourceHandler.readPropertiesFile("username");
-		Thread t1 = new Thread(() -> profilePanel = createProfilePanel());
-		t1.start();
+		USERNAME = ResourceHandler.readPropertiesFile("username").orElseThrow();
+		Thread t1 = Thread.ofVirtual().start((() -> profilePanel = createProfilePanel()));
 		
 		this.setLayout(new MigLayout("fill, insets 20", "[center, fill]"));
 		
-		apperancePanel = createApperancePanel();
+		appearancePanel = createAppearancePanel();
 		placeHolderPanel = createPlaceHolderPanel();
 		securityPanel = createSecurityPanel();
-		
-		menuPanel = createMenuPanel();
+
+        JPanel menuPanel = createMenuPanel();
 		
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, menuPanel, placeHolderPanel);
 		splitPane.putClientProperty(FlatClientProperties.STYLE, "style: plain;");
 		
 		this.add(splitPane, "h 500");
-		
+
 		try
 		{
 			t1.join();
+			thread.start();
 		}
-		catch (Exception e)
-		{}
+		catch (Exception _) {}
 	}
 	
 	private JPanel createPlaceHolderPanel()
@@ -111,13 +93,13 @@ public class SettingPanel extends JFrame implements ActionListener
 		menuPanel.putClientProperty(FlatClientProperties.STYLE, "arc: 20;"
 				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		
-		JButton button1 = new JButton("Profile", new FlatSVGIcon(getClass().getResource("../../res/icons/user.svg"))
-				.derive(18, 18).setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
+		JButton button1 = new JButton("Profile", new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/user.svg"))
+				.derive(18, 18).setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(_ -> Color.WHITE) : null));
 		
 		button1.setIconTextGap(15);
 		button1.setHorizontalAlignment(SwingConstants.LEFT);
 		button1.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
-		button1.addActionListener(e -> {
+		button1.addActionListener(_ -> {
 			placeHolderPanel.removeAll();
 			placeHolderPanel.add(profilePanel);
 			repaint();
@@ -125,25 +107,25 @@ public class SettingPanel extends JFrame implements ActionListener
 		});
 		
 		JButton button2 = new JButton("Appearance",
-				new FlatSVGIcon(getClass().getResource("../../res/icons/appearance.svg")).derive(18, 18)
-						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
+				new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/appearance.svg")).derive(18, 18)
+						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(_ -> Color.WHITE) : null));
 		button2.setIconTextGap(13);
 		button2.setHorizontalAlignment(SwingConstants.LEFT);
 		button2.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
-		button2.addActionListener(e -> {
+		button2.addActionListener(_ -> {
 			placeHolderPanel.removeAll();
-			placeHolderPanel.add(apperancePanel);
+			placeHolderPanel.add(appearancePanel);
 			repaint();
 			revalidate();
 		});
 		
 		JButton button3 = new JButton("Security",
-				new FlatSVGIcon(getClass().getResource("../../res/icons/security.svg")).derive(18, 18)
-						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(color -> Color.WHITE) : null));
+				new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/security.svg")).derive(18, 18)
+						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(_ -> Color.WHITE) : null));
 		button3.setIconTextGap(15);
 		button3.setHorizontalAlignment(SwingConstants.LEFT);
 		button3.putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
-		button3.addActionListener(e -> {
+		button3.addActionListener(_ -> {
 			placeHolderPanel.removeAll();
 			placeHolderPanel.add(securityPanel);
 			repaint();
@@ -153,75 +135,73 @@ public class SettingPanel extends JFrame implements ActionListener
 		menuPanel.add(button1, "growx");
 		menuPanel.add(button2, "growx");
 		menuPanel.add(button3, "growx");
+
+		thread = Thread.ofVirtual().unstarted(button1::doClick);
 		
 		return menuPanel;
 	}
 	
-	private JPanel createApperancePanel()
+	private JPanel createAppearancePanel()
 	{
-		JPanel apperancePanel = new JPanel(new MigLayout("wrap, fillx, insets 20 45 30 45, gapy 30", "[left][right]"));
-		apperancePanel.putClientProperty(FlatClientProperties.STYLE, "arc:20;"
+		JPanel appearancePanel = new JPanel(new MigLayout("wrap, fillx, insets 20 45 30 45, gapy 30", "[left][right]"));
+		appearancePanel.putClientProperty(FlatClientProperties.STYLE, "arc:20;"
 				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
 		
 		JLabel settingLabel = new JLabel("Settings");
 		settingLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +25;");
-		apperancePanel.add(settingLabel, "span, center");
+		appearancePanel.add(settingLabel, "span, center");
 		
-		JLabel themeLabel = new JLabel("Theme");
+		JLabel themeLabel = new JLabel("Application Theme");
 		themeLabel.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
-		apperancePanel.add(themeLabel);
+		appearancePanel.add(themeLabel);
 		
-		// Create a drop down menu
+		// Create a drop-down menu
 		JComboBox<String> dropDown = new JComboBox<>(new String[] { "Light Mode", "Dark Mode" });
 		dropDown.setSelectedIndex(Theme.isDarkModeOn ? 1 : 0);
 		int check = dropDown.getSelectedIndex();
 		dropDown.putClientProperty(FlatClientProperties.STYLE, "font: +3;" + "arc: 1;" + "minimumWidth: 160;"
-				+ "arrowType: traingle;" + "buttonStyle: none;" + "focusWidth: 0;");
+				+ "arrowType: triangle;" + "buttonStyle: none;" + "focusWidth: 0;");
 		
-		dropDown.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
+		dropDown.addActionListener(_ -> {
+            String selectedItem = (String) dropDown.getSelectedItem();
+
+            if (selectedItem != null && check != dropDown.getSelectedIndex())
 			{
-				String selectedItem = (String) dropDown.getSelectedItem();
-				if (check != dropDown.getSelectedIndex())
-				{
-					changeThemes(selectedItem.startsWith("D"));
-					JOptionPane.showMessageDialog(SettingPanel.this,
-							"Restart the Application to take the full effect.");
-					MessagesSendAndReceive.stopMessageListening();
-					System.exit(0);
-				}
-			}
-		});
-		apperancePanel.add(dropDown);
+				changeThemes(selectedItem.startsWith("D"));
+				JOptionPane.showMessageDialog(SettingPanel.this,
+						"Restart the Application to take the full effect.");
+				MessagesSendAndReceive.stopMessageListening();
+				System.exit(0);
+            }
+        });
+		appearancePanel.add(dropDown);
 		
 		JLabel chatBackgroundImage = new JLabel("Chat Background Image");
 		chatBackgroundImage.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
-		apperancePanel.add(chatBackgroundImage);
+		appearancePanel.add(chatBackgroundImage);
 		
 		JButton buttonBG = new JButton("Select the image File");
 		buttonBG.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
 		buttonBG.setEnabled(false);
 		buttonBG.setToolTipText("This feature is currently unavailable.");
-		apperancePanel.add(buttonBG, "w 160");
+		appearancePanel.add(buttonBG, "w 160");
 		
 		JLabel gradientColorStart = new JLabel("Gradient Start Color");
 		gradientColorStart.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
-		apperancePanel.add(gradientColorStart);
+		appearancePanel.add(gradientColorStart);
 		
 		JButton colorButton1 = new JButton("Pick a Color");
 		colorButton1.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
 		colorButton1.setToolTipText("Changes the chat background color");
 		colorButton1.addActionListener(new ActionListener() {
 			
-			String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
+			final String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 			
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				Color selectedColor = JColorChooser.showDialog(SettingPanel.this, "Choose a chat background color",
-						Color.decode(ResourceHandler.getColorFileSettings(mode, "Color1")));
+						Color.decode(Objects.requireNonNull(ResourceHandler.getColorFileSettings(mode, "Color1"))));
 				
 				if (selectedColor != null)
 				{
@@ -229,11 +209,11 @@ public class SettingPanel extends JFrame implements ActionListener
 				}
 			}
 		});
-		apperancePanel.add(colorButton1, "w 160");
+		appearancePanel.add(colorButton1, "w 160");
 		
 		JLabel gradientColorEnd = new JLabel("Gradient End Color");
 		gradientColorEnd.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
-		apperancePanel.add(gradientColorEnd);
+		appearancePanel.add(gradientColorEnd);
 		
 		JButton colorButton2 = new JButton("Pick a Color");
 		colorButton2.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
@@ -241,13 +221,13 @@ public class SettingPanel extends JFrame implements ActionListener
 				+ "Pick the same color if you don't want the gradient background");
 		colorButton2.addActionListener(new ActionListener() {
 			
-			String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
+			final String mode = Theme.isDarkModeOn ? "dark_mode" : "light_mode";
 			
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				Color selectedColor = JColorChooser.showDialog(SettingPanel.this, "Choose a chat background color",
-						Color.decode(ResourceHandler.getColorFileSettings(mode, "Color2")));
+						Color.decode(Objects.requireNonNull(ResourceHandler.getColorFileSettings(mode, "Color2"))));
 				
 				if (selectedColor != null)
 				{
@@ -255,9 +235,9 @@ public class SettingPanel extends JFrame implements ActionListener
 				}
 			}
 		});
-		apperancePanel.add(colorButton2, "w 160");
+		appearancePanel.add(colorButton2, "w 160");
 		
-		return apperancePanel;
+		return appearancePanel;
 	}
 	
 	private JPanel createProfilePanel()
@@ -272,20 +252,18 @@ public class SettingPanel extends JFrame implements ActionListener
 		{
 			originalImage = loadImageWithoutExtension(USERNAME);
 		}
-		catch (Exception e)
-		{}
-		
+		catch (Exception _) {}
+
 		if (originalImage == null)
 			originalImage = loadImageWithoutExtension("null");
 		
 		try
 		{
-			profilePic = new JLabel(new ImageIcon(getScaledImage(originalImage)));
+            assert originalImage != null;
+            profilePic = new JLabel(new ImageIcon(getScaledImage(originalImage)));
 		}
-		catch (Exception e)
-		{
-			System.err.println(getPathString());
-		}
+		catch (Exception _) {}
+
 		profilePanel.add(profilePic, "center");
 		
 		JLabel username = new JLabel(USERNAME);
@@ -321,7 +299,8 @@ public class SettingPanel extends JFrame implements ActionListener
 		
 		JCheckBox checkBox = new JCheckBox("Enable");
 		checkBox.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;" + "icon.focusWidth: 0;");
-		checkBox.setSelected(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).startsWith("true"));
+		checkBox.setSelected(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password").orElseThrow())
+				.startsWith("true"));
 		securityPanel.add(checkBox);
 		
 		JLabel passwordLabel = new JLabel("Password");
@@ -332,14 +311,15 @@ public class SettingPanel extends JFrame implements ActionListener
 		passwordField.putClientProperty(FlatClientProperties.STYLE,
 				"font:bold +5;" + "showRevealButton: true;" + "focusWidth: 0;" + "showClearButton: true;");
 		passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
-		passwordField.setText(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")).substring(4));
+		passwordField.setText(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")
+				.orElseThrow()).substring(4));
 		securityPanel.add(passwordField, "w 150, h 30");
 		
 		JButton button = new JButton("Save");
 		button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		button.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;" + "focusWidth: 0;"
 				+ "[dark]background : darken(@accentColor,5%);" + "[light]background : lighten(@accentColor,5%)");
-		button.addActionListener(e -> setPassword(checkBox));
+		button.addActionListener(_ -> setPassword(checkBox));
 		securityPanel.add(button, "span, right");
 		
 		return securityPanel;
@@ -375,27 +355,26 @@ public class SettingPanel extends JFrame implements ActionListener
 		try
 		{
 			String[] extensions = { "jpg", "jpeg", "png" };
-			BufferedImage image = null;
+			BufferedImage image;
 			
 			for (String ext : extensions)
 			{
-				File file = null;
+				File file;
 				String path = getPathString() + "profile/";
 				file = new File(path + baseName + "." + ext);
 				if (file.exists())
 				{
 					image = ImageIO.read(file);
-					if (image != null)
-						return image;
+					if (image != null) return image;
 				}
 			}
 		}
-		catch (Exception e)
-		{}
+		catch (Exception _) {}
+
 		return null;
 	}
 	
-	private File loadFilePath(String fileName)
+	private Optional<File> loadFilePath(String fileName)
 	{
 		try
 		{
@@ -403,16 +382,16 @@ public class SettingPanel extends JFrame implements ActionListener
 			
 			for (String ext : extensions)
 			{
-				File file = null;
+				File file;
 				String path = getPathString() + "profile/";
 				file = new File(path + fileName + "." + ext);
-				if (file.exists())
-					return file;
+
+				if (file.exists()) return Optional.of(file);
 			}
 		}
-		catch (Exception e)
-		{}
-		return null;
+		catch (Exception _) {}
+
+		return Optional.empty();
 	}
 	
 	@Override
@@ -421,10 +400,9 @@ public class SettingPanel extends JFrame implements ActionListener
 		if (e.getSource() == changeButton)
 		{
 			JFileChooser chooser = new JFileChooser();
-			String lastDirectory = ResourceHandler.readPropertiesFile("last_directory");
+			String lastDirectory = ResourceHandler.readPropertiesFile("last_directory").orElse("");
 			
-			if (lastDirectory != null && !lastDirectory.isBlank())
-				chooser.setCurrentDirectory(new File(lastDirectory));
+			if (!lastDirectory.isBlank()) chooser.setCurrentDirectory(new File(lastDirectory));
 			
 			chooser.setDialogTitle("Select the Image File");
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png");
@@ -442,66 +420,61 @@ public class SettingPanel extends JFrame implements ActionListener
 				
 				try
 				{
-					loadFilePath(USERNAME).delete();
-				}
-				catch (Exception ex)
-				{}
-				finally
-				{
-					try
+					if (loadFilePath(USERNAME).orElseThrow().delete())
 					{
 						Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+						ResourceHandler.writePropertiesFile("last_directory", file.getParent());
 					}
-					catch (Exception e1)
-					{}
-					
-					ResourceHandler.writePropertiesFile("last_directory", file.getParent());
 				}
+				catch (Exception _) {}
 				
-				try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username,
-						DB.password); PreparedStatement pstmt = conn.prepareStatement(
-								"UPDATE pfp SET Profile_picture = ?, Image_extension = ? WHERE Username = ?"))
+				try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username,DB.password);
+					 PreparedStatement pstmt = conn.prepareStatement("UPDATE pfp SET Profile_picture = ?, Image_extension = ? WHERE Username = ?"))
 				{
-					
 					FileInputStream fileInputStream = new FileInputStream(file);
 					String fileExtension = getFileExtension(file.getName());
 					byte[] imageData = new byte[fileInputStream.available()];
-					fileInputStream.read(imageData);
 					pstmt.setBytes(1, imageData);
 					pstmt.setString(2, fileExtension);
 					pstmt.setString(3, USERNAME);
 					pstmt.executeUpdate();
 					
-					JOptionPane.showMessageDialog(this, "Profile picture sucessfully Uploaded.");
+					JOptionPane.showMessageDialog(this, "Profile picture successfully Uploaded.");
 					fileInputStream.close();
 					
-					profilePic.setIcon(new ImageIcon(getScaledImage(loadImageWithoutExtension(USERNAME))));
+					profilePic.setIcon(new ImageIcon(getScaledImage(Objects.requireNonNull(loadImageWithoutExtension(USERNAME)))));
 					repaint();
 				}
 				catch (Exception e2)
 				{
-					JOptionPane.showMessageDialog(this, "Something went wrong.\nTry again later.");
+					JOptionPane.showMessageDialog(this, "Something went wrong.\nPlease, Try again later.");
 				}
 			}
 		}
 		
 		else if (e.getSource() == removeButton)
 		{
-			try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username,
-					DB.password); PreparedStatement pstmt = conn.prepareStatement(
+			try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
+				 PreparedStatement pstmt = conn.prepareStatement(
 							"UPDATE pfp SET Profile_picture = NULL, Image_extension = NULL WHERE Username = ?"))
 			{
 				pstmt.setString(1, USERNAME);
 				pstmt.executeUpdate();
 				
-				File file = loadFilePath(USERNAME);
-				file.delete();
-				
-				JOptionPane.showMessageDialog(this, "Profile picture sucessfully removed.");
-				profilePic.setIcon(new ImageIcon(getScaledImage(loadImageWithoutExtension("null"))));
+				File file = loadFilePath(USERNAME).orElseThrow();
+
+                if (file.delete())
+				{
+					JOptionPane.showMessageDialog(this, "Profile picture successfully removed.");
+					profilePic.setIcon(new ImageIcon(getScaledImage(Objects.requireNonNull(loadImageWithoutExtension("null")))));
+                }
+				else
+				{
+					JOptionPane.showMessageDialog(this, "Unable to delete the profile picture.\nPlease try again later.");
+				}
 				repaint();
 			}
-			catch (Exception e2)
+			catch (Exception _)
 			{
 				JOptionPane.showMessageDialog(this, "Unable to delete the profile picture.");
 			}
@@ -511,12 +484,10 @@ public class SettingPanel extends JFrame implements ActionListener
 	private void setPassword(JCheckBox chk)
 	{
 		String password = new String(passwordField.getPassword());
-		if (password != null && !password.isBlank())
+		if (!password.isBlank())
 		{
-			if (chk.isSelected())
-				password = "true" + password;
-			else
-				password = "fals" + password;
+			if (chk.isSelected()) password = "true" + password;
+			else password = "fals" + password;
 			
 			ResourceHandler.writePropertiesFile("password", ResourceHandler.encode(password));
 		}
@@ -537,8 +508,7 @@ public class SettingPanel extends JFrame implements ActionListener
 	
 	private String getPathString()
 	{
-		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
-		return targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
+		return Application.jarFilePath;
 	}
 	
 	private String convertColorToHex(Color color)

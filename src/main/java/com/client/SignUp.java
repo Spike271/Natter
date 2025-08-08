@@ -1,8 +1,14 @@
 package com.client;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
+import com.formdev.flatlaf.FlatClientProperties;
+import org.jdesktop.swingx.JXHyperlink;
+
+import javax.swing.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
@@ -11,32 +17,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
-import javax.swing.text.PlainDocument;
-
-import org.jdesktop.swingx.JXHyperlink;
-
-import com.formdev.flatlaf.FlatClientProperties;
-
 public class SignUp extends CustomComponent implements ActionListener
 {
-	private static final long serialVersionUID = 1L;
 	private JXHyperlink clickableLabel;
-	private Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
+	private final Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
 	private JButton submitButton;
 	private JTextField FNbox, LNbox, Userbox;
 	private JPasswordField Passbox, CFbox;
-	
-	public SignUp()
+
+    public SignUp()
 	{
 		super("Sign Up");
 		this.setSize(630, 600);
@@ -52,35 +42,22 @@ public class SignUp extends CustomComponent implements ActionListener
 		themeButton = new GradientToggleButton();
 		themeButton.setSelected(Theme.isDarkModeOn);
 		themeButton.setToolTipText("Dark Mode");
-		themeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				JOptionPane.showConfirmDialog(SignUp.this, "Restart the Natter to apply new theme.",
-						"Apply the new Theme?", JOptionPane.DEFAULT_OPTION);
-			}
-		});
+		themeButton.addActionListener(_ -> JOptionPane.showConfirmDialog(SignUp.this, "Restart the Natter to apply new theme.",
+                "Apply the new Theme?", JOptionPane.DEFAULT_OPTION));
 		
 		buttonPanel.add(themeButton);
 	}
 	
 	@Override
-	protected void addcloseOperation()
+	protected void addCloseOperation()
 	{
-		closeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				ResourceHandler.changeColorFileSettings("ColorMode.IsDark",
-						themeButton.isSelected() ? "true" : "false");
-				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
-				dispose();
-				repaint();
-				System.exit(0);
-			}
-		});
+		closeButton.addActionListener(_ -> {
+            ResourceHandler.changeColorFileSettings("ColorMode.IsDark", themeButton.isSelected() ? "true" : "false");
+            ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
+            dispose();
+            repaint();
+            System.exit(0);
+        });
 	}
 	
 	private void addGuiComponents()
@@ -169,13 +146,13 @@ public class SignUp extends CustomComponent implements ActionListener
 		firstCharacterOfTheTextFieldShouldBeALetter(Userbox);
 		contentPane.add(Userbox, "wrap, h 35");
 		
-		// password label
+		// Password label
 		JLabel label4 = new JLabel("Password:");
 		label4.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
 		label4.setForeground(labelColor);
 		contentPane.add(label4, "gapx 4, gapy 12, wrap");
 		
-		// password field
+		// Password field
 		Passbox = new JPasswordField();
 		Passbox.setSelectedTextColor(Color.WHITE);
 		Passbox.setSelectionColor(Color.decode("#00c8fa"));
@@ -188,13 +165,18 @@ public class SignUp extends CustomComponent implements ActionListener
 		Passbox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
 		contentPane.add(Passbox, "wrap, h 35");
 		
-		// confirm password label
+		// Password Strength Status
+        PasswordStrengthStatus passwordStrengthStatus = new PasswordStrengthStatus();
+		passwordStrengthStatus.initPasswordField(Passbox);
+		contentPane.add(passwordStrengthStatus, "wrap");
+		
+		// Confirm password label
 		JLabel label5 = new JLabel("Confirm Password:");
 		label5.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
 		label5.setForeground(labelColor);
-		contentPane.add(label5, "gapx 4, gapy 12, wrap");
+		contentPane.add(label5, "gapx 4, gapy 5, wrap");
 		
-		// confirm password field
+		// Confirm password field
 		CFbox = new JPasswordField();
 		CFbox.setSelectedTextColor(Color.WHITE);
 		CFbox.setSelectionColor(Color.decode("#00c8fa"));
@@ -226,7 +208,7 @@ public class SignUp extends CustomComponent implements ActionListener
 		if (e.getSource() == clickableLabel)
 		{
 			this.setVisible(false);
-			NatterMain.signIn.setVisible(true);
+			Application.signIn.setVisible(true);
 		}
 		
 		else if (e.getSource() == submitButton)
@@ -237,19 +219,17 @@ public class SignUp extends CustomComponent implements ActionListener
 			String password = String.valueOf(Passbox.getPassword()).trim();
 			String userName = Userbox.getText().trim();
 			
-			if (firstName.isBlank() || lastName.isBlank() || userName.isBlank() || password.isBlank()
-					|| confirmPassword.isBlank())
+			if (firstName.isBlank() || lastName.isBlank() || userName.isBlank() || password.isBlank() || confirmPassword.isBlank())
 			{
 				JOptionPane.showMessageDialog(SignUp.this, "Please fill all the required fields.");
 			}
-			
 			else
 			{
 				Thread.startVirtualThread(() -> {
 					
 					if (password.length() < 8)
 					{
-						JOptionPane.showMessageDialog(SignUp.this, "Password should be atleast 8 characters long.");
+						JOptionPane.showMessageDialog(SignUp.this, "Password should be at least 8 characters long.");
 					}
 					
 					else if (!password.equals(confirmPassword))
@@ -270,10 +250,9 @@ public class SignUp extends CustomComponent implements ActionListener
 						
 						final String Query = "INSERT INTO account_info VALUES (NULL, ?, ?, ?, ?, ?)";
 						
-						try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
-								DB.password); PreparedStatement preparedStatement = connection.prepareStatement(Query))
+						try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
+							 PreparedStatement preparedStatement = connection.prepareStatement(Query))
 						{
-							
 							preparedStatement.setString(1, firstName);
 							preparedStatement.setString(2, lastName);
 							preparedStatement.setString(3, userName);
@@ -282,17 +261,12 @@ public class SignUp extends CustomComponent implements ActionListener
 							
 							preparedStatement.executeUpdate();
 							
-							JOptionPane.showMessageDialog(this,
-									"Your username : " + userName + "\nPassword: " + password);
-							
-							String targetDirectoryPath = getClass().getResource("SignUp.class").getPath();
-							targetDirectoryPath = targetDirectoryPath.substring(0,
-									targetDirectoryPath.lastIndexOf("/") + 1);
-							
+							JOptionPane.showMessageDialog(this, "Your username : " + userName + "\nPassword: " + password);
+
 							ResourceHandler.writePropertiesFile("username", userName);
 							ResourceHandler.writePropertiesFile("alreadyAUser", "true");
 							
-							NatterMain.natter.setVisible(true);
+							Application.natter.setVisible(true);
 							this.setVisible(false);
 						}
 						catch (Exception _)
@@ -316,14 +290,14 @@ public class SignUp extends CustomComponent implements ActionListener
 	{
 		final String query = "Select * from account_info where BINARY Username = ?";
 		
-		try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
-				DB.password); PreparedStatement preparedStatement = connection.prepareStatement(query))
+		try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,DB.password);
+			 PreparedStatement preparedStatement = connection.prepareStatement(query))
 		{
 			preparedStatement.setString(1, username);
 			return preparedStatement.executeQuery().next();
 		}
-		catch (Exception _)
-		{}
+		catch (Exception _) {}
+		
 		return false;
 	}
 	
@@ -342,11 +316,12 @@ public class SignUp extends CustomComponent implements ActionListener
 				for (byte b : macAddress)
 					sb.append(String.format("%02X-", b));
 				
-				return (sb.toString().substring(0, sb.length() - 1));
+				return (sb.substring(0, sb.length() - 1));
 			}
-			
 			else
+			{
 				System.out.println("No MAC address found for the network interface.");
+			}
 		}
 		catch (Exception e)
 		{
@@ -395,12 +370,12 @@ public class SignUp extends CustomComponent implements ActionListener
 		PlainDocument doc = (PlainDocument) textField.getDocument();
 		
 		doc.setDocumentFilter(new DocumentFilter() {
-			
+
 			@Override
 			public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
 					throws BadLocationException
 			{
-				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), text, offset);
+				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), offset);
 				super.insertString(fb, offset, newText, attr);
 			}
 			
@@ -408,17 +383,16 @@ public class SignUp extends CustomComponent implements ActionListener
 			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
 					throws BadLocationException
 			{
-				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), text, offset);
+				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), offset);
 				super.replace(fb, offset, length, newText, attrs);
 			}
 			
-			private String validateInput(String currentText, String newText, int offset)
+			private String validateInput(String newText, int offset)
 			{
 				if (offset == 0 && !newText.isEmpty())
 				{
 					char firstChar = newText.charAt(0);
-					if (!Character.isLetter(firstChar))
-						return "";
+					if (!Character.isLetter(firstChar)) return "";
 				}
 				return newText;
 			}

@@ -23,8 +23,6 @@ import org.jdesktop.animation.timing.TimingTargetAdapter;
 
 public class Button extends JButton
 {
-	private static final long serialVersionUID = 1L;
-	
 	public boolean isPaintBackground()
 	{
 		return paintBackground;
@@ -60,7 +58,7 @@ public class Button extends JButton
 	
 	private Animator animator;
 	private int targetSize;
-	private float animatSize;
+	private float animateSize;
 	private Point pressedPoint;
 	private float alpha;
 	private int round;
@@ -85,7 +83,7 @@ public class Button extends JButton
 				if (SwingUtilities.isLeftMouseButton(me))
 				{
 					targetSize = Math.max(getWidth(), getHeight()) * 2;
-					animatSize = 0;
+					animateSize = 0;
 					pressedPoint = me.getPoint();
 					alpha = 0.5f;
 					if (animator.isRunning())
@@ -104,7 +102,7 @@ public class Button extends JButton
 				{
 					alpha = 1 - fraction;
 				}
-				animatSize = fraction * targetSize;
+				animateSize = fraction * targetSize;
 				repaint();
 			}
 		};
@@ -113,11 +111,11 @@ public class Button extends JButton
 	}
 	
 	@Override
-	protected void paintComponent(Graphics grphcs)
+	protected void paintComponent(Graphics graphics)
 	{
 		int width = getWidth();
 		int height = getHeight();
-		Graphics2D g2 = (Graphics2D) grphcs.create();
+		Graphics2D g2 = (Graphics2D) graphics.create();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		if (paintBackground)
 		{
@@ -129,11 +127,11 @@ public class Button extends JButton
 			Area area = new Area(new RoundRectangle2D.Double(0, 0, width, height, round, round));
 			g2.setColor(effectColor);
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, alpha));
-			area.intersect(new Area(new Ellipse2D.Double((pressedPoint.x - animatSize / 2),
-					(pressedPoint.y - animatSize / 2), animatSize, animatSize)));
+			area.intersect(new Area(new Ellipse2D.Double((pressedPoint.x - animateSize / 2),
+					(pressedPoint.y - animateSize / 2), animateSize, animateSize)));
 			g2.fill(area);
 		}
 		g2.dispose();
-		super.paintComponent(grphcs);
+		super.paintComponent(graphics);
 	}
 }

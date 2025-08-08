@@ -8,8 +8,6 @@ import javax.swing.JPanel;
 
 public class RoundPanel extends JPanel
 {
-	private static final long serialVersionUID = 1L;
-	
 	public int getRound()
 	{
 		return round;
@@ -29,13 +27,13 @@ public class RoundPanel extends JPanel
 	}
 	
 	@Override
-	protected void paintComponent(Graphics grphcs)
+	protected void paintComponent(Graphics graphics)
 	{
-		Graphics2D g2 = (Graphics2D) grphcs.create();
+		Graphics2D g2 = (Graphics2D) graphics.create();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setColor(getBackground());
 		g2.fillRoundRect(0, 0, getWidth(), getHeight(), round, round);
 		g2.dispose();
-		super.paintComponent(grphcs);
+		super.paintComponent(graphics);
 	}
 }

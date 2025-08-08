@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
+import java.io.File;
 
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
@@ -23,8 +24,7 @@ public class PasswordRevealIcon implements AnimatedIcon
 	
 	public PasswordRevealIcon()
 	{
-		FlatSVGIcon svgIcon = new FlatSVGIcon(getClass().getResource("../../res/icons/eye.svg")).derive(20, 20);
-		this.icon = svgIcon;
+        this.icon = new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/eye.svg")).derive(20, 20);
 		this.space = 3;
 	}
 	

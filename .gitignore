@@ -1,2 +1,4 @@
+/.idea
+/out
 /target/
 src/main/java/com/client/DB.java

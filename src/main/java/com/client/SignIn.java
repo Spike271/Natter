@@ -26,8 +26,7 @@ import com.formdev.flatlaf.FlatClientProperties;
 
 public class SignIn extends CustomComponent implements ActionListener
 {
-	private static final long serialVersionUID = 1L;
-	private Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
+	private final Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
 	private JXHyperlink clickableLabel;
 	private JButton submitButton;
@@ -50,33 +49,20 @@ public class SignIn extends CustomComponent implements ActionListener
 		themeButton = new GradientToggleButton();
 		themeButton.setSelected(Theme.isDarkModeOn);
 		themeButton.setToolTipText("Dark Mode");
-		themeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				JOptionPane.showConfirmDialog(SignIn.this, "Restart the Natter to apply new theme.",
-						"Apply the new Theme?", JOptionPane.DEFAULT_OPTION);
-			}
-		});
+		themeButton.addActionListener(_ -> JOptionPane.showConfirmDialog(SignIn.this, "Restart the Natter to apply new theme.",
+                "Apply the new Theme?", JOptionPane.DEFAULT_OPTION));
 		
 		buttonPanel.add(themeButton);
 	}
 	
 	@Override
-	protected void addcloseOperation()
+	protected void addCloseOperation()
 	{
-		closeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				ResourceHandler.changeColorFileSettings("ColorMode.IsDark",
-						themeButton.isSelected() ? "true" : "false");
-				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
-				System.exit(0);
-			}
-		});
+		closeButton.addActionListener(_ -> {
+            ResourceHandler.changeColorFileSettings("ColorMode.IsDark", themeButton.isSelected() ? "true" : "false");
+            ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
+            System.exit(0);
+        });
 	}
 	
 	private void addGuiComponents()
@@ -111,7 +97,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		label1.setForeground(labelColor);
 		contentPane.add(label1, "gapx 5, gapy 15, wrap");
 		
-		// User name text box
+		// Username text box
 		textbox1 = new JTextField();
 		textbox1.setSelectedTextColor(Color.WHITE);
 		textbox1.setSelectionColor(Color.decode("#00c8fa"));
@@ -162,7 +148,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		if (e.getSource() == clickableLabel)
 		{
 			this.setVisible(false);
-			NatterMain.signUp.setVisible(true);
+			Application.signUp.setVisible(true);
 		}
 		
 		else if (e.getSource() == submitButton)
@@ -176,25 +162,18 @@ public class SignIn extends CustomComponent implements ActionListener
 				{
 					JOptionPane.showMessageDialog(SignIn.this, "Please fill all the required fields.");
 				}
-				
 				else
 				{
 					submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					submitButton.setEnabled(false);
 					
-					final String query = "SELECT * FROM account_info where BINARY Username = '" + username
-							+ "' and Password = '" + password + "'";
+					final String query = "SELECT * FROM account_info where BINARY Username = '" + username + "' and Password = '" + password + "'";
 					
-					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
-							DB.password); PreparedStatement preparedStatement = connection.prepareStatement(query))
+					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,DB.password);
+						 PreparedStatement preparedStatement = connection.prepareStatement(query))
 					{
-						
 						if (preparedStatement.executeQuery().next())
 						{
-							String targetDirectoryPath = getClass().getResource("SignIn.class").getPath();
-							targetDirectoryPath = targetDirectoryPath.substring(0,
-									targetDirectoryPath.lastIndexOf("/") + 1);
-							
 							ResourceHandler.writePropertiesFile("username", username);
 							ResourceHandler.writePropertiesFile("alreadyAUser", "true");
 							
@@ -221,11 +200,10 @@ public class SignIn extends CustomComponent implements ActionListener
 										}
 									}
 								}
-								catch (Exception _)
-								{}
+								catch (Exception _) {}
 							}
 							
-							NatterMain.natter.setVisible(true);
+							Application.natter.setVisible(true);
 							this.setVisible(false);
 						}
 						else
@@ -233,8 +211,7 @@ public class SignIn extends CustomComponent implements ActionListener
 							JOptionPane.showMessageDialog(this, "Wrong username or password.");
 						}
 					}
-					catch (Exception _)
-					{}
+					catch (Exception _) {}
 					finally
 					{
 						submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -255,18 +232,16 @@ public class SignIn extends CustomComponent implements ActionListener
 		
 		for (String ext : extensions)
 		{
-			File file = null;
 			String path = targetDirectoryPath + "profile/";
-			file = new File(path + fileName + "." + ext);
-			if (file.exists())
-				return true;
+			File file = new File(path + fileName + "." + ext);
+
+			if (file.exists()) return true;
 		}
 		return false;
 	}
-	
+
 	private String getPathString()
 	{
-		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
-		return targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
+		return Application.jarFilePath;
 	}
 }

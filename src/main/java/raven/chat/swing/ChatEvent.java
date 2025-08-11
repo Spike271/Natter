@@ -5,11 +5,11 @@ import java.awt.event.KeyEvent;
 
 public interface ChatEvent
 {
-	public void mousePressedSendButton(ActionEvent evt);
+	void mousePressedSendButton(ActionEvent evt);
 	
-	public void mousePressedFileButton(ActionEvent evt);
+	void mousePressedFileButton(ActionEvent evt);
 	
-	public void keyTyped(KeyEvent evt);
+	void keyTyped(KeyEvent evt);
 	
-	public void keyPressed(KeyEvent evt);
+	void keyPressed(KeyEvent evt);
 }

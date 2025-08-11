@@ -21,8 +21,6 @@ import raven.resource.swing.MyFont;
 
 public class TextField extends JTextPane
 {
-	private static final long serialVersionUID = 1L;
-	
 	public String getHint()
 	{
 		return hint;
@@ -82,7 +80,7 @@ public class TextField extends JTextPane
 				{
 					if (show)
 					{
-						if (animator.isRunning() == false)
+						if (!animator.isRunning())
 						{
 							stop();
 							animator.start();
@@ -107,10 +105,7 @@ public class TextField extends JTextPane
 			}
 			
 			@Override
-			public void changedUpdate(DocumentEvent e)
-			{
-				
-			}
+			public void changedUpdate(DocumentEvent e) {}
 		});
 		
 	}

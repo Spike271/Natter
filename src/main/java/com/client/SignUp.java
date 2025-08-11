@@ -1,40 +1,32 @@
 package com.client;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
+import com.formdev.flatlaf.FlatClientProperties;
+import org.jdesktop.swingx.JXHyperlink;
+
+import javax.swing.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
-import javax.swing.text.PlainDocument;
 
 public class SignUp extends CustomComponent implements ActionListener
 {
-	private static final long serialVersionUID = 1L;
-	private JButton clickableLabel;
-	private Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
+	private JXHyperlink clickableLabel;
+	private final Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
-	private RoundedJButton submitButton;
-	private RoundedJTextField FNbox, LNbox, Userbox;
-	private RoundedJPasswordField Passbox, CFbox;
-	
-	public SignUp()
+	private JButton submitButton;
+	private JTextField FNbox, LNbox, Userbox;
+	private JPasswordField Passbox, CFbox;
+
+    public SignUp()
 	{
 		super("Sign Up");
 		this.setSize(630, 600);
@@ -50,161 +42,164 @@ public class SignUp extends CustomComponent implements ActionListener
 		themeButton = new GradientToggleButton();
 		themeButton.setSelected(Theme.isDarkModeOn);
 		themeButton.setToolTipText("Dark Mode");
-		themeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				JOptionPane.showConfirmDialog(null, "Restart the Natter to apply new theme.", "Apply the new Theme?",
-						JOptionPane.DEFAULT_OPTION);
-			}
-		});
+		themeButton.addActionListener(_ -> JOptionPane.showConfirmDialog(SignUp.this, "Restart the Natter to apply new theme.",
+                "Apply the new Theme?", JOptionPane.DEFAULT_OPTION));
 		
 		buttonPanel.add(themeButton);
 	}
 	
 	@Override
-	protected void addcloseOperation()
+	protected void addCloseOperation()
 	{
-		closeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				ResourceHandler.changeColorFileSettings("ColorMode.IsDark",
-						themeButton.isSelected() ? "true" : "false");
-				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
-				dispose();
-				repaint();
-				System.exit(0);
-			}
-		});
+		closeButton.addActionListener(_ -> {
+            ResourceHandler.changeColorFileSettings("ColorMode.IsDark", themeButton.isSelected() ? "true" : "false");
+            ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
+            dispose();
+            repaint();
+            System.exit(0);
+        });
 	}
 	
 	private void addGuiComponents()
 	{
 		Font font = ResourceHandler.getFont("Roboto-Medium.ttf", 21f);
 		
-		JLabel Heading = new JLabel("Create account");
-		Heading.setBounds(0, 30, 600, 50);
+		// Heading
+		JLabel Heading = new JLabel("Create account", JLabel.CENTER);
 		Heading.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 36f));
-		Heading.setHorizontalAlignment(SwingConstants.CENTER);
 		Heading.setForeground(labelColor);
-		contentPane.add(Heading);
+		contentPane.add(Heading, "gapy 30 0, wrap");
 		
-		JLabel Message = new JLabel("Already have an account?");
-		Message.setBounds(0, 65, 370, 50);
+		// Below Heading Text
+		JLabel Message = new JLabel("Already have an account?", JLabel.RIGHT);
 		Message.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-		Message.setHorizontalAlignment(SwingConstants.RIGHT);
 		Message.setForeground(labelColor);
-		contentPane.add(Message);
+		contentPane.add(Message, "gapx 2 3, split 2");
 		
-		clickableLabel = new JButton("Sign in");
+		// color link
+		clickableLabel = new JXHyperlink();
+		clickableLabel.setText("Sign in");
 		clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-		clickableLabel.setBounds(373, 80, 70, 20);
-		clickableLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		clickableLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		clickableLabel.setForeground(new Color(0, 200, 250));
-		clickableLabel.setContentAreaFilled(false);
-		clickableLabel.setOpaque(false);
-		clickableLabel.setBorderPainted(false);
+		clickableLabel.setClickedColor(new Color(0, 200, 250));
 		clickableLabel.setFocusable(false);
-		clickableLabel.setBorder(null);
 		clickableLabel.addActionListener(this);
-		clickableLabel.addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseEntered(MouseEvent e)
-			{
-				clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-				clickableLabel.setText("<html><U>Sign in</U></html>");
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e)
-			{
-				clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-				clickableLabel.setText("<html>Sign in</html>");
-			}
-		});
+		contentPane.add(clickableLabel, "gapy 0 5, wrap");
 		
-		contentPane.add(clickableLabel);
-		
+		// First name label
 		JLabel label1 = new JLabel("First name:");
-		label1.setBounds(0, 120, 320, 50);
 		label1.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
-		label1.setHorizontalAlignment(SwingConstants.CENTER);
 		label1.setForeground(labelColor);
-		contentPane.add(label1);
+		contentPane.add(label1, "gapx 10, gapy 10, split");
 		
-		FNbox = new RoundedJTextField("First name ", 15, font);
-		FNbox.setBounds(100, 160, 200, 40);
-		FNbox.setSelectionColor(Color.BLUE);
-		FNbox.setSelectedTextColor(Color.WHITE);
-		makeTextFieldAcceptCharacterOnly(FNbox);
-		contentPane.add(FNbox);
-		
+		// Last name label
 		JLabel label2 = new JLabel("Last name:");
-		label2.setBounds(320, 120, 320, 50);
 		label2.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
 		label2.setForeground(labelColor);
-		contentPane.add(label2);
+		contentPane.add(label2, "gapx 10, gapy 10, wrap");
 		
-		LNbox = new RoundedJTextField("Last name ", 15, font);
-		LNbox.setBounds(305, 160, 200, 40);
-		LNbox.setSelectionColor(Color.BLUE);
+		// First name text box
+		FNbox = new JTextField();
+		FNbox.setSelectedTextColor(Color.WHITE);
+		FNbox.setSelectionColor(Color.decode("#00c8fa"));
+		FNbox.setFont(font);
+		makeTextFieldAcceptCharacterOnly(FNbox);
+		FNbox.putClientProperty(FlatClientProperties.STYLE,
+				"arc: 15;" + "borderWidth: 1;" + "borderColor: #808080;" + "focusWidth : 1;"
+						+ "focusColor : @accentColor;" + "[light]background:lighten(@background, 5%);"
+						+ "[dark]background:darken(@background, 0%);" + "placeholderForeground: #808080;"
+						+ "margin : 5, 10, 5, 10");
+		FNbox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "First Name");
+		contentPane.add(FNbox, "gapx 0 10, h 35, split");
+		
+		// Last name text box
+		LNbox = new JTextField();
 		LNbox.setSelectedTextColor(Color.WHITE);
+		LNbox.setSelectionColor(Color.decode("#00c8fa"));
+		LNbox.setFont(font);
 		makeTextFieldAcceptCharacterOnly(LNbox);
-		contentPane.add(LNbox);
+		LNbox.putClientProperty(FlatClientProperties.STYLE,
+				"arc: 15;" + "borderWidth: 1;" + "borderColor: #808080;" + "focusWidth : 1;"
+						+ "focusColor : @accentColor;" + "[light]background:lighten(@background, 5%);"
+						+ "[dark]background:darken(@background, 0%);" + "placeholderForeground: #808080;"
+						+ "margin : 5, 10, 5, 10");
+		LNbox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Last Name");
+		contentPane.add(LNbox, "h 35, wrap");
 		
+		// Username label
 		JLabel label3 = new JLabel("Username:");
-		label3.setBounds(0, 200, 320, 50);
 		label3.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
-		label3.setHorizontalAlignment(SwingConstants.CENTER);
 		label3.setForeground(labelColor);
-		contentPane.add(label3);
+		contentPane.add(label3, "gapx 4, gapy 12, wrap");
 		
-		Userbox = new RoundedJTextField("Username ", 15, font);
-		Userbox.setBounds(100, 240, 405, 40);
-		Userbox.setSelectionColor(Color.BLUE);
+		// Username textbox
+		Userbox = new JTextField();
 		Userbox.setSelectedTextColor(Color.WHITE);
+		Userbox.setSelectionColor(Color.decode("#00c8fa"));
+		Userbox.setFont(font);
+		Userbox.putClientProperty(FlatClientProperties.STYLE,
+				"arc: 15;" + "borderWidth: 1;" + "borderColor: #808080;" + "focusWidth : 1;"
+						+ "focusColor : @accentColor;" + "[light]background:lighten(@background, 5%);"
+						+ "[dark]background:darken(@background, 0%);" + "placeholderForeground: #808080;"
+						+ "margin : 5, 10, 5, 10");
+		Userbox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Username");
 		firstCharacterOfTheTextFieldShouldBeALetter(Userbox);
-		contentPane.add(Userbox);
+		contentPane.add(Userbox, "wrap, h 35");
 		
+		// Password label
 		JLabel label4 = new JLabel("Password:");
-		label4.setBounds(0, 280, 320, 50);
 		label4.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
-		label4.setHorizontalAlignment(SwingConstants.CENTER);
 		label4.setForeground(labelColor);
-		contentPane.add(label4);
+		contentPane.add(label4, "gapx 4, gapy 12, wrap");
 		
-		Passbox = new RoundedJPasswordField("Password ", 15, font);
-		Passbox.setBounds(100, 320, 405, 40);
-		Passbox.setSelectionColor(Color.BLUE);
+		// Password field
+		Passbox = new JPasswordField();
 		Passbox.setSelectedTextColor(Color.WHITE);
-		contentPane.add(Passbox);
+		Passbox.setSelectionColor(Color.decode("#00c8fa"));
+		Passbox.setFont(font);
+		Passbox.putClientProperty(FlatClientProperties.STYLE,
+				"arc: 15;" + "borderWidth: 1;" + "borderColor: #808080;" + "focusWidth : 1;"
+						+ "focusColor : @accentColor;" + "[light]background:lighten(@background, 5%);"
+						+ "[dark]background:darken(@background, 0%);" + "placeholderForeground: #808080;"
+						+ "margin : 5, 10, 5, 10;" + "showRevealButton: true;" + "showCapsLock: false;");
+		Passbox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
+		contentPane.add(Passbox, "wrap, h 35");
 		
+		// Password Strength Status
+        PasswordStrengthStatus passwordStrengthStatus = new PasswordStrengthStatus();
+		passwordStrengthStatus.initPasswordField(Passbox);
+		contentPane.add(passwordStrengthStatus, "wrap");
+		
+		// Confirm password label
 		JLabel label5 = new JLabel("Confirm Password:");
-		label5.setBounds(33, 360, 320, 50);
 		label5.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
-		label5.setHorizontalAlignment(SwingConstants.CENTER);
 		label5.setForeground(labelColor);
-		contentPane.add(label5);
+		contentPane.add(label5, "gapx 4, gapy 5, wrap");
 		
-		CFbox = new RoundedJPasswordField("Confirm Password ", 15, font);
-		CFbox.setBounds(100, 400, 405, 40);
-		CFbox.setSelectionColor(Color.BLUE);
+		// Confirm password field
+		CFbox = new JPasswordField();
 		CFbox.setSelectedTextColor(Color.WHITE);
-		contentPane.add(CFbox);
+		CFbox.setSelectionColor(Color.decode("#00c8fa"));
+		CFbox.setFont(font);
+		CFbox.putClientProperty(FlatClientProperties.STYLE,
+				"arc: 15;" + "borderWidth: 1;" + "borderColor: #808080;" + "focusWidth : 1;"
+						+ "focusColor : @accentColor;" + "[light]background:lighten(@background, 5%);"
+						+ "[dark]background:darken(@background, 0%);" + "placeholderForeground: #808080;"
+						+ "margin : 5, 10, 5, 10;" + "showRevealButton: true;" + "showCapsLock: false;");
+		CFbox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Confirm Password");
+		contentPane.add(CFbox, "wrap, h 35");
 		
-		submitButton = new RoundedJButton("Sign up", 15);
-		submitButton.setBounds(100, 470, 405, 40);
+		// Sign up button
+		submitButton = new JButton("Sign up");
 		submitButton.setFont(font);
 		submitButton.setBackground(new Color(0, 50, 255));
 		submitButton.setForeground(Color.white);
 		submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		submitButton.setFocusPainted(false);
+		submitButton.setBorderPainted(false);
 		submitButton.addActionListener(this);
-		contentPane.add(submitButton);
+		submitButton.putClientProperty(FlatClientProperties.STYLE, "arc: 15;" + "disabledBackground: #0033ff;");
+		contentPane.add(submitButton, "gapy 30, h 35");
 	}
 	
 	@Override
@@ -213,33 +208,28 @@ public class SignUp extends CustomComponent implements ActionListener
 		if (e.getSource() == clickableLabel)
 		{
 			this.setVisible(false);
-			NatterMain.signIn.setVisible(true);
+			Application.signIn.setVisible(true);
 		}
 		
 		else if (e.getSource() == submitButton)
 		{
+			String firstName = FNbox.getText().trim();
+			String lastName = LNbox.getText().trim();
+			String confirmPassword = String.valueOf(CFbox.getPassword()).trim();
 			String password = String.valueOf(Passbox.getPassword()).trim();
 			String userName = Userbox.getText().trim();
 			
-			if (password.length() < 10)
-				JOptionPane.showMessageDialog(SignUp.this, "Password should be atleast 10 characters long.");
-			
-			else if (userName.length() < 6)
-				JOptionPane.showMessageDialog(SignUp.this, "Username should be atleast 6 characters long.");
-			
+			if (firstName.isBlank() || lastName.isBlank() || userName.isBlank() || password.isBlank() || confirmPassword.isBlank())
+			{
+				JOptionPane.showMessageDialog(SignUp.this, "Please fill all the required fields.");
+			}
 			else
 			{
 				Thread.startVirtualThread(() -> {
 					
-					String firstName = FNbox.getText().trim();
-					String lastName = LNbox.getText().trim();
-					String confirmPassword = String.valueOf(CFbox.getPassword()).trim();
-					
-					if (firstName.equalsIgnoreCase("First name") || lastName.equalsIgnoreCase("Last name")
-							|| userName.equalsIgnoreCase("Username") || password.equalsIgnoreCase("Password")
-							|| confirmPassword.equalsIgnoreCase("Confirm Password"))
+					if (password.length() < 8)
 					{
-						JOptionPane.showMessageDialog(SignUp.this, "Please fill all the required fields.");
+						JOptionPane.showMessageDialog(SignUp.this, "Password should be at least 8 characters long.");
 					}
 					
 					else if (!password.equals(confirmPassword))
@@ -252,8 +242,7 @@ public class SignUp extends CustomComponent implements ActionListener
 						JOptionPane.showMessageDialog(SignUp.this, "This username already exist.\nTry something else.");
 					}
 					
-					else if (!(firstName.isBlank() && lastName.isBlank() && userName.isBlank() && password.isBlank()
-							&& confirmPassword.isBlank()))
+					else
 					{
 						submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						submitButton.setEnabled(false);
@@ -261,10 +250,9 @@ public class SignUp extends CustomComponent implements ActionListener
 						
 						final String Query = "INSERT INTO account_info VALUES (NULL, ?, ?, ?, ?, ?)";
 						
-						try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
-								DB.password); PreparedStatement preparedStatement = connection.prepareStatement(Query))
+						try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
+							 PreparedStatement preparedStatement = connection.prepareStatement(Query))
 						{
-							
 							preparedStatement.setString(1, firstName);
 							preparedStatement.setString(2, lastName);
 							preparedStatement.setString(3, userName);
@@ -273,20 +261,15 @@ public class SignUp extends CustomComponent implements ActionListener
 							
 							preparedStatement.executeUpdate();
 							
-							JOptionPane.showMessageDialog(this,
-									"Your username : " + userName + "\nPassword: " + password);
-							
-							String targetDirectoryPath = getClass().getResource("SignUp.class").getPath();
-							targetDirectoryPath = targetDirectoryPath.substring(0,
-									targetDirectoryPath.lastIndexOf("/") + 1);
-							
+							JOptionPane.showMessageDialog(this, "Your username : " + userName + "\nPassword: " + password);
+
 							ResourceHandler.writePropertiesFile("username", userName);
 							ResourceHandler.writePropertiesFile("alreadyAUser", "true");
 							
-							NatterMain.natter.setVisible(true);
+							Application.natter.setVisible(true);
 							this.setVisible(false);
 						}
-						catch (Exception e2)
+						catch (Exception _)
 						{
 							JOptionPane.showMessageDialog(SignUp.this, "Something Went wrong");
 						}
@@ -307,16 +290,14 @@ public class SignUp extends CustomComponent implements ActionListener
 	{
 		final String query = "Select * from account_info where BINARY Username = ?";
 		
-		try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
-				DB.password); PreparedStatement preparedStatement = connection.prepareStatement(query))
+		try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,DB.password);
+			 PreparedStatement preparedStatement = connection.prepareStatement(query))
 		{
 			preparedStatement.setString(1, username);
-			ResultSet rs = preparedStatement.executeQuery();
-			
-			return rs.next();
+			return preparedStatement.executeQuery().next();
 		}
-		catch (Exception e)
-		{}
+		catch (Exception _) {}
+		
 		return false;
 	}
 	
@@ -335,11 +316,12 @@ public class SignUp extends CustomComponent implements ActionListener
 				for (byte b : macAddress)
 					sb.append(String.format("%02X-", b));
 				
-				return (sb.toString().substring(0, sb.length() - 1));
+				return (sb.substring(0, sb.length() - 1));
 			}
-			
 			else
+			{
 				System.out.println("No MAC address found for the network interface.");
+			}
 		}
 		catch (Exception e)
 		{
@@ -348,7 +330,7 @@ public class SignUp extends CustomComponent implements ActionListener
 		return null;
 	}
 	
-	private void makeTextFieldAcceptCharacterOnly(RoundedJTextField textField)
+	private void makeTextFieldAcceptCharacterOnly(JTextField textField)
 	{
 		PlainDocument doc = (PlainDocument) textField.getDocument();
 		
@@ -383,16 +365,17 @@ public class SignUp extends CustomComponent implements ActionListener
 		});
 	}
 	
-	private void firstCharacterOfTheTextFieldShouldBeALetter(RoundedJTextField textField)
+	private void firstCharacterOfTheTextFieldShouldBeALetter(JTextField textField)
 	{
 		PlainDocument doc = (PlainDocument) textField.getDocument();
 		
 		doc.setDocumentFilter(new DocumentFilter() {
+
 			@Override
 			public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
 					throws BadLocationException
 			{
-				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), text, offset);
+				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), offset);
 				super.insertString(fb, offset, newText, attr);
 			}
 			
@@ -400,17 +383,16 @@ public class SignUp extends CustomComponent implements ActionListener
 			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
 					throws BadLocationException
 			{
-				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), text, offset);
+				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), offset);
 				super.replace(fb, offset, length, newText, attrs);
 			}
 			
-			private String validateInput(String currentText, String newText, int offset)
+			private String validateInput(String newText, int offset)
 			{
 				if (offset == 0 && !newText.isEmpty())
 				{
 					char firstChar = newText.charAt(0);
-					if (!Character.isLetter(firstChar))
-						return "";
+					if (!Character.isLetter(firstChar)) return "";
 				}
 				return newText;
 			}

@@ -1,4 +1,4 @@
-package raven.test;
+package raven.chatModal;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 
 import com.client.MessagesSendAndReceive;
 import com.client.ResourceHandler;
-import com.client.userChats;
+import com.client.UserChats;
 
 import raven.chat.component.ChatBox;
 import raven.chat.model.ModelMessage;
@@ -27,14 +27,12 @@ import reactor.core.publisher.Sinks;
 
 public class ChatUI extends JPanel
 {
-	private static final long serialVersionUID = 1L;
-	
 	public static String userName = "";
 	private Background background1;
 	public static ArrayList<ChatBoxList> chatBoxLists = new ArrayList<>();
 	public raven.chat.component.ChatArea chatArea;
 	public static Sinks.Many<String> sink = Sinks.many().multicast().directBestEffort();
-	private static Flux<String> flux = sink.asFlux().share();
+	private static final Flux<String> flux = sink.asFlux().share();
 	private Icon receiverIcon;
 	
 	public ChatUI()
@@ -50,8 +48,8 @@ public class ChatUI extends JPanel
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
 		chatArea.addChatEvent(new ChatEvent() {
 			
-			Icon icon = senderIcon;
-			String name = ResourceHandler.readPropertiesFile("username");
+			final Icon icon = senderIcon;
+			final String name = ResourceHandler.readPropertiesFile("username").orElseThrow();
 			
 			@Override
 			public void mousePressedSendButton(ActionEvent evt)
@@ -60,15 +58,11 @@ public class ChatUI extends JPanel
 			}
 			
 			@Override
-			public void mousePressedFileButton(ActionEvent evt)
-			{
-			}
+			public void mousePressedFileButton(ActionEvent evt) {}
 			
 			@Override
-			public void keyTyped(KeyEvent evt)
-			{
-			}
-			
+			public void keyTyped(KeyEvent evt) {}
+
 			@Override
 			public void keyPressed(KeyEvent evt)
 			{
@@ -92,15 +86,14 @@ public class ChatUI extends JPanel
 						chatArea.scrollToBottom();
 						
 						MessagesSendAndReceive.sendMessage(sender, receiver, inputMessage);
-						userChats.addUsersConversation(receiver, date, "sender", inputMessage);
+						UserChats.addUsersConversation(receiver, date, "sender", inputMessage);
 					}
 				}
 			}
 		});
 		
 		var msg = loadExistingMessages(receiver);
-		if (msg != null)
-			addMessagesToList(msg, sender, receiver, senderIcon, receiverIcon);
+		addMessagesToList(msg, sender, receiver, senderIcon, receiverIcon);
 		
 		Thread.startVirtualThread(() -> listenMessageAndAddToUi(receiver));
 		
@@ -123,50 +116,48 @@ public class ChatUI extends JPanel
 		});
 	}
 	
-	private List<userChats.Message> loadExistingMessages(String userID)
+	private List<UserChats.Message> loadExistingMessages(String userID)
 	{
-		Map<String, List<userChats.Message>> conversations = userChats.readAllConversations();
+		Map<String, List<UserChats.Message>> conversations = UserChats.readAllConversations();
 		
 		if (conversations != null)
 		{
-			for (Map.Entry<String, List<userChats.Message>> entry : conversations.entrySet())
+			for (Map.Entry<String, List<UserChats.Message>> entry : conversations.entrySet())
 			{
 				String userId = entry.getKey();
-				List<userChats.Message> messages = entry.getValue();
+				List<UserChats.Message> messages = entry.getValue();
 				
-				if (userId.equals(userID))
-					return messages;
+				if (userId.equals(userID)) return messages;
 			}
 		}
-		return null;
+		return new ArrayList<>(0);
 	}
 	
-	private void addMessagesToList(List<userChats.Message> messages, String sender, String receiver, Icon senderIcon,
-			Icon receiverIcon)
+	private void addMessagesToList(List<UserChats.Message> messages, String sender, String receiver, Icon senderIcon,
+								   Icon receiverIcon)
 	{
-		for (var msg : messages)
+		for (UserChats.Message msg : messages)
 		{
-			if (msg.getType().equals("sender"))
+			if (msg.type().equals("sender"))
 			{
-				chatBoxLists.add(new ChatBoxList(new ModelMessage(senderIcon, sender, msg.getDate(), msg.getContent()),
-						ChatBox.BoxType.RIGHT));
+				chatBoxLists.add(new ChatBoxList(new ModelMessage(senderIcon, sender, msg.date(), msg.content()),
+                        ChatBox.BoxType.RIGHT));
 			}
 			else
 			{
-				chatBoxLists
-						.add(new ChatBoxList(new ModelMessage(receiverIcon, receiver, msg.getDate(), msg.getContent()),
-								ChatBox.BoxType.LEFT));
+				chatBoxLists.add(new ChatBoxList(new ModelMessage(receiverIcon, receiver, msg.date(), msg.content()),
+                        ChatBox.BoxType.LEFT));
 			}
 		}
 	}
 	
 	private void initComponents()
 	{
-		String temp = ChatComponentsColor.chatbackgroundImage;
-		
+		String temp = ChatComponentsColor.chatBackgroundImage;
+
 		try
 		{
-			if (temp.equals(""))
+            if (temp.isBlank())
 				background1 = new Background();
 			else
 				background1 = new Background(new File(GetImage.getSettings(temp)));
@@ -201,7 +192,7 @@ public class ChatUI extends JPanel
 						javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
 	}
 	
-	public class ChatBoxList
+	public static class ChatBoxList
 	{
 		ModelMessage modal;
 		ChatBox.BoxType type;

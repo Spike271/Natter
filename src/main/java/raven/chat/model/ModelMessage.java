@@ -43,8 +43,7 @@ public class ModelMessage {
         this.message = message;
     }
 
-    public ModelMessage() {
-    }
+    public ModelMessage() {}
 
     private Icon icon;
     private String name;

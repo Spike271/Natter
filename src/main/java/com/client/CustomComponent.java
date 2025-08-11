@@ -1,39 +1,20 @@
 package com.client;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Image;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
-import net.miginfocom.swing.MigLayout;
 
 public abstract class CustomComponent extends JFrame implements Theme
 {
-	private static final long serialVersionUID = 1L;
-	
 	private int xMouse, yMouse;
 	public JPanel contentPane;
-	private JPanel titleBar;
-	private String title = "title";
+    private final String title;
 	protected ModernButton closeButton;
-	
-	public CustomComponent()
-	{
-		initialize();
-	}
 	
 	public CustomComponent(String title)
 	{
@@ -46,26 +27,27 @@ public abstract class CustomComponent extends JFrame implements Theme
 		// Set frame properties
 		this.setUndecorated(true); // Removes the default title bar
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setResizable(false);
 		
 		// Create a custom title bar panel
-		titleBar = createTitleBar();
+        JPanel titleBar = createTitleBar();
 		this.add(titleBar, BorderLayout.NORTH);
 		
 		// Main content area
 		contentPane = createContentPane();
 		this.add(contentPane, BorderLayout.CENTER);
 		
-		addcloseOperation();
+		addCloseOperation();
 	}
 	
 	private JPanel createTitleBar()
 	{
 		JPanel titleBar = new JPanel();
-		titleBar.setBackground(ComponetsColor.titleBarColor);
+		titleBar.setBackground(ComponentsColor.titleBarColor);
 		titleBar.setLayout(new BorderLayout());
 		
 		// Add icon on the tray
-		setIconImage(new ImageIcon(getClass().getResource("../../res/icons/logo32_32.png")).getImage());
+		setIconImage(new ImageIcon(Application.jarFilePath + "res/icons/logo32_32.png").getImage());
 		JLabel iconLabel = createIconLabel();
 		titleBar.add(iconLabel, BorderLayout.WEST);
 		
@@ -87,28 +69,16 @@ public abstract class CustomComponent extends JFrame implements Theme
 	private JLabel createIconLabel()
 	{
 		JLabel iconLabel = new JLabel();
-		iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 12, 5, 0));
-		iconLabel.setPreferredSize(new Dimension(45, 38));
-		
-		BufferedImage originalImage = null;
-		try
-		{
-			originalImage = ImageIO.read(new File(getClass().getResource("../../res/icons/logo32_32.png").getPath()));
-		}
-		catch (IOException e)
-		{
-			return null;
-		}
-		
-		Image scaledImage = originalImage.getScaledInstance(32, 32, Image.SCALE_SMOOTH);
-		iconLabel.setIcon(new ImageIcon(scaledImage));
+		iconLabel.setBorder(BorderFactory.createEmptyBorder(3, 10, 3, 0));
+		iconLabel.setIcon(new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/logo.svg"))
+				 .derive(32, 32));
 		return iconLabel;
 	}
 	
 	private JLabel createTitleLabel()
 	{
 		JLabel titleLabel = new JLabel(title);
-		titleLabel.setForeground(ComponetsColor.titleTextColor);
+		titleLabel.setForeground(ComponentsColor.titleTextColor);
 		titleLabel.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
 		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		return titleLabel;
@@ -118,53 +88,53 @@ public abstract class CustomComponent extends JFrame implements Theme
 	{
 		JPanel titlePanel = new JPanel(new MigLayout("fill, insets 0"));
 		titlePanel.setOpaque(false);
-		titlePanel.add(titleLabel, "align center, grow");
+		titlePanel.add(titleLabel, "gapx 80, grow");
 		return titlePanel;
 	}
 	
 	private JPanel createContentPane()
 	{
 		JPanel contentPane = new JPanel();
-		contentPane.setBackground(ComponetsColor.frameBGColor);
-		contentPane.setLayout(null);
+		contentPane.setBackground(ComponentsColor.frameBGColor);
+		contentPane.setLayout(new MigLayout("al center, insets 0", "[fill, 65%]"));
 		return contentPane;
 	}
 	
 	private JPanel createButtonPanel()
 	{
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JPanel buttonPanel = new JPanel(new MigLayout("right", "[]"));
 		buttonPanel.setOpaque(false); // Make it transparent
 		
 		addThemeButton(buttonPanel);
 		
 		// Minimize button
 		ModernButton minimizeButton = createMinimizeButton();
-		buttonPanel.add(minimizeButton);
+		buttonPanel.add(minimizeButton, "w 40!");
 		
 		// Close button
 		closeButton = createCloseButton();
-		buttonPanel.add(closeButton);
+		buttonPanel.add(closeButton, "w 40!");
 		
 		return buttonPanel;
 	}
 	
 	private ModernButton createMinimizeButton()
 	{
-		ModernButton minimizeButton = new ModernButton("_", ComponetsColor.minbtnBGColor,
-				ComponetsColor.minbtnHoverColor);
+		ModernButton minimizeButton = new ModernButton("_", ComponentsColor.minbtnBGColor, ComponentsColor.titleBarColor,
+				ComponentsColor.minbtnHoverColor);
 		
-		minimizeButton.setForeground(ComponetsColor.minbtnColor);
+		minimizeButton.setForeground(ComponentsColor.minbtnColor);
 		minimizeButton.setFocusPainted(false);
-		minimizeButton.addActionListener(e -> setState(CustomComponent.ICONIFIED)); // Minimize the window
+		minimizeButton.addActionListener(_ -> setState(CustomComponent.ICONIFIED)); // Minimize the window
 		return minimizeButton;
 	}
 	
 	private ModernButton createCloseButton()
 	{
-		ModernButton closeButton = new ModernButton("X", ComponetsColor.closebtnBGColor,
-				ComponetsColor.closebtnHoverColor);
+		ModernButton closeButton = new ModernButton("X", ComponentsColor.closebtnBGColor, ComponentsColor.titleBarColor,
+				ComponentsColor.closebtnHoverColor);
 		
-		closeButton.setForeground(ComponetsColor.closebtnColor);
+		closeButton.setForeground(ComponentsColor.closebtnColor);
 		return closeButton;
 	}
 	
@@ -192,9 +162,9 @@ public abstract class CustomComponent extends JFrame implements Theme
 		});
 	}
 	
-	protected void addcloseOperation()
+	protected void addCloseOperation()
 	{
-		closeButton.addActionListener(e -> dispose());
+		closeButton.addActionListener(_ -> dispose());
 	}
 	
 	abstract void addThemeButton(JPanel buttonPanel);

@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-import raven.test.ChatUI;
+import raven.chatModal.ChatUI;
 
 public class MessagesSendAndReceive
 {
@@ -22,7 +22,7 @@ public class MessagesSendAndReceive
 	private static BufferedReader input;
 	private static Socket clientSocket;
 	private volatile static boolean isConnected = false;
-	private static final Thread listenMessageThread = new Thread(() -> listen());
+	private static final Thread listenMessageThread = new Thread(MessagesSendAndReceive::listen);
 	private static final Gson gson = new GsonBuilder().create();
 	
 	public static void startMessageListening()
@@ -58,20 +58,20 @@ public class MessagesSendAndReceive
 	{
 		while (true)
 		{
-			if (!NatterMain.natter.isVisible())
+			if (!Application.natter.isVisible())
 			{
 				try
 				{
 					Thread.sleep(1000);
 				}
-				catch (InterruptedException e)
+				catch (InterruptedException _)
 				{}
 			}
 			else
 				break;
 		}
 		
-		final String user = ResourceHandler.readPropertiesFile("username");
+		final String user = ResourceHandler.readPropertiesFile("username").orElseThrow();
 		
 		if (clientSocket == null)
 		{
@@ -101,9 +101,9 @@ public class MessagesSendAndReceive
 				{
 					ForwardedMessage receivedMessage = gson.fromJson(outputMessage, ForwardedMessage.class);
 					String date = df.format(new Date());
-					String receiver = receivedMessage.getSender();
-					String finalMessage = receivedMessage.getMessage();
-					userChats.addUsersConversation(receiver, date, "receiver", finalMessage);
+					String receiver = receivedMessage.sender();
+					String finalMessage = receivedMessage.message();
+					UserChats.addUsersConversation(receiver, date, "receiver", finalMessage);
 					
 					ChatUI.sink.tryEmitNext(receiver + ": " + finalMessage);
 				}
@@ -131,60 +131,19 @@ public class MessagesSendAndReceive
 	{
 		try
 		{
-			if (clientSocket != null && !clientSocket.isClosed())
+			if (clientSocket != null)
 			{
-				clientSocket.close();
+				if(!clientSocket.isClosed())
+				{
+					clientSocket.close();
+				}
 			}
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		catch (IOException _) {}
 		isConnected = false;
 	}
 	
-	static class ChatMessage
-	{
-		private String sender;
-		private String receiver;
-		private String message;
-		
-		public ChatMessage(String sender, String receiver, String message)
-		{
-			this.sender = sender;
-			this.receiver = receiver;
-			this.message = message;
-		}
-		
-		public String getSender()
-		{
-			return sender;
-		}
-		
-		public String getReceiver()
-		{
-			return receiver;
-		}
-		
-		public String getMessage()
-		{
-			return message;
-		}
-	}
+	record ChatMessage(String sender, String receiver, String message) {}
 	
-	static class ForwardedMessage
-	{
-		private String sender;
-		private String message;
-		
-		public String getSender()
-		{
-			return sender;
-		}
-		
-		public String getMessage()
-		{
-			return message;
-		}
-	}
+	record ForwardedMessage(String sender, String message) {}
 }

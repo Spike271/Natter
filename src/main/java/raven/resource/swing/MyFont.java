@@ -3,11 +3,11 @@ package raven.resource.swing;
 import java.awt.Font;
 import java.io.File;
 
-import raven.test.ChatUI;
+import com.client.Application;
 
 public class MyFont
 {
-	private static final String path = "../../../libres/Fonts/";
+	private static final String path = Application.jarFilePath + "libres/Fonts/";
 	
 	public static Font getFont(String name, float size)
 	{
@@ -27,15 +27,6 @@ public class MyFont
 	
 	private static File getFontFile(String resource)
 	{
-		String filePath = MyFont.class.getResource(resource).getPath();
-		
-		// check to see if filepath contains any folder with spaces in the name
-		
-		if (filePath.contains("%20"))
-		{
-			filePath = ChatUI.class.getResource(resource).getPath().replaceAll("%20", " ");
-		}
-		
-		return new File(filePath);
+		return new File(resource);
 	}
 }

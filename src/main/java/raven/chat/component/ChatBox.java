@@ -23,7 +23,6 @@ import raven.resource.swing.MyFont;
 
 public class ChatBox extends JComponent
 {
-	private static final long serialVersionUID = 1L;
 	private final BoxType boxType;
 	private final ModelMessage message;
 	
@@ -72,23 +71,23 @@ public class ChatBox extends JComponent
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		int width = getWidth();
 		int height = getHeight();
-		if (boxType == BoxType.LEFT)
+        Area area;
+        if (boxType == BoxType.LEFT)
 		{
-			Area area = new Area(new RoundRectangle2D.Double(25, 25, width - 25, height - 25 - 16 - 10, 5, 5));
+            area = new Area(new RoundRectangle2D.Double(25, 25, width - 25, height - 25 - 16 - 10, 5, 5));
 			area.subtract(new Area(new Ellipse2D.Double(5, 5, 45, 45)));
 			g2.setPaint(new GradientPaint(0, 0, ChatComponentsColor.leftChatBubbleFrom, width, 0,
 					ChatComponentsColor.leftChatBubbleTo));
-			g2.fill(area);
-		}
+        }
 		else
 		{
-			Area area = new Area(new RoundRectangle2D.Double(0, 25, width - 25, height - 25 - 16 - 10, 5, 5));
+            area = new Area(new RoundRectangle2D.Double(0, 25, width - 25, height - 25 - 16 - 10, 5, 5));
 			area.subtract(new Area(new Ellipse2D.Double(width - 50, 5, 45, 45)));
 			g2.setPaint(new GradientPaint(0, 0, ChatComponentsColor.rightChatBubbleFrom, width, 0,
 					ChatComponentsColor.rightChatBubbleTo));
-			g2.fill(area);
-		}
-		g2.dispose();
+        }
+        g2.fill(area);
+        g2.dispose();
 		super.paintComponent(g);
 	}
 	
@@ -102,7 +101,7 @@ public class ChatBox extends JComponent
 		return message;
 	}
 	
-	public static enum BoxType
+	public enum BoxType
 	{
 		LEFT, RIGHT
 	}

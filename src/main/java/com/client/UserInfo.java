@@ -10,14 +10,14 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class userInfo
+public class UserInfo
 {
-	private static final String backupFile = "../../res/backup/Receivers.json";
+	private static final String backupFile = Application.jarFilePath + "res/backup/Receivers.json";
 	
 	public static void addNewUser(String user, String time)
 	{
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		File file = new File(userInfo.class.getResource(backupFile).getFile());
+		File file = new File(backupFile);
 		
 		List<Receiver> receivers = readOrCreateReceivers(gson, file);
 		
@@ -30,8 +30,8 @@ public class userInfo
 	public static ArrayList<Receiver> readExistingUsers()
 	{
 		Gson gson = new GsonBuilder().create();
-		File file = new File(userInfo.class.getResource(backupFile).getFile());
-		ArrayList<Receiver> users = new ArrayList<Receiver>();
+		File file = new File(backupFile);
+		ArrayList<Receiver> users = new ArrayList<>();
 		
 		if (file.exists())
 		{
@@ -42,25 +42,19 @@ public class userInfo
 				if (wrapper != null)
 				{
 					List<Receiver> receivers = wrapper.Receivers;
-					
 					if (receivers != null)
 					{
-						for (Receiver receiver : receivers)
-							users.add(receiver);
+                        users.addAll(receivers);
 					}
 				}
 			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			
+			catch (IOException _) {}
 			return users;
 		}
 		else
 		{
 			System.err.println("File 'receivers.json' not found.");
-			return null;
+			return new ArrayList<>(0);
 		}
 	}
 	
@@ -77,10 +71,7 @@ public class userInfo
 					receivers = wrapper.Receivers;
 				}
 			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			catch (IOException _) {}
 		}
 		return receivers;
 	}
@@ -93,10 +84,7 @@ public class userInfo
 			wrapper.Receivers = receivers;
 			gson.toJson(wrapper, writer);
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		catch (IOException _) {}
 	}
 	
 	static class ReceiversWrapper
@@ -104,25 +92,5 @@ public class userInfo
 		List<Receiver> Receivers = new ArrayList<>();
 	}
 	
-	static class Receiver
-	{
-		private String time;
-		private String name;
-		
-		public Receiver(String name, String time)
-		{
-			this.name = name;
-			this.time = time;
-		}
-		
-		public String getTime()
-		{
-			return time;
-		}
-		
-		public String getName()
-		{
-			return name;
-		}
-	}
+	public record Receiver(String name, String time) {}
 }

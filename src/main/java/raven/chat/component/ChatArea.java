@@ -3,11 +3,11 @@ package raven.chat.component;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,10 +38,9 @@ import raven.resource.swing.MyFont;
 
 public class ChatArea extends JPanel
 {
-	private static final long serialVersionUID = 1L;
 	private AnimationScroll animationScroll;
 	private AnimationFloatingButton animationFloatingButton;
-	private List<ChatEvent> events = new ArrayList<>();
+	private final List<ChatEvent> events = new ArrayList<>();
 	
 	public void addChatEvent(ChatEvent event)
 	{
@@ -167,23 +166,9 @@ public class ChatArea extends JPanel
 			}
 		});
 		
-		cmdSend.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				runEventMousePressedSendButton(e);
-			}
-		});
+		cmdSend.addActionListener(this::runEventMousePressedSendButton);
 		
-		cmdFile.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				runEventMousePressedFileButton(e);
-			}
-		});
+		cmdFile.addActionListener(this::runEventMousePressedFileButton);
 		
 		JScrollPane scroll = createScroll();
 		scroll.setViewportView(textMessage);
@@ -215,7 +200,7 @@ public class ChatArea extends JPanel
 		button.setBackground(new Color(100, 100, 100, 100));
 		button.setPaintBackground(true);
 		button.addActionListener(
-				e -> animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));
+				_ -> animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));
 		
 		return button;
 	}

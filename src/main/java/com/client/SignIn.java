@@ -5,8 +5,6 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -19,17 +17,21 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
+import org.jdesktop.swingx.JXHyperlink;
+
+import com.formdev.flatlaf.FlatClientProperties;
 
 public class SignIn extends CustomComponent implements ActionListener
 {
-	private static final long serialVersionUID = 1L;
-	private Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
+	private final Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
-	private JButton clickableLabel;
-	private RoundedJButton submitButton;
-	private RoundedJTextField textbox1;
-	private RoundedJPasswordField textbox2;
+	private JXHyperlink clickableLabel;
+	private JButton submitButton;
+	private JTextField textbox1;
+	private JPasswordField textbox2;
 	
 	public SignIn()
 	{
@@ -47,35 +49,20 @@ public class SignIn extends CustomComponent implements ActionListener
 		themeButton = new GradientToggleButton();
 		themeButton.setSelected(Theme.isDarkModeOn);
 		themeButton.setToolTipText("Dark Mode");
-		themeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				JOptionPane.showConfirmDialog(null, "Restart the Natter to apply new theme.", "Apply the new Theme?",
-						JOptionPane.DEFAULT_OPTION);
-			}
-		});
+		themeButton.addActionListener(_ -> JOptionPane.showConfirmDialog(SignIn.this, "Restart the Natter to apply new theme.",
+                "Apply the new Theme?", JOptionPane.DEFAULT_OPTION));
 		
 		buttonPanel.add(themeButton);
 	}
 	
 	@Override
-	protected void addcloseOperation()
+	protected void addCloseOperation()
 	{
-		closeButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				ResourceHandler.changeColorFileSettings("ColorMode.IsDark",
-						themeButton.isSelected() ? "true" : "false");
-				ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
-				dispose();
-				repaint();
-				System.exit(0);
-			}
-		});
+		closeButton.addActionListener(_ -> {
+            ResourceHandler.changeColorFileSettings("ColorMode.IsDark", themeButton.isSelected() ? "true" : "false");
+            ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
+            System.exit(0);
+        });
 	}
 	
 	private void addGuiComponents()
@@ -83,89 +70,76 @@ public class SignIn extends CustomComponent implements ActionListener
 		Font font = ResourceHandler.getFont("Roboto-Medium.ttf", 22f);
 		
 		// Heading
-		JLabel Heading = new JLabel("Member Login");
-		Heading.setBounds(0, 30, 630, 50);
+		JLabel Heading = new JLabel("Member Login", JLabel.CENTER);
 		Heading.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 36f));
-		Heading.setHorizontalAlignment(SwingConstants.CENTER);
 		Heading.setForeground(labelColor);
-		contentPane.add(Heading);
+		contentPane.add(Heading, "gapy 30 0, wrap");
 		
 		// Below heading text
-		JLabel Message = new JLabel("Don't have a account!");
-		Message.setBounds(0, 65, 362, 50);
+		JLabel Message = new JLabel("Don't have a account!", JLabel.RIGHT);
 		Message.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-		Message.setHorizontalAlignment(SwingConstants.RIGHT);
 		Message.setForeground(labelColor);
-		contentPane.add(Message);
+		contentPane.add(Message, "gapx 98 3, split 2, sg g1");
 		
 		// color link
-		clickableLabel = new JButton("Sign Up");
+		clickableLabel = new JXHyperlink();
+		clickableLabel.setText("Sign Up");
 		clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-		clickableLabel.setBounds(367, 80, 68, 20);
-		clickableLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		clickableLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		clickableLabel.setClickedColor(new Color(0, 200, 250));
 		clickableLabel.setForeground(new Color(0, 200, 250));
-		clickableLabel.setContentAreaFilled(false);
-		clickableLabel.setOpaque(false);
-		clickableLabel.setBorderPainted(false);
 		clickableLabel.setFocusable(false);
-		clickableLabel.setBorder(null);
 		clickableLabel.addActionListener(this);
-		clickableLabel.addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseEntered(MouseEvent e)
-			{
-				clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-				clickableLabel.setText("<html><U>Sign Up</U></html>");
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e)
-			{
-				clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-				clickableLabel.setText("<html>Sign Up</html>");
-			}
-		});
-		contentPane.add(clickableLabel);
+		contentPane.add(clickableLabel, "wrap, sg g1");
 		
 		// User name label
 		JLabel label1 = new JLabel("Username:");
-		label1.setBounds(0, 120, 330, 50);
 		label1.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
-		label1.setHorizontalAlignment(SwingConstants.CENTER);
 		label1.setForeground(labelColor);
-		contentPane.add(label1);
+		contentPane.add(label1, "gapx 5, gapy 15, wrap");
 		
-		// User name text box
-		textbox1 = new RoundedJTextField("Username ", 15, font);
-		textbox1.setBounds(110, 160, 400, 50);
+		// Username text box
+		textbox1 = new JTextField();
 		textbox1.setSelectedTextColor(Color.WHITE);
-		textbox1.setSelectionColor(Color.BLUE);
-		contentPane.add(textbox1);
+		textbox1.setSelectionColor(Color.decode("#00c8fa"));
+		textbox1.setFont(font);
+		textbox1.putClientProperty(FlatClientProperties.STYLE,
+				"arc: 15;" + "borderWidth: 1;" + "borderColor: #808080;" + "focusWidth : 1;"
+						+ "focusColor : @accentColor;" + "[light]background:lighten(@background, 5%);"
+						+ "[dark]background:darken(@background, 0%);" + "placeholderForeground: #808080;"
+						+ "margin : 5, 10, 5, 10");
+		textbox1.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Username");
+		contentPane.add(textbox1, "wrap, h 45");
 		
 		// password label
 		JLabel label2 = new JLabel("Password:");
-		label2.setBounds(0, 210, 330, 50);
 		label2.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
-		label2.setHorizontalAlignment(SwingConstants.CENTER);
 		label2.setForeground(labelColor);
-		contentPane.add(label2);
+		contentPane.add(label2, "gapx 5, gapy 15, wrap");
 		
-		textbox2 = new RoundedJPasswordField("Password ", 15, font);
-		textbox2.setBounds(110, 250, 400, 50);
+		// password field
+		textbox2 = new JPasswordField();
 		textbox2.setSelectedTextColor(Color.WHITE);
-		textbox2.setSelectionColor(Color.BLUE);
-		contentPane.add(textbox2);
+		textbox2.setSelectionColor(Color.decode("#00c8fa"));
+		textbox2.setFont(font);
+		textbox2.putClientProperty(FlatClientProperties.STYLE,
+				"arc: 15;" + "borderWidth: 1;" + "borderColor: #808080;" + "focusWidth : 1;"
+						+ "focusColor : @accentColor;" + "[light]background:lighten(@background, 5%);"
+						+ "[dark]background:darken(@background, 0%);" + "placeholderForeground: #808080;"
+						+ "margin : 5, 10, 5, 10;" + "showRevealButton: true;" + "showCapsLock: false;");
+		textbox2.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
+		contentPane.add(textbox2, "wrap, h 45");
 		
-		submitButton = new RoundedJButton("Login", 15);
-		submitButton.setBounds(110, 400, 405, 50);
+		// login button
+		submitButton = new JButton("Login");
 		submitButton.setFont(font);
 		submitButton.setBackground(new Color(0, 50, 255));
 		submitButton.setForeground(Color.white);
 		submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		submitButton.setFocusPainted(false);
+		submitButton.setBorderPainted(false);
 		submitButton.addActionListener(this);
-		contentPane.add(submitButton);
+		submitButton.putClientProperty(FlatClientProperties.STYLE, "arc: 15;" + "disabledBackground: #0033ff;");
+		contentPane.add(submitButton, "gapy 85, h 50");
 	}
 	
 	@Override
@@ -174,7 +148,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		if (e.getSource() == clickableLabel)
 		{
 			this.setVisible(false);
-			NatterMain.signUp.setVisible(true);
+			Application.signUp.setVisible(true);
 		}
 		
 		else if (e.getSource() == submitButton)
@@ -184,30 +158,22 @@ public class SignIn extends CustomComponent implements ActionListener
 				String username = textbox1.getText().trim();
 				String password = String.valueOf(textbox2.getPassword()).trim();
 				
-				if (username.equals("Username") && password.equals("Password"))
+				if (username.isBlank() || password.isBlank())
 				{
 					JOptionPane.showMessageDialog(SignIn.this, "Please fill all the required fields.");
 				}
-				
-				else if (!(username.isBlank() && password.isBlank()))
+				else
 				{
 					submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					submitButton.setEnabled(false);
-					repaint();
 					
-					final String query = "SELECT * FROM account_info where BINARY Username = '" + username
-							+ "' and Password = '" + password + "'";
+					final String query = "SELECT * FROM account_info where BINARY Username = '" + username + "' and Password = '" + password + "'";
 					
-					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,
-							DB.password); PreparedStatement preparedStatement = connection.prepareStatement(query))
+					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,DB.password);
+						 PreparedStatement preparedStatement = connection.prepareStatement(query))
 					{
-						
 						if (preparedStatement.executeQuery().next())
 						{
-							String targetDirectoryPath = getClass().getResource("SignIn.class").getPath();
-							targetDirectoryPath = targetDirectoryPath.substring(0,
-									targetDirectoryPath.lastIndexOf("/") + 1);
-							
 							ResourceHandler.writePropertiesFile("username", username);
 							ResourceHandler.writePropertiesFile("alreadyAUser", "true");
 							
@@ -234,11 +200,10 @@ public class SignIn extends CustomComponent implements ActionListener
 										}
 									}
 								}
-								catch (Exception e2)
-								{}
+								catch (Exception _) {}
 							}
 							
-							NatterMain.natter.setVisible(true);
+							Application.natter.setVisible(true);
 							this.setVisible(false);
 						}
 						else
@@ -246,8 +211,7 @@ public class SignIn extends CustomComponent implements ActionListener
 							JOptionPane.showMessageDialog(this, "Wrong username or password.");
 						}
 					}
-					catch (Exception e1)
-					{}
+					catch (Exception _) {}
 					finally
 					{
 						submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -268,18 +232,16 @@ public class SignIn extends CustomComponent implements ActionListener
 		
 		for (String ext : extensions)
 		{
-			File file = null;
 			String path = targetDirectoryPath + "profile/";
-			file = new File(path + fileName + "." + ext);
-			if (file.exists())
-				return true;
+			File file = new File(path + fileName + "." + ext);
+
+			if (file.exists()) return true;
 		}
 		return false;
 	}
-	
+
 	private String getPathString()
 	{
-		String targetDirectoryPath = getClass().getResource("SettingPanel.class").getPath();
-		return targetDirectoryPath.substring(0, targetDirectoryPath.lastIndexOf("/") + 1);
+		return Application.jarFilePath;
 	}
 }

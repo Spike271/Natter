@@ -1,83 +1,30 @@
 package com.client;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
+
+import com.formdev.flatlaf.FlatClientProperties;
 
 public class ModernButton extends JButton
 {
-	private static final long serialVersionUID = 1;
-	private Color defaultColor;
-	private Color hoverColor;
-	
-	public ModernButton(String label, Color defaultColor, Color hoverColor)
+	public ModernButton(String label, Color defaultColor, Color bgColor, Color hoverColor)
 	{
 		super(label);
-		this.defaultColor = defaultColor;
-		this.hoverColor = hoverColor;
-		setContentAreaFilled(false);
+		
 		setBorderPainted(false);
 		setFocusPainted(false);
-		setOpaque(false); // Make it transparent
+		setOpaque(false);
 		
-		addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseEntered(MouseEvent e)
-			{
-				setBackground(hoverColor);
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e)
-			{
-				setBackground(defaultColor);
-			}
-		});
+		putClientProperty(FlatClientProperties.STYLE, "arc: 1;" + "foreground: " + toHex(hoverColor) + ";background: "
+				+ toHex(bgColor) + ";hoverBackground: " + toHex(hoverColor) + ";");
+		
+		putClientProperty("JButton.foreground", Color.red);
+		putClientProperty("JButton.hoverForeground", Color.red);
 	}
 	
-	public ModernButton(ImageIcon icon, Color defaultColor, Color hoverColor)
+	private static String toHex(Color color)
 	{
-		super(icon);
-		this.defaultColor = defaultColor;
-		this.hoverColor = hoverColor;
-		setContentAreaFilled(false);
-		setBorderPainted(false);
-		setFocusPainted(false);
-		setOpaque(false); // Make it transparent
-		
-		addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseEntered(MouseEvent e)
-			{
-				setBackground(hoverColor);
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e)
-			{
-				setBackground(defaultColor);
-			}
-		});
-	}
-	
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		if (getModel().isArmed() || getModel().isRollover())
-		{
-			g.setColor(hoverColor);
-		}
-		else
-		{
-			g.setColor(defaultColor);
-		}
-		g.fillRect(0, 0, getWidth(), getHeight());
-		super.paintComponent(g);
+		return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
 	}
 }

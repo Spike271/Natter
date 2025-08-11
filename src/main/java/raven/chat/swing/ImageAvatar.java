@@ -21,8 +21,6 @@ import javax.swing.JComponent;
 
 public class ImageAvatar extends JComponent
 {
-	private static final long serialVersionUID = 1L;
-	
 	public Icon getImage()
 	{
 		return image;
@@ -85,9 +83,9 @@ public class ImageAvatar extends JComponent
 	private Color gradientColor2 = new Color(42, 199, 80);
 	
 	@Override
-	protected void paintComponent(Graphics grphcs)
+	protected void paintComponent(Graphics graphics)
 	{
-		Graphics2D g2 = (Graphics2D) grphcs.create();
+		Graphics2D g2 = (Graphics2D) graphics.create();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		createBorder(g2);
 		if (image != null)
@@ -111,7 +109,7 @@ public class ImageAvatar extends JComponent
 			g2.drawImage(img, x, y, null);
 		}
 		g2.dispose();
-		super.paintComponent(grphcs);
+		super.paintComponent(graphics);
 	}
 	
 	private void createBorder(Graphics2D g2)

@@ -21,11 +21,8 @@ public class ModernScrollBarUI extends BasicScrollBarUI
 	private static final int THUMB_SIZE = 8;
 	private static final Color THUMB_COLOR = FlatLaf.isLafDark() ? Color.gray : Color.BLACK;
 	
-	public ModernScrollBarUI()
-	{
-		
-	}
-	
+	public ModernScrollBarUI() {}
+
 	@Override
 	protected JButton createDecreaseButton(int orientation)
 	{
@@ -71,8 +68,6 @@ public class ModernScrollBarUI extends BasicScrollBarUI
 	
 	private static class InvisibleScrollBarButton extends JButton
 	{
-		private static final long serialVersionUID = 1L;
-		
 		private InvisibleScrollBarButton()
 		{
 			setOpaque(false);

@@ -14,52 +14,44 @@ import javax.swing.text.ViewFactory;
 
 public class AutoWrapText extends StyledEditorKit
 {
-	
-	private static final long serialVersionUID = 1L;
-	
 	@Override
 	public ViewFactory getViewFactory()
 	{
 		return new WarpColumnFactory();
 	}
 	
-	private class WarpColumnFactory implements ViewFactory
+	private static class WarpColumnFactory implements ViewFactory
 	{
-		
 		@Override
 		public View create(Element elmnt)
 		{
 			String kind = elmnt.getName();
 			if (kind != null)
 			{
-				if (kind.equals(AbstractDocument.ContentElementName))
-				{
-					return new WarpLabelView(elmnt);
-				}
-				else if (kind.equals(AbstractDocument.ParagraphElementName))
-				{
-					return new ParagraphView(elmnt);
-				}
-				else if (kind.equals(AbstractDocument.SectionElementName))
-				{
-					return new BoxView(elmnt, View.Y_AXIS);
-				}
-				else if (kind.equals(StyleConstants.ComponentElementName))
-				{
-					return new ComponentView(elmnt);
-				}
-				else if (kind.equals(StyleConstants.IconElementName))
-				{
-					return new IconView(elmnt);
-				}
+                switch (kind) {
+                    case AbstractDocument.ContentElementName -> {
+                        return new WarpLabelView(elmnt);
+                    }
+                    case AbstractDocument.ParagraphElementName -> {
+                        return new ParagraphView(elmnt);
+                    }
+                    case AbstractDocument.SectionElementName -> {
+                        return new BoxView(elmnt, View.Y_AXIS);
+                    }
+                    case StyleConstants.ComponentElementName -> {
+                        return new ComponentView(elmnt);
+                    }
+                    case StyleConstants.IconElementName -> {
+                        return new IconView(elmnt);
+                    }
+                }
 			}
 			return new LabelView(elmnt);
 		}
 	}
 	
-	private class WarpLabelView extends LabelView
+	private static class WarpLabelView extends LabelView
 	{
-		
 		public WarpLabelView(Element elem)
 		{
 			super(elem);
@@ -68,15 +60,11 @@ public class AutoWrapText extends StyledEditorKit
 		@Override
 		public float getMinimumSpan(int axis)
 		{
-			switch (axis)
-				{
-				case View.X_AXIS:
-					return 0;
-				case View.Y_AXIS:
-					return super.getMinimumSpan(axis);
-				default:
-					throw new IllegalArgumentException("Invalid Axis:" + axis);
-				}
+            return switch (axis) {
+                case View.X_AXIS -> 0;
+                case View.Y_AXIS -> super.getMinimumSpan(axis);
+                default -> throw new IllegalArgumentException("Invalid Axis:" + axis);
+            };
 		}
 	}
 }

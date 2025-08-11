@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.io.Serial;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -21,10 +22,6 @@ public class ModernScrollBarUI extends BasicScrollBarUI
 	private static final int THUMB_SIZE = 8;
 	private static final Color THUMB_COLOR = FlatLaf.isLafDark() ? Color.gray : Color.BLACK;
 	
-	public ModernScrollBarUI()
-	{
-	}
-	
 	@Override
 	protected JButton createDecreaseButton(int orientation)
 	{
@@ -38,9 +35,7 @@ public class ModernScrollBarUI extends BasicScrollBarUI
 	}
 	
 	@Override
-	protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds)
-	{
-	}
+	protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {}
 	
 	@Override
 	protected Dimension getMinimumThumbSize()
@@ -70,8 +65,6 @@ public class ModernScrollBarUI extends BasicScrollBarUI
 	
 	private static class InvisibleScrollBarButton extends JButton
 	{
-		private static final long serialVersionUID = 1L;
-		
 		private InvisibleScrollBarButton()
 		{
 			setOpaque(false);

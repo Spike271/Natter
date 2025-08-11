@@ -16,7 +16,6 @@ import raven.color.theme.ChatComponentsColor;
 
 public class Background extends JPanel
 {
-	private static final long serialVersionUID = 1L;
 	private BufferedImage backgroundImage;
 	
 	public Background(File file)
@@ -27,10 +26,7 @@ public class Background extends JPanel
 			
 			backgroundImage = applyGaussianBlur(backgroundImage, 4);
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		catch (IOException _) {}
 	}
 	
 	public Background()

@@ -8,16 +8,16 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 
-import javax.swing.JTextPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.client.Application;
+import com.formdev.flatlaf.FlatClientProperties;
+import global.Theme;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
-
-import raven.color.theme.ChatComponentsColor;
-import raven.resource.swing.MyFont;
 
 public class TextField extends JTextPane
 {
@@ -40,10 +40,11 @@ public class TextField extends JTextPane
 	public TextField()
 	{
 		setOpaque(false);
+        switchTheme(Application.currentTheme);
 		setBorder(new EmptyBorder(9, 1, 9, 1));
 		setBackground(new Color(0, 0, 0, 0));
-		setForeground(ChatComponentsColor.chatInputBoxTextColor);
-		setFont(MyFont.getFont("GoogleSans-Regular.ttf", 17f)); //////////////////////////////////////////////////
+        putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #121212;" + "[dark]foreground: #FFFFFF;");
+		setFont(global.ResourceHandler.getFont("GoogleSans-Regular.ttf", 17f)); //////////////////////////////////////////////////
 		setSelectionColor(new Color(200, 200, 200, 100));
 		autoWrapText();
 		animator = new Animator(350, new TimingTargetAdapter() {
@@ -76,7 +77,7 @@ public class TextField extends JTextPane
 			@Override
 			public void insertUpdate(DocumentEvent e)
 			{
-				if (!getText().equals(""))
+				if (!getText().isBlank())
 				{
 					if (show)
 					{
@@ -97,7 +98,7 @@ public class TextField extends JTextPane
 			@Override
 			public void removeUpdate(DocumentEvent e)
 			{
-				if (getText().equals(""))
+				if (getText().isBlank())
 				{
 					stop();
 					animator.start();
@@ -107,7 +108,6 @@ public class TextField extends JTextPane
 			@Override
 			public void changedUpdate(DocumentEvent e) {}
 		});
-		
 	}
 	
 	private void autoWrapText()
@@ -132,18 +132,43 @@ public class TextField extends JTextPane
 	@Override
 	public void paint(Graphics g)
 	{
-		if (!hint.equals(""))
+		if (!hint.isBlank())
 		{
 			Graphics2D g2 = (Graphics2D) g.create();
 			int h = getHeight();
 			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			Insets ins = getInsets();
 			FontMetrics fm = g.getFontMetrics();
-			g2.setColor(ChatComponentsColor.placeholderText);
+			g2.setColor(UIManager.getColor("Component.placeHolderTextColor"));
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f - animate));
-			g2.drawString(hint, ins.left + (animate * 30), h / 2 + fm.getAscent() / 2 - 1);
+			g2.drawString(hint, ins.left + (animate * 30), (float) h / 2 + (float) fm.getAscent() / 2 - 1);
 			g2.dispose();
 		}
 		super.paint(g);
 	}
+
+    interface CustomLightColorScheme {
+        Color PLACE_HOLDER_TEXT_COLOR = Color.BLACK;
+    }
+
+    interface CustomDarkColorScheme {
+        Color PLACE_HOLDER_TEXT_COLOR = Color.WHITE;
+    }
+
+    private static void applyColorScheme(Class<?> colorSchemeClass)
+    {
+        try {
+            UIManager.put("Component.placeHolderTextColor", colorSchemeClass.getField("PLACE_HOLDER_TEXT_COLOR").get(null));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    public static void switchTheme(Theme currentTheme)
+    {
+        if (currentTheme == Theme.LIGHT_MODE)
+            applyColorScheme(CustomLightColorScheme.class);
+        else
+            applyColorScheme(CustomDarkColorScheme.class);
+    }
 }

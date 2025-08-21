@@ -4,6 +4,9 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
+import global.ResourceHandler;
+import global.Theme;
+import global.UserDetails;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,15 +19,17 @@ public class Application
     public static SignIn signIn;
     public static SignUp signUp;
     public static Natter natter;
+    public static Theme currentTheme;
     public static SettingPanel settingPanel;
     public static String jarFilePath;
+    public static UserDetails userDetails;
     private static PasswordWindow ps;
 
     static
     {
         try
         {
-            var temp = new Application.initStrings();
+            Application.initStrings temp = new Application.initStrings();
             jarFilePath = temp.mainPath;
 
             if(jarFilePath.contains(".jar"))
@@ -32,6 +37,8 @@ public class Application
                 jarFilePath = new File(jarFilePath).getParent();
                 jarFilePath += "/";
             }
+
+            currentTheme = ResourceHandler.getSettings("Global", "Theme").map(Theme::valueOf).orElse(Theme.LIGHT_MODE);
         }
         catch (URISyntaxException _) {}
     }
@@ -42,25 +49,16 @@ public class Application
         FlatRobotoFont.install();
         UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.BOLD, 12));
 
-        if (Theme.isDarkModeOn) FlatMacDarkLaf.setup();
+        if (Application.currentTheme == Theme.DARK_MODE) FlatMacDarkLaf.setup();
         else FlatMacLightLaf.setup();
 
-        if (ResourceHandler.alreadyAUser())
+        userDetails = ResourceHandler.getLocalData();
+
+        if (userDetails != null)
         {
             initMainUi();
-            if (!ResourceHandler.readPropertiesFile("password").map(String::isBlank).orElseThrow())
-            {
-                if (ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")
-                                    .orElseThrow()).startsWith("true"))
-                    ps.setVisible(true);
-
-                else
-                    natter.setVisible(true);
-            }
-            else
-            {
-                JOptionPane.showMessageDialog(null, "Something went wrong\nPlease Reinstall the application.");
-            }
+            if (userDetails.isPasswordEnabled()) ps.setVisible(true);
+            else natter.setVisible(true);
         }
         else
         {
@@ -90,6 +88,35 @@ public class Application
         });
     }
 
+    public static void changeThemes()
+    {
+        if (currentTheme == Theme.LIGHT_MODE)
+        {
+            EventQueue.invokeLater(() -> {
+                FlatMacDarkLaf.setup();
+                FlatLaf.updateUI();
+                currentTheme = Theme.DARK_MODE;
+                raven.chat.swing.TextField.switchTheme(currentTheme);
+                raven.chat.component.ChatBox.switchTheme(currentTheme);
+                raven.chat.swing.Background.switchTheme(currentTheme);
+                natter.updateTheme();
+                ResourceHandler.changeSettings("Global.Theme", "DARK_MODE");
+            });
+        }
+        else
+        {
+            EventQueue.invokeLater(() -> {
+                FlatMacLightLaf.setup();
+                FlatLaf.updateUI();
+                currentTheme = Theme.LIGHT_MODE;
+                raven.chat.swing.TextField.switchTheme(currentTheme);
+                raven.chat.component.ChatBox.switchTheme(currentTheme);
+                raven.chat.swing.Background.switchTheme(currentTheme);
+                natter.updateTheme();
+                ResourceHandler.changeSettings("Global.Theme", "LIGHT_MODE");
+            });
+        }
+    }
 
     private static class initStrings
     {

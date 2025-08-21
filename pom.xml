@@ -39,7 +39,7 @@
 		<dependency>
 			  <groupId>com.formdev</groupId>
 			  <artifactId>flatlaf</artifactId>
-			  <version>3.5.4</version>
+			  <version>3.6</version>
 		</dependency>
 		
 		<dependency>
@@ -70,6 +70,20 @@
 			  <groupId>io.projectreactor</groupId>
 			  <artifactId>reactor-core</artifactId>
 			  <version>3.6.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.41.2.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>raven.toast</groupId>
+			<artifactId>swing-toast-notifications</artifactId>
+			<version>1.0.4</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/swing-toast-notifications-1.0.4.jar</systemPath>
 		</dependency>
 	
 	</dependencies>

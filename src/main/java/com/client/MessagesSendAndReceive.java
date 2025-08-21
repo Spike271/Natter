@@ -8,21 +8,21 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.JOptionPane;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import raven.chatModal.ChatUI;
+import raven.toast.Notifications;
 
 public class MessagesSendAndReceive
 {
-	private static PrintWriter output;
+    private static PrintWriter output;
 	private static BufferedReader input;
 	private static Socket clientSocket;
 	private volatile static boolean isConnected = false;
 	private static final Thread listenMessageThread = new Thread(MessagesSendAndReceive::listen);
+    private static final java.time.Duration UI_POLL_INTERVAL = java.time.Duration.ofSeconds(1);
 	private static final Gson gson = new GsonBuilder().create();
 	
 	public static void startMessageListening()
@@ -56,23 +56,12 @@ public class MessagesSendAndReceive
 	
 	private static void listen()
 	{
-		while (true)
-		{
-			if (!Application.natter.isVisible())
-			{
-				try
-				{
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException _)
-				{}
-			}
-			else
-				break;
-		}
-		
-		final String user = ResourceHandler.readPropertiesFile("username").orElseThrow();
-		
+        waitUntilNatterVisible();
+        if (Thread.currentThread().isInterrupted()) return;
+
+        final String user = Application.userDetails.username();
+        Notifications.getInstance().setJFrame(Application.natter);
+
 		if (clientSocket == null)
 		{
 			try
@@ -82,10 +71,13 @@ public class MessagesSendAndReceive
 				output = new PrintWriter(clientSocket.getOutputStream(), true);
 				input.readLine();
 				output.println(user);
+                Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
+                        "Successfully connected to the server");
 			}
 			catch (Exception _)
 			{
-				JOptionPane.showMessageDialog(null, "Unable to connect with server.");
+                Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.BOTTOM_RIGHT,
+                        "Unable to connect with server.");
 				return;
 			}
 		}
@@ -107,18 +99,15 @@ public class MessagesSendAndReceive
 					
 					ChatUI.sink.tryEmitNext(receiver + ": " + finalMessage);
 				}
-				catch (JsonSyntaxException e)
-				{
-					JOptionPane.showMessageDialog(null, outputMessage);
-				}
+				catch (JsonSyntaxException _) {}
 			}
 		}
 		catch (IOException e)
 		{
 			if (isConnected)
 			{
-				JOptionPane.showMessageDialog(null, "Connection to the server was lost.");
-				isConnected = false;
+                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Connection to the server was lost.");
+                isConnected = false;
 			}
 		}
 		finally
@@ -140,10 +129,27 @@ public class MessagesSendAndReceive
 			}
 		}
 		catch (IOException _) {}
+
 		isConnected = false;
 	}
-	
-	record ChatMessage(String sender, String receiver, String message) {}
+
+    private static void waitUntilNatterVisible()
+    {
+        while (!Application.natter.isVisible())
+        {
+            try
+            {
+                Thread.sleep(UI_POLL_INTERVAL);
+            }
+            catch (InterruptedException e)
+            {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+    }
+
+    record ChatMessage(String sender, String receiver, String message) {}
 	
 	record ForwardedMessage(String sender, String message) {}
 }

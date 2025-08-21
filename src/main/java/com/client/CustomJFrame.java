@@ -1,6 +1,8 @@
 package com.client;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import global.ResourceHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -9,14 +11,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
-public abstract class CustomComponent extends JFrame implements Theme
+public abstract class CustomJFrame extends JFrame
 {
-	private int xMouse, yMouse;
 	public JPanel contentPane;
+	protected JButton closeButton;
+	private int xMouse, yMouse;
     private final String title;
-	protected ModernButton closeButton;
-	
-	public CustomComponent(String title)
+
+	public CustomJFrame(String title)
 	{
 		this.title = title;
 		initialize();
@@ -43,7 +45,8 @@ public abstract class CustomComponent extends JFrame implements Theme
 	private JPanel createTitleBar()
 	{
 		JPanel titleBar = new JPanel();
-		titleBar.setBackground(ComponentsColor.titleBarColor);
+        titleBar.putClientProperty(FlatClientProperties.STYLE, "[light]background: #FFFFFF;" +
+                "[dark]background: #202020;");
 		titleBar.setLayout(new BorderLayout());
 		
 		// Add icon on the tray
@@ -78,7 +81,8 @@ public abstract class CustomComponent extends JFrame implements Theme
 	private JLabel createTitleLabel()
 	{
 		JLabel titleLabel = new JLabel(title);
-		titleLabel.setForeground(ComponentsColor.titleTextColor);
+        titleLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" +
+                "[dark]foreground: #FFFFFF;");
 		titleLabel.setFont(ResourceHandler.getFont("Roboto-Medium.ttf", 18f));
 		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		return titleLabel;
@@ -95,7 +99,8 @@ public abstract class CustomComponent extends JFrame implements Theme
 	private JPanel createContentPane()
 	{
 		JPanel contentPane = new JPanel();
-		contentPane.setBackground(ComponentsColor.frameBGColor);
+        contentPane.putClientProperty(FlatClientProperties.STYLE, "[light]background: #F5F5F5;" +
+                "[dark]background: #2C2C2C;");
 		contentPane.setLayout(new MigLayout("al center, insets 0", "[fill, 65%]"));
 		return contentPane;
 	}
@@ -108,7 +113,7 @@ public abstract class CustomComponent extends JFrame implements Theme
 		addThemeButton(buttonPanel);
 		
 		// Minimize button
-		ModernButton minimizeButton = createMinimizeButton();
+		JButton minimizeButton = createMinimizeButton();
 		buttonPanel.add(minimizeButton, "w 40!");
 		
 		// Close button
@@ -118,25 +123,33 @@ public abstract class CustomComponent extends JFrame implements Theme
 		return buttonPanel;
 	}
 	
-	private ModernButton createMinimizeButton()
+	private JButton createMinimizeButton()
 	{
-		ModernButton minimizeButton = new ModernButton("_", ComponentsColor.minbtnBGColor, ComponentsColor.titleBarColor,
-				ComponentsColor.minbtnHoverColor);
-		
-		minimizeButton.setForeground(ComponentsColor.minbtnColor);
-		minimizeButton.setFocusPainted(false);
-		minimizeButton.addActionListener(_ -> setState(CustomComponent.ICONIFIED)); // Minimize the window
+        JButton minimizeButton = new JButton("_");
+        modifyButton(minimizeButton);
+        minimizeButton.putClientProperty(FlatClientProperties.STYLE, "arc: 1;" + "[light]foreground: #000000;" +
+                "[light]background: #FFFFFF;" + "[light]hoverBackground: #DDDDDD;" +
+                "[dark]foreground: #FFFFFF;" + "[dark]background: #202020;" + "[dark]hoverBackground: #646464;");
+		minimizeButton.addActionListener(_ -> setState(CustomJFrame.ICONIFIED)); // Minimize the window
 		return minimizeButton;
 	}
 	
-	private ModernButton createCloseButton()
+	private JButton createCloseButton()
 	{
-		ModernButton closeButton = new ModernButton("X", ComponentsColor.closebtnBGColor, ComponentsColor.titleBarColor,
-				ComponentsColor.closebtnHoverColor);
-		
-		closeButton.setForeground(ComponentsColor.closebtnColor);
+		JButton closeButton = new JButton("X");
+        modifyButton(closeButton);
+        closeButton.putClientProperty(FlatClientProperties.STYLE, "arc: 1;" + "[light]foreground: #000000;" +
+                "[light]background: #FFFFFF;" + "[light]hoverBackground: #FF0000;" +
+                "[dark]foreground: #FFFFFF;" + "[dark]background: #202020;" + "[dark]hoverBackground: #FF0000;");
 		return closeButton;
 	}
+
+    private void modifyButton(JButton btn)
+    {
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+    }
 	
 	private void addMouseListeners(JPanel titleBar)
 	{

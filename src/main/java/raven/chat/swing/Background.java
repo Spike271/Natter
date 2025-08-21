@@ -1,8 +1,6 @@
 package raven.chat.swing;
 
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
@@ -10,9 +8,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
+import javax.swing.*;
 
-import raven.color.theme.ChatComponentsColor;
+import com.client.Application;
+import global.Theme;
 
 public class Background extends JPanel
 {
@@ -20,21 +19,23 @@ public class Background extends JPanel
 	
 	public Background(File file)
 	{
+        switchTheme(Application.currentTheme);
+
 		try
 		{
 			backgroundImage = ImageIO.read(file);
-			
-			backgroundImage = applyGaussianBlur(backgroundImage, 4);
+			backgroundImage = applyGaussianBlur(backgroundImage);
 		}
 		catch (IOException _) {}
 	}
-	
+
 	public Background()
 	{
+        switchTheme(Application.currentTheme);
 		setOpaque(false);
 	}
 	
-	private BufferedImage applyGaussianBlur(BufferedImage src, float sigma)
+	private BufferedImage applyGaussianBlur(BufferedImage src)
 	{
 		int paddedWidth = src.getWidth() + 2;
 		int paddedHeight = src.getHeight() + 2;
@@ -44,11 +45,11 @@ public class Background extends JPanel
 		
 		// Draw the original image onto the padded image
 		Graphics2D g2d = paddedImage.createGraphics();
-		g2d.drawImage(src, 1, 1, null); // Offset the original image by 1px
+		g2d.drawImage(src, 1, 1, null); // Offset the original image by 1 px
 		g2d.dispose();
 		
 		// Create a Gaussian kernel
-		int size = (int) Math.ceil(sigma * 3) * 2 + 1; // Kernel size based on sigma
+		int size = (int) Math.ceil((float) 4 * 3) * 2 + 1; // Kernel size based on sigma
 		float[] kernel = new float[size * size];
 		float sum = 0f;
 		
@@ -57,8 +58,8 @@ public class Background extends JPanel
 		{
 			for (int y = -halfSize; y <= halfSize; y++)
 			{
-				float value = (1f / (2f * (float) Math.PI * sigma * sigma))
-						* (float) Math.exp(-(x * x + y * y) / (2 * sigma * sigma));
+				float value = (1f / (2f * (float) Math.PI * (float) 4 * (float) 4))
+						* (float) Math.exp(-(x * x + y * y) / (2 * (float) 4 * (float) 4));
 				kernel[(x + halfSize) + (y + halfSize) * size] = value;
 				sum += value; // normalize
 			}
@@ -126,12 +127,42 @@ public class Background extends JPanel
 			Graphics2D g2 = (Graphics2D) g.create();
 			int width = getWidth();
 			int height = getHeight();
-			
-			g2.setPaint(new GradientPaint(0, 0, ChatComponentsColor.Color1, width, 0, ChatComponentsColor.Color2));
-			
+
+			g2.setPaint(new GradientPaint(0, 0, UIManager.getColor("Component.colorOne"), width, 0, UIManager.getColor("Component.colorTwo")));
+
 			g2.fillRect(0, 0, width, height);
 			g2.dispose();
-			super.paintComponent(g);
 		}
 	}
+
+    interface CustomLightColorScheme1 {
+        Color PLACE_HOLDER_TEXT_COLOR = Color.BLACK;
+        Color COLOR_1 = Color.decode("#74B4E0");
+        Color COLOR_2 = Color.decode("#74B4E0");
+    }
+
+    interface CustomDarkColorScheme1 {
+        Color PLACE_HOLDER_TEXT_COLOR = Color.WHITE;
+        Color COLOR_1 = Color.decode("#18191D");
+        Color COLOR_2 = Color.decode("#18191D");
+    }
+
+    private static void applyColorScheme(Class<?> colorSchemeClass)
+    {
+        try {
+            UIManager.put("Component.placeHolderTextColor", colorSchemeClass.getField("PLACE_HOLDER_TEXT_COLOR").get(null));
+            UIManager.put("Component.colorOne", colorSchemeClass.getField("COLOR_1").get(null));
+            UIManager.put("Component.colorTwo", colorSchemeClass.getField("COLOR_2").get(null));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    public static void switchTheme(Theme Currenttheme)
+    {
+        if (Currenttheme == Theme.LIGHT_MODE)
+            applyColorScheme(CustomLightColorScheme1.class);
+        else
+            applyColorScheme(CustomDarkColorScheme1.class);
+    }
 }

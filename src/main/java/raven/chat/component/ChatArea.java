@@ -3,11 +3,8 @@ package raven.chat.component;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +15,9 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import com.client.Application;
+import com.formdev.flatlaf.FlatClientProperties;
+import global.Theme;
 import javaswingdev.FontAwesome;
 import javaswingdev.FontAwesomeIcon;
 import javaswingdev.GoogleMaterialDesignIcon;
@@ -32,9 +32,6 @@ import raven.chat.swing.ChatEvent;
 import raven.chat.swing.RoundPanel;
 import raven.chat.swing.TextField;
 import raven.chat.swing.scroll.ScrollBar;
-import raven.color.theme.ChatComponentsColor;
-import raven.color.theme.Theme;
-import raven.resource.swing.MyFont;
 
 public class ChatArea extends JPanel
 {
@@ -66,28 +63,24 @@ public class ChatArea extends JPanel
 		scrollBody.setVerticalScrollBar(new ScrollBar());
 		scrollBody.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollBody.getViewport().setOpaque(false);
-		scrollBody.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-			private int oldValues;
-			
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e)
-			{
-				int value = scrollBody.getVerticalScrollBar().getValue();
-				int extent = scrollBody.getVerticalScrollBar().getModel().getExtent();
-				if ((value + extent) >= scrollBody.getVerticalScrollBar().getMaximum() - 300)
-				{
-					animationFloatingButton.hide();
-				}
-				else if (oldValues <= e.getValue())
-				{
-					if (!animationScroll.isRunning())
-					{
-						animationFloatingButton.show();
-					}
-				}
-				
-			}
-		});
+		scrollBody.getVerticalScrollBar().addAdjustmentListener(e -> {
+
+            int value = scrollBody.getVerticalScrollBar().getValue();
+            int extent = scrollBody.getVerticalScrollBar().getModel().getExtent();
+            int oldValues = 1;
+            if ((value + extent) >= scrollBody.getVerticalScrollBar().getMaximum() - 300)
+            {
+                animationFloatingButton.hide();
+            }
+            else if (oldValues <= e.getValue())
+            {
+                if (!animationScroll.isRunning())
+                {
+                    animationFloatingButton.show();
+                }
+            }
+
+        });
 		floatingButton = createFloatingButton();
 		layeredPane.setLayer(floatingButton, JLayeredPane.POPUP_LAYER);
 		layeredPane.add(floatingButton, "pos 100%-50 100%,h 40,w 40");
@@ -108,11 +101,12 @@ public class ChatArea extends JPanel
 	{
 		RoundPanel panel = new RoundPanel();
 		panel.setLayout(new MigLayout("fill, inset 2"));
-		panel.setBackground(ChatComponentsColor.userNameBarColor);
+        panel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #F2F2F2;" + "[dark]background: #2C2C2C;");
+
 		labelTitle = new JLabel();
-		labelTitle.setFont(MyFont.getFont("Roboto-Medium.ttf", 16f)); //
+		labelTitle.setFont(global.ResourceHandler.getFont("Roboto-Medium.ttf", 16f)); //
 		labelTitle.setBorder(new EmptyBorder(5, 10, 5, 10));
-		labelTitle.setForeground(ChatComponentsColor.userNameColor);
+        labelTitle.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #121212;" + "[dark]foreground: #FFFFFF;");
 		panel.add(labelTitle);
 		return panel;
 	}
@@ -127,11 +121,12 @@ public class ChatArea extends JPanel
 	
 	private JPanel createBottom()
 	{
-		Color iconColor = Theme.isDarkModeOn ? Color.white : Color.black;
+		Color iconColor = Application.currentTheme == Theme.LIGHT_MODE ? Color.BLACK : Color.WHITE;
 		
 		RoundPanel panel = new RoundPanel();
-		panel.setBackground(ChatComponentsColor.chatInputBoxColor);
-		panel.setLayout(new MigLayout("fill, inset 2", "[fill,34!]2[fill]2[fill,34!]", "[center]"));
+        panel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #F1F1F1;" +
+                "[dark]background: #2C2C2C;");
+		panel.setLayout(new MigLayout("fill, insets 2", "[fill,34!]2[fill]2[fill,34!]", "[center]"));
 		GoogleMaterialIcon iconFile = new GoogleMaterialIcon(GoogleMaterialDesignIcon.ATTACH_FILE,
 				GradientType.VERTICAL, iconColor, iconColor, 20);
 		GoogleMaterialIcon iconSend = new GoogleMaterialIcon(GoogleMaterialDesignIcon.SEND, GradientType.VERTICAL,
@@ -197,7 +192,8 @@ public class ChatArea extends JPanel
 				new Color(79, 79, 79, 240), new Color(248, 248, 248, 240), 35);
 		button.setIcon(icon.toIcon());
 		button.setRound(40);
-		button.setBackground(new Color(100, 100, 100, 100));
+        button.putClientProperty(FlatClientProperties.STYLE, "[light]background: #64646464;" +
+                "[dark]background: #64646464;");
 		button.setPaintBackground(true);
 		button.addActionListener(
 				_ -> animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));
@@ -224,7 +220,7 @@ public class ChatArea extends JPanel
 			}
 			else
 			{
-				body.add(new ChatBox(type, message), "al right,width ::80%");
+				body.add(new ChatBox(type, message), "al right, width ::80%");
 			}
 			body.revalidate();
 			scrollBody.getVerticalScrollBar().setValue(values);
@@ -243,8 +239,8 @@ public class ChatArea extends JPanel
 	
 	public void scrollToBottom()
 	{
-		SwingUtilities.invokeLater(
-				() -> animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));
+		SwingUtilities.invokeLater(() ->
+                animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));
 	}
 	
 	private void runEventMousePressedSendButton(ActionEvent evt)

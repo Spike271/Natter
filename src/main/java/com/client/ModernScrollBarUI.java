@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.io.Serial;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -13,14 +12,14 @@ import javax.swing.JComponent;
 import javax.swing.JScrollBar;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
-import com.formdev.flatlaf.FlatLaf;
+import global.Theme;
 
 public class ModernScrollBarUI extends BasicScrollBarUI
 {
 	private static final int SCROLL_BAR_ALPHA_ROLLOVER = 100;
 	private static final int SCROLL_BAR_ALPHA = 50;
 	private static final int THUMB_SIZE = 8;
-	private static final Color THUMB_COLOR = FlatLaf.isLafDark() ? Color.gray : Color.BLACK;
+	private static final Color THUMB_COLOR = Application.currentTheme == Theme.DARK_MODE ? Color.gray : Color.BLACK;
 	
 	@Override
 	protected JButton createDecreaseButton(int orientation)

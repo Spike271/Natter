@@ -12,16 +12,15 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 
+import com.client.Application;
 import com.client.MessagesSendAndReceive;
-import com.client.ResourceHandler;
 import com.client.UserChats;
 
+import global.ResourceHandler;
 import raven.chat.component.ChatBox;
 import raven.chat.model.ModelMessage;
 import raven.chat.swing.Background;
 import raven.chat.swing.ChatEvent;
-import raven.color.theme.ChatComponentsColor;
-import raven.resource.swing.GetImage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -49,7 +48,7 @@ public class ChatUI extends JPanel
 		chatArea.addChatEvent(new ChatEvent() {
 			
 			final Icon icon = senderIcon;
-			final String name = ResourceHandler.readPropertiesFile("username").orElseThrow();
+			final String name = Application.userDetails.username();
 			
 			@Override
 			public void mousePressedSendButton(ActionEvent evt)
@@ -153,16 +152,16 @@ public class ChatUI extends JPanel
 	
 	private void initComponents()
 	{
-		String temp = ChatComponentsColor.chatBackgroundImage;
+		String temp = ResourceHandler.getSettings(ResourceHandler.getSettings("Global", "chatBackgroundImage").orElse(""));
 
-		try
+        try
 		{
             if (temp.isBlank())
 				background1 = new Background();
 			else
-				background1 = new Background(new File(GetImage.getSettings(temp)));
+				background1 = new Background(new File(ResourceHandler.getSettings(temp)));
 		}
-		catch (Exception e)
+		catch (Exception _)
 		{
 			background1 = new Background();
 		}

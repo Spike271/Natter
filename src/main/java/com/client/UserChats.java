@@ -47,6 +47,19 @@ public class UserChats
 		
 		return data.getConversations();
 	}
+
+    public static void clearAllConversations()
+    {
+        File file = new File(backupFile);
+        if (file.exists())
+        {
+            try (FileWriter writer = new FileWriter(file))
+            {
+                writer.write("");
+            }
+            catch (IOException _) {}
+        }
+    }
 	
 	private static void appendToConversations(Map<String, Message> newMessages)
 	{

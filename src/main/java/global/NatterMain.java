@@ -1,4 +1,6 @@
-package com.client;
+package global;
+
+import com.client.Application;
 
 import java.lang.reflect.InvocationTargetException;
 

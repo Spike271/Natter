@@ -1,21 +1,15 @@
 package com.client;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.formdev.flatlaf.util.UIScale;
-
+import global.Theme;
 import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
 
 public class PasswordStrengthStatus extends JPanel
 {
@@ -145,7 +139,7 @@ public class PasswordStrengthStatus extends JPanel
 			int gap = UIScale.scale(5);
 			int w = (width - gap * 2) / 3;
 			int y = (height - size) / 2;
-			Color disableColor = Color.decode(FlatLaf.isLafDark() ? "#404040" : "#CECECE");
+			Color disableColor = Color.decode(Application.currentTheme == Theme.DARK_MODE ? "#404040" : "#CECECE");
 			if (type >= 1)
 			{
 				g2.setColor(getStrengthColor(1));

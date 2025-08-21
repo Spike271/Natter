@@ -1,23 +1,22 @@
 package com.client;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter;
+import global.ResourceHandler;
+import global.Theme;
+import net.miginfocom.swing.MigLayout;
+import raven.chatModal.ChatUI;
+import raven.chatModal.ChatUI.ChatBoxList;
+import raven.toast.Notifications;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.Serial;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -28,32 +27,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.SwingUtilities;
-
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
-import com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter;
-
-import net.miginfocom.swing.MigLayout;
-import raven.chatModal.ChatUI;
-import raven.chatModal.ChatUI.ChatBoxList;
-
 public class Natter extends JFrame
 {
 	private JPanel usersPanel, appDesc;
-	private final Color transpentColor = new Color(0, 0, 0, 0);
 	private ChatUI chatComponent;
 	private static JPanel selectedPanel;
 	private final ArrayList<String> usersList = new ArrayList<>();
@@ -65,7 +41,6 @@ public class Natter extends JFrame
 		
 		this.setIconImage(new ImageIcon((Application.jarFilePath + "res/icons/logo32_32.png")).getImage());
 		this.setLayout(new BorderLayout());
-		this.setSize(1100, 850);
 		this.setMinimumSize(new Dimension(1000, 800));
 		this.setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());
 		this.addWindowListener(new WindowAdapter() {
@@ -80,15 +55,17 @@ public class Natter extends JFrame
 		this.setFocusable(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		addGuiComponents();
-		
-		MessagesSendAndReceive.startMessageListening();
+        this.requestFocus();
+
+        MessagesSendAndReceive.startMessageListening();
 	}
 	
 	private JPanel userComponentPanel(String receiver)
 	{
 		JPanel chatItemPanel = new JPanel();
 		chatItemPanel.setLayout(new MigLayout("", "[][]", "[]"));
-		chatItemPanel.setBackground(transpentColor);
+        chatItemPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000; " +
+                "[dark]background: #00000000");         // outer layer color of userlist's (transparent)
 		
 		Icon profileImage = createProfilePic(receiver);
 		ProfilePicture avatar = new ProfilePicture();
@@ -98,12 +75,14 @@ public class Natter extends JFrame
 		chatItemPanel.add(avatar, "al left, w 60, h 60");
 		
 		// Chat details
-		JPanel detailsPanel = new JPanel(new MigLayout("al left, wrap, gapy 10", "[][]", "[][]"));
-		detailsPanel.setBackground(transpentColor);
-		
-		JLabel nameLabel = new JLabel(receiver);
+        JPanel detailsPanel = new JPanel(new MigLayout("al left, wrap, gapy 10", "[][]", "[][]"));
+        detailsPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000;" +
+                "[dark]background: #00000000"); // inner layer color of userlist's (transparent)
+
+        JLabel nameLabel = new JLabel(receiver);
 		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
-		nameLabel.setForeground(ComponentsColor.fontColor);
+        nameLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" +
+                "[dark]foreground: #FFFFFF");
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -112,7 +91,8 @@ public class Natter extends JFrame
 		
 		JLabel timestampLabel = new JLabel(currentTime);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
-		timestampLabel.setForeground(ComponentsColor.fontColor);
+        timestampLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" +
+                "[dark]foreground: #FFFFFF");
 		detailsPanel.add(timestampLabel);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
@@ -120,7 +100,7 @@ public class Natter extends JFrame
 		JMenuItem close = new JMenuItem("Close Chat",
 				new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/close icon.svg"))
 						.derive(13, 13)
-						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(_ -> Color.WHITE) : null));
+						.setColorFilter(Application.currentTheme == Theme.DARK_MODE ? new ColorFilter(_ -> Color.WHITE) : null));
 		
 		close.addActionListener(_ -> {
 			this.remove(chatComponent);
@@ -128,8 +108,10 @@ public class Natter extends JFrame
 			chatComponent = null;
 			this.add(appDesc, BorderLayout.CENTER);
 			ChatUI.userName = "";
-			chatItemPanel.setBackground(transpentColor);
-			repaint();
+			chatItemPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000;" +
+                    "[dark]background: #00000000");
+			this.repaint();
+            this.revalidate();
 		});
 		popupMenu.add(close);
 		
@@ -145,23 +127,26 @@ public class Natter extends JFrame
 				{
 					if (!ChatUI.userName.equals(receiver))
 					{
-						if (selectedPanel != null) selectedPanel.setBackground(transpentColor);
-						
-						selectedPanel = chatItemPanel;
-						selectedPanel.setBackground(FlatLaf.isLafDark() ? new Color(81, 81, 81) : new Color(210, 210, 210));
-						
+                        if (selectedPanel != null) {
+                            selectedPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000; " +
+                                    "[dark]background: #00000000");
+                        }
+
+                        selectedPanel = chatItemPanel;
+                        selectedPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #D2D2D2; " +
+                                "[dark]background: #515151");
+
 						if (usersMap.containsKey(receiver))
 						{
 							if (chatComponent != null) remove(chatComponent);
-							
+
 							chatComponent = usersMap.get(receiver);
 							add(chatComponent);
 							remove(appDesc);
-							ChatUI.userName = receiver;
 						}
 						else
 						{
-							String userString = ResourceHandler.readPropertiesFile("username").orElseThrow();
+							String userString = Application.userDetails.username();
 							showChatUI(userString, receiver, createProfilePic(userString), profileImage);
 						}
 					}
@@ -171,6 +156,7 @@ public class Natter extends JFrame
 				{
 					if (ChatUI.userName.equals(receiver))
 					{
+                        popupMenu.repaint();
 						popupMenu.show(chatItemPanel, evt.getX(), evt.getY());
 					}
 				}
@@ -185,7 +171,8 @@ public class Natter extends JFrame
 	private JPanel appDesc()
 	{
 		JPanel panel = new JPanel(new MigLayout("al center center", "[][]", "[]"));
-		panel.setBackground(transpentColor);
+		panel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000;" +
+                "[dark]background: #00000000");
 		
 		JLabel img = new JLabel(new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/logo.svg"))
 								.derive(100, 100));
@@ -194,7 +181,8 @@ public class Natter extends JFrame
 		JLabel label1 = new JLabel("<html>" + "<center><b>Chatting app for all PC's</b></center>" + "<br/>"
 				+ "No conversations selected" + "</html>");
 		label1.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 18f));
-		label1.setForeground(ComponentsColor.fontColor);
+        label1.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000; " +
+                "[dark]foreground: #FFFFFF");
 		panel.add(label1, "gapx 8, wrap, sg 1");
 		return panel;
 	}
@@ -207,7 +195,10 @@ public class Natter extends JFrame
 		{
 			if (chatComponent != null) remove(chatComponent);
 			
-			if (usersMap.containsKey(receiver)) add(usersMap.get(ChatUI.userName));
+			if (usersMap.containsKey(receiver))
+            {
+                add(usersMap.get(ChatUI.userName));
+            }
 			else
 			{
 				chatComponent = new ChatUI();
@@ -240,18 +231,20 @@ public class Natter extends JFrame
 	{
 		usersPanel = new JPanel();
 		usersPanel.setLayout(new MigLayout("wrap, insets 10, gapy 4", "[290:310:320]", ""));
-		usersPanel.setBackground(ComponentsColor.userPanel);
-		usersPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.GRAY)); // Top and right border only
-		
-		// chats heading
+        usersPanel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #FCFCFC; " +
+                "[dark]foreground: #2C2C2C;" +
+                "border: 1, 0, 0, 1, #515151");
+
+        // chats heading
 		JLabel userPanelHeading = new JLabel("Chats");
 		userPanelHeading.setFont(ResourceHandler.getFont("Roboto-Black.ttf", 24f));
-		userPanelHeading.setForeground(ComponentsColor.fontColor);
+        userPanelHeading.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000; " +
+                "[dark]foreground: #FFFFFF");
 		usersPanel.add(userPanelHeading, "gapx 20, w 40, h 40, split");
 		
 		// setting icon
-		JLabel setting = new JLabel(
-				new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/setting.svg")).derive(25, 25));
+		JLabel setting = new JLabel(new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/setting.svg"))
+                                                            .derive(25, 25));
 		setting.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		setting.addMouseListener(new MouseListener() {
 			
@@ -265,14 +258,16 @@ public class Natter extends JFrame
 			public void mouseExited(MouseEvent e) {}
 			
 			@Override
-			public void mouseEntered(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e)
+            {
+				if (Application.settingPanel == null)
+					Application.settingPanel = new SettingPanel(Natter.this);
+            }
 
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
-				if (Application.settingPanel == null)
-					Application.settingPanel = new SettingPanel();
-				
+                Application.settingPanel.setLocationRelativeTo(Natter.this);
 				Application.settingPanel.setVisible(true);
 			}
 		});
@@ -294,7 +289,10 @@ public class Natter extends JFrame
                         revalidate();
                     }
                     else
-                        JOptionPane.showMessageDialog(Natter.this, "User doesn't exist");
+                    {
+                        Notifications.getInstance().setJFrame(this);
+                        Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.BOTTOM_CENTER, "User doesn't exist!");
+                    }
                 }
             }
         });
@@ -326,8 +324,8 @@ public class Natter extends JFrame
 
 	private boolean userExist(String user)
 	{
-		try (Connection con = DriverManager.getConnection(DB.dbUrl, DB.username,
-				DB.password); PreparedStatement ps = con
+		try (Connection con = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
+             PreparedStatement ps = con
 						.prepareStatement("Select * from account_info where BINARY Username = ?"))
 		{
 			ps.setString(1, user);
@@ -335,8 +333,7 @@ public class Natter extends JFrame
 			
 			return rs.next();
 		}
-		catch (Exception _)
-		{}
+		catch (Exception _) {}
 		return false;
 	}
 	
@@ -372,8 +369,7 @@ public class Natter extends JFrame
 				}
 				
 			}
-			catch (Exception _)
-			{}
+			catch (Exception _) {}
 			return new ImageIcon((Application.jarFilePath + "profile/null.png"));
 		}
 		
@@ -392,12 +388,10 @@ public class Natter extends JFrame
 				File file;
 				file = new File(dir + baseName + "." + ext);
 				
-				if (file.exists())
-					return file;
+				if (file.exists()) return file;
 			}
 		}
-		catch (Exception _)
-		{}
+		catch (Exception _) {}
 		
 		return null;
 	}
@@ -416,7 +410,8 @@ public class Natter extends JFrame
 	{
 		JPanel chatItemPanel = new JPanel();
 		chatItemPanel.setLayout(new MigLayout("", "[][]", "[]"));
-		chatItemPanel.setBackground(transpentColor);
+        chatItemPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000; " +
+                "[dark]background: #00000000");
 		
 		Icon profileImage = createProfilePic(receiver);
 		ProfilePicture avatar = new ProfilePicture();
@@ -427,23 +422,27 @@ public class Natter extends JFrame
 		
 		// Chat details
 		JPanel detailsPanel = new JPanel(new MigLayout("al left, wrap, gapy 10", "[][]", "[][]"));
-		detailsPanel.setBackground(transpentColor);
+		detailsPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000;" +
+                "[dark]background: #00000000");
 		
 		JLabel nameLabel = new JLabel(receiver);
 		nameLabel.setFont(ResourceHandler.getFont("ClearSans-Medium.ttf", 16f));
-		nameLabel.setForeground(ComponentsColor.fontColor);
+        nameLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" +
+                "[dark]foreground: #FFFFFF");
 		detailsPanel.add(nameLabel, "pushx, growx, w 150!");
 		
 		JLabel timestampLabel = new JLabel(time);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
-		timestampLabel.setForeground(ComponentsColor.fontColor);
+        nameLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" +
+                "[dark]foreground: #FFFFFF");
 		detailsPanel.add(timestampLabel);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
 		
 		JMenuItem close = new JMenuItem("Close Chat",
-				new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/close icon.svg")).derive(13, 13)
-						.setColorFilter(FlatLaf.isLafDark() ? new ColorFilter(_ -> Color.WHITE) : null));
+				new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/close icon.svg"))
+                        .derive(13, 13)
+						.setColorFilter(Application.currentTheme == Theme.DARK_MODE ? new ColorFilter(_ -> Color.WHITE) : null));
 		
 		close.addActionListener(_ -> {
 			this.remove(chatComponent);
@@ -451,8 +450,10 @@ public class Natter extends JFrame
 			chatComponent = null;
 			this.add(appDesc, BorderLayout.CENTER);
 			ChatUI.userName = "";
-			chatItemPanel.setBackground(transpentColor);
-			repaint();
+			chatItemPanel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #00000000; " +
+                    "[dark]foreground: #00000000");
+			this.repaint();
+            this.revalidate();
 		});
 		popupMenu.add(close);
 		
@@ -468,18 +469,19 @@ public class Natter extends JFrame
 				{
 					if (!ChatUI.userName.equals(receiver))
 					{
-						if (selectedPanel != null)
-							selectedPanel.setBackground(transpentColor);
+						if (selectedPanel != null) {
+                            selectedPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000; " +
+                                    "[dark]background: #00000000");
+                        }
 						
 						selectedPanel = chatItemPanel;
-						selectedPanel
-								.setBackground(FlatLaf.isLafDark() ? new Color(81, 81, 81) : new Color(210, 210, 210));
-						
+                        selectedPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #D2D2D2; " +
+                                "[dark]background: #515151");
+
 						if (usersMap.containsKey(receiver))
 						{
-							if (chatComponent != null)
-								remove(chatComponent);
-							
+							if (chatComponent != null) remove(chatComponent);
+
 							chatComponent = usersMap.get(receiver);
 							add(chatComponent);
 							remove(appDesc);
@@ -487,7 +489,7 @@ public class Natter extends JFrame
 						}
 						else
 						{
-							String userString = ResourceHandler.readPropertiesFile("username").orElseThrow();
+							String userString = Application.userDetails.username();
 							showChatUI(userString, receiver, createProfilePic(userString), profileImage);
 						}
 					}
@@ -498,6 +500,7 @@ public class Natter extends JFrame
 					if (ChatUI.userName.equals(receiver))
 					{
 						popupMenu.show(chatItemPanel, evt.getX(), evt.getY());
+                        popupMenu.repaint();
 					}
 				}
 				repaint();
@@ -507,21 +510,26 @@ public class Natter extends JFrame
 		
 		return chatItemPanel;
 	}
+
+    public void updateTheme()
+    {
+        SwingUtilities.invokeLater(() -> {
+            repaint();
+            revalidate();
+            SwingUtilities.updateComponentTreeUI(chatComponent);
+        });
+    }
 	
 	static class RoundedButton extends JButton
 	{
-		@Serial
-		private static final long serialVersionUID = 1L;
-		
 		public RoundedButton(String text)
 		{
 			super(text);
 			setContentAreaFilled(false);
 			setFocusPainted(false);
 			setBorderPainted(false);
-			setForeground(Color.decode("#FFFFFF"));
 			setFont(ResourceHandler.getFont("ARIALBD_1.TTF", 24f));
-			setBackground(new Color(72, 179, 204));
+            putClientProperty(FlatClientProperties.STYLE, "foreground: #FFFFFF;" + "background: #48B3CC;");
 		}
 		
 		@Override

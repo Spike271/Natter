@@ -13,20 +13,16 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import javax.swing.*;
 
+import global.ResourceHandler;
+import global.Theme;
 import org.jdesktop.swingx.JXHyperlink;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
-public class SignIn extends CustomComponent implements ActionListener
+public class SignIn extends CustomJFrame implements ActionListener
 {
-	private final Color labelColor = Theme.isDarkModeOn ? Color.WHITE : Color.BLACK;
 	private GradientToggleButton themeButton;
 	private JXHyperlink clickableLabel;
 	private JButton submitButton;
@@ -40,6 +36,7 @@ public class SignIn extends CustomComponent implements ActionListener
 		this.setLocationRelativeTo(null);
 		this.setFocusable(true);
 		addGuiComponents();
+        this.requestFocus();
 	}
 	
 	@Override
@@ -47,10 +44,9 @@ public class SignIn extends CustomComponent implements ActionListener
 	{
 		// Theme Button
 		themeButton = new GradientToggleButton();
-		themeButton.setSelected(Theme.isDarkModeOn);
-		themeButton.setToolTipText("Dark Mode");
-		themeButton.addActionListener(_ -> JOptionPane.showConfirmDialog(SignIn.this, "Restart the Natter to apply new theme.",
-                "Apply the new Theme?", JOptionPane.DEFAULT_OPTION));
+		themeButton.setSelected(Application.currentTheme == Theme.DARK_MODE);
+		themeButton.setToolTipText("Switch Themes");
+        themeButton.addActionListener(_ -> Application.changeThemes());
 		
 		buttonPanel.add(themeButton);
 	}
@@ -72,29 +68,33 @@ public class SignIn extends CustomComponent implements ActionListener
 		// Heading
 		JLabel Heading = new JLabel("Member Login", JLabel.CENTER);
 		Heading.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 36f));
-		Heading.setForeground(labelColor);
+        Heading.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000; " +
+                "[dark]foreground: #FFFFFF");
 		contentPane.add(Heading, "gapy 30 0, wrap");
 		
 		// Below heading text
 		JLabel Message = new JLabel("Don't have a account!", JLabel.RIGHT);
 		Message.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-		Message.setForeground(labelColor);
+        Message.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000; " +
+                "[dark]foreground: #FFFFFF");
 		contentPane.add(Message, "gapx 98 3, split 2, sg g1");
 		
 		// color link
 		clickableLabel = new JXHyperlink();
 		clickableLabel.setText("Sign Up");
 		clickableLabel.setFont(ResourceHandler.getFont("CLEARSANS.TTF", 16f));
-		clickableLabel.setClickedColor(new Color(0, 200, 250));
-		clickableLabel.setForeground(new Color(0, 200, 250));
-		clickableLabel.setFocusable(false);
+        clickableLabel.setUnclickedColor(new Color(0, 200, 250, 255));
+		clickableLabel.setClickedColor(new Color(0, 200, 250, 255));
+		clickableLabel.setForeground(new Color(0, 200, 250, 255));
+        clickableLabel.setFocusable(false);
 		clickableLabel.addActionListener(this);
 		contentPane.add(clickableLabel, "wrap, sg g1");
 		
 		// User name label
 		JLabel label1 = new JLabel("Username:");
 		label1.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
-		label1.setForeground(labelColor);
+		label1.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000; " +
+                "[dark]foreground: #FFFFFF");
 		contentPane.add(label1, "gapx 5, gapy 15, wrap");
 		
 		// Username text box
@@ -109,11 +109,12 @@ public class SignIn extends CustomComponent implements ActionListener
 						+ "margin : 5, 10, 5, 10");
 		textbox1.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Username");
 		contentPane.add(textbox1, "wrap, h 45");
-		
+
 		// password label
 		JLabel label2 = new JLabel("Password:");
 		label2.setFont(ResourceHandler.getFont("ARIALBD_1.ttf", 16f));
-		label2.setForeground(labelColor);
+        label2.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000; " +
+                "[dark]foreground: #FFFFFF");
 		contentPane.add(label2, "gapx 5, gapy 15, wrap");
 		
 		// password field
@@ -174,8 +175,9 @@ public class SignIn extends CustomComponent implements ActionListener
 					{
 						if (preparedStatement.executeQuery().next())
 						{
-							ResourceHandler.writePropertiesFile("username", username);
-							ResourceHandler.writePropertiesFile("alreadyAUser", "true");
+							ResourceHandler.createLocalDB();
+							ResourceHandler.insertDataInLocalDB(username, null);
+                            Application.userDetails = ResourceHandler.getLocalData();
 							
 							if (!checkIfPfpAlreadyExistOrNot(username))
 							{

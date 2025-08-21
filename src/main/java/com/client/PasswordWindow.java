@@ -55,8 +55,7 @@ public class PasswordWindow extends JFrame
 		submitButton.addActionListener(_ -> {
 			
 			String password = new String(passwordField.getPassword());
-			if (!password.equals(ResourceHandler.decode(ResourceHandler.readPropertiesFile("password")
-					.orElseThrow()).substring(4)))
+			if (!password.equals(Application.userDetails.password()))
 			{
 				messageLabel.setText("Incorrect password!");
 				messageLabel.setForeground(Color.RED);

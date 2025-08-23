@@ -1,5 +1,10 @@
 package com.client;
 
+/*
+* @author Mayank
+* Template for SignUp and SignIn JFrames
+ */
+
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import global.ResourceHandler;

@@ -10,7 +10,6 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
 import global.Theme;
-import raven.chat.component.ChatBox;
 
 public class ModernScrollBarUI extends BasicScrollBarUI
 {

@@ -36,4 +36,7 @@ public class RoundPanel extends JPanel
 		g2.dispose();
 		super.paintComponent(graphics);
 	}
+
+    @Override
+    public void paintBorder(Graphics g) {}
 }

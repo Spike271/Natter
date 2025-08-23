@@ -11,6 +11,6 @@ public class ScrollBar extends JScrollBar
 		setUI(new ModernScrollBarUI());
 		setPreferredSize(new Dimension(10, 5));
 		setOpaque(false);
-		setUnitIncrement(20);
+        setUnitIncrement(20);
 	}
 }

@@ -121,7 +121,8 @@ public class Natter extends JFrame
 							chatComponent = usersMap.get(receiver);
 							add(chatComponent);
 							remove(appDesc);
-						}
+                            ChatUI.userName = receiver;
+                        }
 						else
 						{
 							String userString = Application.userDetails.username();
@@ -201,6 +202,7 @@ public class Natter extends JFrame
 			if (usersMap.containsKey(receiver))
             {
                 add(usersMap.get(ChatUI.userName));
+                ChatUI.userName = receiver; // TODO: BEWARE
             }
 			else
 			{
@@ -498,20 +500,28 @@ public class Natter extends JFrame
 
     public void updateTheme()
     {
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.updateComponentTreeUI(this);
+        SwingUtilities.updateComponentTreeUI(this.appDesc);
 
-            SwingUtilities.updateComponentTreeUI(this);
+        for (ChatUI panel : usersMap.values()) {
+            SwingUtilities.updateComponentTreeUI(panel);
+            SwingUtilities.updateComponentTreeUI(panel.chatArea);
 
-            for (ChatUI panel : usersMap.values()) {
-                SwingUtilities.updateComponentTreeUI(panel);
-                panel.repaint();
-                panel.revalidate();
-            }
+            panel.chatArea.recreateBottomAfterThemeChange();
+            panel.repaint();
+            panel.revalidate();
+            panel.chatArea.repaint();
+            panel.chatArea.revalidate();
+        }
 
-            this.invalidate();
-            this.validate();
-            this.repaint();
-        });
+        if (chatComponent != null) {
+            SwingUtilities.updateComponentTreeUI(chatComponent);
+            SwingUtilities.updateComponentTreeUI(chatComponent.chatArea);
+            chatComponent.chatArea.recreateBottomAfterThemeChange();
+        }
+
+        revalidate();
+        repaint();
     }
 	
 	static class RoundedButton extends JButton

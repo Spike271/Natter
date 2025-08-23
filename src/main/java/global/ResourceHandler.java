@@ -26,8 +26,8 @@ public class ResourceHandler
             Wini ini = new Wini();
             ini.load(new FileReader(jarFilePath + settingFile));
             String result = ini.get(section, key);
-            if (result != null)
-                return Optional.of(result);
+
+            if (result != null) return Optional.of(result);
         }
         catch (IOException e)
         {

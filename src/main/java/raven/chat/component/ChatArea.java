@@ -83,7 +83,7 @@ public class ChatArea extends JPanel
         });
 		floatingButton = createFloatingButton();
 		layeredPane.setLayer(floatingButton, JLayeredPane.POPUP_LAYER);
-		layeredPane.add(floatingButton, "pos 50% 100%");
+		layeredPane.add(floatingButton, "pos 100%-60 100%+10");
 		layeredPane.add(scrollBody);
 		setLayout(layout);
 		add(header);
@@ -115,6 +115,7 @@ public class ChatArea extends JPanel
 	{
 		RoundPanel panel = new RoundPanel();
 		panel.setBackground(new Color(0, 0, 0, 0));
+        panel.setBorder(null);
 		panel.setLayout(new MigLayout("wrap, fillx"));
 		return panel;
 	}
@@ -124,6 +125,11 @@ public class ChatArea extends JPanel
 		Color iconColor = Application.currentTheme == Theme.LIGHT_MODE ? Color.BLACK : Color.WHITE;
 		
 		RoundPanel panel = new RoundPanel();
+        panel.setBorder(null);
+        panel.setBackground(new Color(0, 0, 0, 0));
+        panel.setOpaque(false);
+        panel.setFocusable(false);
+        panel.setFocusTraversalKeysEnabled(false);
         panel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #F1F1F1;" +
                 "[dark]background: #2C2C2C;");
 		panel.setLayout(new MigLayout("fill, insets 2", "[fill,34!]2[fill]2[fill,34!]", "[center]"));
@@ -131,10 +137,6 @@ public class ChatArea extends JPanel
 				GradientType.VERTICAL, iconColor, iconColor, 20);
 		GoogleMaterialIcon iconSend = new GoogleMaterialIcon(GoogleMaterialDesignIcon.SEND, GradientType.VERTICAL,
 				new Color(0, 133, 237), new Color(90, 182, 255), 20);
-		
-		@SuppressWarnings("unused")
-		GoogleMaterialIcon iconEmot = new GoogleMaterialIcon(GoogleMaterialDesignIcon.INSERT_EMOTICON,
-				GradientType.VERTICAL, new Color(210, 210, 210), new Color(255, 255, 255), 20);
 		
 		Button cmdFile = new Button();
 		Button cmdSend = new Button();
@@ -145,6 +147,7 @@ public class ChatArea extends JPanel
 		cmdSend.setIcon(iconSend.toIcon());
 		cmdSend.setToolTipText("Press Enter for next Line." + "\nPress Shift + Enter to send the message.");
 		textMessage = new TextField();
+        textMessage.setOpaque(false);
 		textMessage.setHint("Write a message here ...");
 		textMessage.addKeyListener(new KeyAdapter() {
 			
@@ -168,13 +171,15 @@ public class ChatArea extends JPanel
 		
 		JScrollPane scroll = createScroll();
 		scroll.setViewportView(textMessage);
+        scroll.setBorder(null);
+        scroll.setViewportBorder(null);
 		scroll.getViewport().setOpaque(false);
 		scroll.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 		scroll.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
 
-		panel.add(cmdFile, "height 45!");
-		panel.add(scroll, "height 45");
-		panel.add(cmdSend, "height 45!");
+		panel.add(cmdFile, "height 43!");
+		panel.add(scroll);
+		panel.add(cmdSend, "height 43!");
 		return panel;
 	}
 	
@@ -231,15 +236,30 @@ public class ChatArea extends JPanel
 			scrollBody.revalidate();
 		});
 	}
-	
-	public void clearChatBox()
+
+    public void recreateBottomAfterThemeChange()
+    {
+        String preserveText = textMessage != null ? textMessage.getText() : "";
+        if (bottom != null) remove(bottom);
+
+        bottom = createBottom();
+        add(bottom, "cell 0 2");
+
+        if (preserveText != null && !preserveText.isEmpty())
+            textMessage.setText(preserveText);
+
+        revalidate();
+        repaint();
+    }
+
+    public void clearChatBox()
 	{
 		body.removeAll();
 		body.repaint();
 		body.revalidate();
 	}
 	
-	public void scrollToBottom()
+	public synchronized void scrollToBottom()
 	{
 		SwingUtilities.invokeLater(() ->
                 animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));

@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -43,8 +44,9 @@ public class TextField extends JTextPane
         switchTheme(Application.currentTheme);
 		setBorder(new EmptyBorder(9, 1, 9, 1));
 		setBackground(new Color(0, 0, 0, 0));
-        putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #121212;" + "[dark]foreground: #FFFFFF;");
-		setFont(global.ResourceHandler.getFont("GoogleSans-Regular.ttf", 17f)); //////////////////////////////////////////////////
+        putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #121212; " + "[dark]foreground: #FFFFFF;" +
+                "[light]background: #00000000; [dark]background: #00000000;");
+        setFont(global.ResourceHandler.getFont("GoogleSans-Regular.ttf", 17f));
 		setSelectionColor(new Color(200, 200, 200, 100));
 		autoWrapText();
 		animator = new Animator(350, new TimingTargetAdapter() {
@@ -137,6 +139,13 @@ public class TextField extends JTextPane
 			Graphics2D g2 = (Graphics2D) g.create();
 			int h = getHeight();
 			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+            g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+            g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+
 			Insets ins = getInsets();
 			FontMetrics fm = g.getFontMetrics();
 			g2.setColor(UIManager.getColor("Component.placeHolderTextColor"));
@@ -146,6 +155,20 @@ public class TextField extends JTextPane
 		}
 		super.paint(g);
 	}
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        setBorder(getBorder());
+        setOpaque(false);
+        setBackground(new Color(0, 0, 0, 0));
+        repaint();
+        revalidate();
+    }
+
+    @Override
+    protected void paintBorder(Graphics g) {
+    }
 
     interface CustomLightColorScheme {
         Color PLACE_HOLDER_TEXT_COLOR = Color.BLACK;

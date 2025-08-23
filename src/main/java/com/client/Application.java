@@ -6,13 +6,12 @@ import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import global.ResourceHandler;
 import global.Theme;
+import global.UpdateTheme;
 import global.UserDetails;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
@@ -98,10 +97,7 @@ public class Application
                 FlatMacDarkLaf.setup();
                 FlatLaf.updateUI();
                 currentTheme = Theme.DARK_MODE;
-                raven.chat.swing.TextField.switchTheme(currentTheme);
-                raven.chat.component.ChatBox.switchTheme(currentTheme);
-                raven.chat.swing.Background.switchTheme(currentTheme);
-                natter.updateTheme();
+                UpdateTheme.update();
                 ResourceHandler.changeSettings("Global", "Theme", "DARK_MODE");
             });
         }
@@ -111,10 +107,7 @@ public class Application
                 FlatMacLightLaf.setup();
                 FlatLaf.updateUI();
                 currentTheme = Theme.LIGHT_MODE;
-                raven.chat.swing.TextField.switchTheme(currentTheme);
-                raven.chat.component.ChatBox.switchTheme(currentTheme);
-                raven.chat.swing.Background.switchTheme(currentTheme);
-                natter.updateTheme();
+                UpdateTheme.update();
                 ResourceHandler.changeSettings("Global", "Theme", "LIGHT_MODE");
             });
         }

@@ -2,7 +2,7 @@ package global;
 
 import java.awt.Font;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,69 +11,45 @@ import java.sql.*;
 import java.util.Optional;
 
 import com.client.Application;
-import org.apache.commons.configuration2.INIConfiguration;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.commons.configuration2.io.FileHandler;
+import org.ini4j.Wini;
 
 public class ResourceHandler
 {
 	private static final String jarFilePath = Application.jarFilePath;
 	private static final String settingFile = "res/Settings/settings.ini";
-	private static final String colorFile = "libres/Settings/Color.ini";
     private static final String url = "jdbc:sqlite:mydatabase.db";
 
     public static Optional<String> getSettings(String section, String key)
     {
         try
         {
-            INIConfiguration iniConfig = new INIConfiguration();
-            FileHandler fileHandler = new FileHandler(iniConfig);
-
-            fileHandler.load(new File(jarFilePath + settingFile));
-            return Optional.of(iniConfig.getString(section + "." + key));
+            Wini ini = new Wini();
+            ini.load(new FileReader(jarFilePath + settingFile));
+            String result = ini.get(section, key);
+            if (result != null)
+                return Optional.of(result);
         }
-        catch (ConfigurationException e)
+        catch (IOException e)
         {
             System.err.println("cannot find the config file\ncalled from getSettings()\n"+ jarFilePath + settingFile);
         }
         return Optional.empty();
     }
 
-	public static void changeSettings(String property, String value)
+	public static void changeSettings(String section, String key, String value)
 	{
 		try
 		{
-			INIConfiguration iniConfig = new INIConfiguration();
-			FileHandler fileHandler = new FileHandler(iniConfig);
+            String settingFilePath = jarFilePath + settingFile;
+            File iniFile = new File(settingFilePath);
+            Wini ini = new Wini(iniFile);
 
-			String settingFilePath = jarFilePath + settingFile;
-			fileHandler.load(new File(settingFilePath));
-			
-			iniConfig.setProperty(property, value);
-			iniConfig.write(new FileWriter(settingFilePath));
+            ini.put(section, key, value);
+            ini.store();
 		}
-		catch (ConfigurationException | IOException e)
+		catch (IOException e)
 		{
 			System.err.println("cannot find the config file\ncalled from changeSettings()");
-		}
-	}
-	
-	public static void changeColorFileSettings(String property, String value)
-	{
-		try
-		{
-			INIConfiguration iniConfig = new INIConfiguration();
-			FileHandler fileHandler = new FileHandler(iniConfig);
-
-			String colorFilePath = jarFilePath + colorFile;
-			fileHandler.load(new File(colorFilePath));
-			
-			iniConfig.setProperty(property, value);
-			iniConfig.write(new FileWriter(colorFilePath));
-		}
-		catch (ConfigurationException | IOException _)
-		{
-			System.err.println("cannot find the config file\ncalled from changeColorFileSettings()");
 		}
 	}
 	

@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import com.client.Application;
+import global.ResourceHandler;
 import global.Theme;
 
 public class Background extends JPanel
@@ -135,16 +136,16 @@ public class Background extends JPanel
 		}
 	}
 
-    interface CustomLightColorScheme1 {
-        Color PLACE_HOLDER_TEXT_COLOR = Color.BLACK;
-        Color COLOR_1 = Color.decode("#74B4E0");
-        Color COLOR_2 = Color.decode("#74B4E0");
+    private static class CustomLightColorScheme1 {
+        public static Color PLACE_HOLDER_TEXT_COLOR = Color.BLACK;
+        public static Color COLOR_1 = Color.decode(ResourceHandler.getSettings(Theme.LIGHT_MODE.name, "Color1").orElse("#74B4E0"));
+        public static Color COLOR_2 = Color.decode(ResourceHandler.getSettings(Theme.LIGHT_MODE.name, "Color2").orElse("#74B4E0"));
     }
 
-    interface CustomDarkColorScheme1 {
-        Color PLACE_HOLDER_TEXT_COLOR = Color.WHITE;
-        Color COLOR_1 = Color.decode("#18191D");
-        Color COLOR_2 = Color.decode("#18191D");
+    private static class CustomDarkColorScheme1 {
+        public static Color PLACE_HOLDER_TEXT_COLOR = Color.WHITE;
+        public static Color COLOR_1 = Color.decode(ResourceHandler.getSettings(Theme.DARK_MODE.name, "Color1").orElse("#18191D"));
+        public static Color COLOR_2 = Color.decode(ResourceHandler.getSettings(Theme.DARK_MODE.name, "Color2").orElse("#18191D"));
     }
 
     private static void applyColorScheme(Class<?> colorSchemeClass)

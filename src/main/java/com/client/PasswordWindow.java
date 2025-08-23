@@ -1,15 +1,8 @@
 package com.client;
 
-import java.awt.Color;
 import java.awt.Cursor;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
+import javax.swing.*;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
@@ -45,8 +38,8 @@ public class PasswordWindow extends JFrame
 		submitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		submitButton.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 1;");
 		messageLabel = new JLabel(" ");
-		messageLabel.setForeground(Color.RED);
-		
+		messageLabel.putClientProperty(FlatClientProperties.STYLE, "foreground: #FF0000;");
+
 		panel.add(label, "right");
 		panel.add(passwordField, "growx");
 		panel.add(submitButton, "span 2, align center");
@@ -58,7 +51,7 @@ public class PasswordWindow extends JFrame
 			if (!password.equals(Application.userDetails.password()))
 			{
 				messageLabel.setText("Incorrect password!");
-				messageLabel.setForeground(Color.RED);
+                new Timer(2500, _ -> messageLabel.setText(" ")).start();
 			}
 			else
 			{

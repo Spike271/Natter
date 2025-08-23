@@ -14,7 +14,6 @@ import java.awt.RenderingHints;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
-import java.io.Serial;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -91,6 +90,7 @@ public class ProfilePicture extends JComponent
 		g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		createBorder(g2);
+
 		if (image != null)
 		{
 			int width = getWidth();
@@ -113,6 +113,7 @@ public class ProfilePicture extends JComponent
 			g2_img.dispose();
 			g2.drawImage(img, x, y, null);
 		}
+
 		g2.dispose();
 		super.paintComponent(grphcs);
 	}

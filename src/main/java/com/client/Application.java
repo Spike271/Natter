@@ -11,6 +11,8 @@ import global.UserDetails;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
@@ -100,7 +102,7 @@ public class Application
                 raven.chat.component.ChatBox.switchTheme(currentTheme);
                 raven.chat.swing.Background.switchTheme(currentTheme);
                 natter.updateTheme();
-                ResourceHandler.changeSettings("Global.Theme", "DARK_MODE");
+                ResourceHandler.changeSettings("Global", "Theme", "DARK_MODE");
             });
         }
         else
@@ -113,7 +115,7 @@ public class Application
                 raven.chat.component.ChatBox.switchTheme(currentTheme);
                 raven.chat.swing.Background.switchTheme(currentTheme);
                 natter.updateTheme();
-                ResourceHandler.changeSettings("Global.Theme", "LIGHT_MODE");
+                ResourceHandler.changeSettings("Global", "Theme", "LIGHT_MODE");
             });
         }
     }

@@ -34,6 +34,7 @@ public class PasswordRevealIcon implements AnimatedIcon
 		Graphics2D g2 = (Graphics2D) g.create();
 		int s = UIScale.scale(space);
 		icon.paintIcon(c, g2, x, y);
+
 		if (animatedValue > 0)
 		{
 			float startX = x + s;

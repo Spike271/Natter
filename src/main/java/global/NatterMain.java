@@ -2,6 +2,8 @@ package global;
 
 import com.client.Application;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.lang.reflect.InvocationTargetException;
 
 public class NatterMain

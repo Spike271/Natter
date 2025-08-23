@@ -51,9 +51,8 @@ public class ChatBox extends JComponent
 		text.setEditorKit(new AutoWrapText());
 		text.setText(message.getMessage());
 		text.setFont(global.ResourceHandler.getFont("Roboto-Medium.ttf", 18f)); //
-		text.setBackground(new Color(0, 0, 0, 0));
-        text.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #FFFFFF;" +
-                "[dark]foreground: #121212;");
+        text.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #FFFFFF;" + "[dark]foreground: #121212;" +
+                "[light]background: #00000000; [dark]background: #00000000;");
 		text.setSelectionColor(new Color(200, 200, 200, 100));
 		text.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		text.setOpaque(false);

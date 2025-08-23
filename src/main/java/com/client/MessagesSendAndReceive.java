@@ -71,12 +71,12 @@ public class MessagesSendAndReceive
 				output = new PrintWriter(clientSocket.getOutputStream(), true);
 				input.readLine();
 				output.println(user);
-                Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
+                Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.TOP_CENTER,
                         "Successfully connected to the server");
 			}
 			catch (Exception _)
 			{
-                Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.BOTTOM_RIGHT,
+                Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER,
                         "Unable to connect with server.");
 				return;
 			}
@@ -106,7 +106,7 @@ public class MessagesSendAndReceive
 		{
 			if (isConnected)
 			{
-                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Connection to the server was lost.");
+                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Connection to the server was lost.");
                 isConnected = false;
 			}
 		}

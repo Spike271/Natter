@@ -6,21 +6,23 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JScrollBar;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
 import global.Theme;
+import raven.chat.component.ChatBox;
 
 public class ModernScrollBarUI extends BasicScrollBarUI
 {
 	private static final int SCROLL_BAR_ALPHA_ROLLOVER = 100;
 	private static final int SCROLL_BAR_ALPHA = 50;
 	private static final int THUMB_SIZE = 8;
-	private static final Color THUMB_COLOR = Application.currentTheme == Theme.DARK_MODE ? Color.gray : Color.BLACK;
-	
+
+    public ModernScrollBarUI()
+    {
+        switchTheme(Application.currentTheme);
+    }
+
 	@Override
 	protected JButton createDecreaseButton(int orientation)
 	{
@@ -57,10 +59,36 @@ public class ModernScrollBarUI extends BasicScrollBarUI
 		height = Math.max(height, THUMB_SIZE);
 		
 		Graphics2D graphics2D = (Graphics2D) g.create();
-		graphics2D.setColor(new Color(THUMB_COLOR.getRed(), THUMB_COLOR.getGreen(), THUMB_COLOR.getBlue(), alpha));
+        Color color = UIManager.getColor("Component.thumbColor");
+		graphics2D.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
 		graphics2D.fillRect(x, y, width, height);
 		graphics2D.dispose();
 	}
+
+    interface CustomLightColorScheme {
+        Color THUMB_COLOR = Color.GRAY;
+    }
+
+    interface CustomDarkColorScheme {
+        Color THUMB_COLOR = Color.BLACK;
+    }
+
+    private static void applyColorScheme(Class<?> colorSchemeClass)
+    {
+        try {
+            UIManager.put("Component.thumbColor", colorSchemeClass.getField("THUMB_COLOR").get(null));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    public static void switchTheme(Theme currentTheme)
+    {
+        if (currentTheme == Theme.LIGHT_MODE)
+            applyColorScheme(CustomLightColorScheme.class);
+        else
+            applyColorScheme(CustomDarkColorScheme.class);
+    }
 	
 	private static class InvisibleScrollBarButton extends JButton
 	{

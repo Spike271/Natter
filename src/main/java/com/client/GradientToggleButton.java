@@ -18,7 +18,8 @@ public class GradientToggleButton extends JToggleButton
 	private final Color thumbColor = Color.WHITE;
 	private final int height = UIScale.scale(28); // Scale for DPI
 	private final int width = UIScale.scale(58);
-	
+	private final int arcWidth = UIScale.scale(28);
+
 	private final Color activeStartColor = Color.decode("#fc00ff");
 	private final Color activeEndColor = Color.decode("#00dbde");
 	private final Color inactiveColor = Color.GRAY;
@@ -50,7 +51,7 @@ public class GradientToggleButton extends JToggleButton
 		GradientPaint gradient = new GradientPaint(0, 0, isSelected() ? activeStartColor : inactiveColor, width, 0,
 				isSelected() ? activeEndColor : inactiveColor);
 		g2d.setPaint(gradient);
-		g2d.fillRoundRect(0, 0, width, height, height, height);
+		g2d.fillRoundRect(0, 0, width, height, arcWidth, height);
 		
 		int thumbSize = height - UIScale.scale(12);
 		int thumbX = isSelected() ? width - height + UIScale.scale(4) : UIScale.scale(6);

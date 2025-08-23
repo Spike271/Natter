@@ -53,8 +53,7 @@ public class SignUp extends CustomJFrame implements ActionListener
 	protected void addCloseOperation()
 	{
 		closeButton.addActionListener(_ -> {
-            ResourceHandler.changeColorFileSettings("ColorMode.IsDark", themeButton.isSelected() ? "true" : "false");
-            ResourceHandler.changeSettings("Global.isDark", themeButton.isSelected() ? "true" : "false");
+            ResourceHandler.changeSettings("Global", "isDark", themeButton.isSelected() ? "true" : "false");
             dispose();
             repaint();
             System.exit(0);

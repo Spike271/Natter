@@ -71,7 +71,9 @@ public class UserInfo
 					receivers = wrapper.Receivers;
 				}
 			}
-			catch (IOException _) {}
+			catch (IOException _) {
+                receivers = new ArrayList<>(0);
+            }
 		}
 		return receivers;
 	}

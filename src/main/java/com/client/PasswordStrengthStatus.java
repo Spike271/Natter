@@ -101,24 +101,19 @@ public class PasswordStrengthStatus extends JPanel
 	private static int checkPasswordStrength(String password)
 	{
 		int score = 0;
-		if (password.length() >= 8)
-			score++;
+		if (password.length() >= 8) score++;
 		
 		boolean hasUppercase = !password.equals(password.toLowerCase());
-		if (hasUppercase)
-			score++;
+		if (hasUppercase) score++;
 		
 		boolean hasLowercase = !password.equals(password.toUpperCase());
-		if (hasLowercase)
-			score++;
+		if (hasLowercase) score++;
 		
 		boolean hasDigit = password.matches(".*\\d.*");
-		if (hasDigit)
-			score++;
+		if (hasDigit) score++;
 		
 		boolean hasSpecialChar = !password.matches("[A-Za-z0-9]*");
-		if (hasSpecialChar)
-			score++;
+		if (hasSpecialChar) score++;
 		
 		if (score < 3) return 1;
 		else if (score < 5) return 2;

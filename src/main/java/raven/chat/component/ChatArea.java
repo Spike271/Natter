@@ -53,11 +53,11 @@ public class ChatArea extends JPanel
 	private void init()
 	{
 		setOpaque(false);
-		layout = new MigLayout("fill, wrap, inset 0", "[fill]", "[fill,40!][fill, 100%][shrink 0,::30%]");
-		header = createHeader();
+        MigLayout layout = new MigLayout("fill, wrap, inset 0", "[fill]", "[fill,40!][fill, 100%][shrink 0,::30%]");
+        JPanel header = createHeader();
 		body = createBody();
 		bottom = createBottom();
-		layeredPane = createLayeredPane();
+        JLayeredPane layeredPane = createLayeredPane();
 		scrollBody = createScroll();
 		scrollBody.setViewportView(body);
 		scrollBody.setVerticalScrollBar(new ScrollBar());
@@ -68,7 +68,7 @@ public class ChatArea extends JPanel
             int value = scrollBody.getVerticalScrollBar().getValue();
             int extent = scrollBody.getVerticalScrollBar().getModel().getExtent();
             int oldValues = 1;
-            if ((value + extent) >= scrollBody.getVerticalScrollBar().getMaximum() - 300)
+            if ((value + extent) >= scrollBody.getVerticalScrollBar().getMaximum() - 150)
             {
                 animationFloatingButton.hide();
             }
@@ -83,7 +83,7 @@ public class ChatArea extends JPanel
         });
 		floatingButton = createFloatingButton();
 		layeredPane.setLayer(floatingButton, JLayeredPane.POPUP_LAYER);
-		layeredPane.add(floatingButton, "pos 100%-50 100%,h 40,w 40");
+		layeredPane.add(floatingButton, "pos 50% 100%");
 		layeredPane.add(scrollBody);
 		setLayout(layout);
 		add(header);
@@ -140,6 +140,7 @@ public class ChatArea extends JPanel
 		Button cmdSend = new Button();
 		cmdFile.setFocusable(false);
 		cmdSend.setFocusable(false);
+		cmdSend.setBorder(null);
 		cmdFile.setIcon(iconFile.toIcon());
 		cmdSend.setIcon(iconSend.toIcon());
 		cmdSend.setToolTipText("Press Enter for next Line." + "\nPress Shift + Enter to send the message.");
@@ -170,9 +171,10 @@ public class ChatArea extends JPanel
 		scroll.getViewport().setOpaque(false);
 		scroll.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 		scroll.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
-		panel.add(cmdFile, "height 34!");
-		panel.add(scroll);
-		panel.add(cmdSend, "height 34!");
+
+		panel.add(cmdFile, "height 45!");
+		panel.add(scroll, "height 45");
+		panel.add(cmdSend, "height 45!");
 		return panel;
 	}
 	
@@ -189,12 +191,12 @@ public class ChatArea extends JPanel
 		Button button = new Button();
 		button.setBorder(null);
 		FontAwesomeIcon icon = new FontAwesomeIcon(FontAwesome.ANGLE_DOWN, GradientType.VERTICAL,
-				new Color(79, 79, 79, 240), new Color(248, 248, 248, 240), 35);
+				new Color(79, 79, 79, 240), new Color(248, 248, 248, 240), 30);
 		button.setIcon(icon.toIcon());
-		button.setRound(40);
+		button.setRound(25);
         button.putClientProperty(FlatClientProperties.STYLE, "[light]background: #64646464;" +
                 "[dark]background: #64646464;");
-		button.setPaintBackground(true);
+        button.setPaintBackground(true);
 		button.addActionListener(
 				_ -> animationScroll.scrollVertical(scrollBody, scrollBody.getVerticalScrollBar().getMaximum()));
 		
@@ -305,12 +307,9 @@ public class ChatArea extends JPanel
 		textMessage.setText("");
 		textMessage.grabFocus();
 	}
-	
-	private MigLayout layout;
-	private MigLayout layoutLayered;
-	private JLayeredPane layeredPane;
-	private JPanel header;
-	private JPanel body;
+
+    private MigLayout layoutLayered;
+    private JPanel body;
 	private JPanel bottom;
 	private TextField textMessage;
 	private JScrollPane scrollBody;

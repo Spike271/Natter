@@ -180,29 +180,23 @@ public class SettingPanel extends JDialog implements ActionListener
 		buttonBG.setToolTipText("This feature is currently unavailable.");
 		appearancePanel.add(buttonBG, "w 160");
 		
-		/* JLabel gradientColorStart = new JLabel("Gradient Start Color");
+		JLabel gradientColorStart = new JLabel("Gradient Start Color");
 		gradientColorStart.putClientProperty(FlatClientProperties.STYLE, "font:bold +5;");
 		appearancePanel.add(gradientColorStart);
 		
 		JButton colorButton1 = new JButton("Pick a Color");
 		colorButton1.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
 		colorButton1.setToolTipText("Changes the chat background color");
-		colorButton1.addActionListener(new ActionListener() {
-			
-			final String mode = Application.currentTheme == Theme.LIGHT_MODE ? "light_mode" : "dark_mode";
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				Color selectedColor = JColorChooser.showDialog(SettingPanel.this, "Choose a chat background color",
-						Color.decode(Objects.requireNonNull(ResourceHandler.getColorFileSettings(mode, "Color1"))));
-				
-				if (selectedColor != null)
-				{
-					ResourceHandler.changeColorFileSettings(mode + ".Color1", convertColorToHex(selectedColor));
-				}
-			}
-		});
+		colorButton1.addActionListener(_ -> {
+
+            Color selectedColor = JColorChooser.showDialog(SettingPanel.this, "Choose a chat background color",
+                    Color.decode(ResourceHandler.getSettings(Application.currentTheme.name, "Color1").orElse("#74B4E0")));
+
+            if (selectedColor != null)
+            {
+                ResourceHandler.changeSettings(Application.currentTheme.name , "Color1", convertColorToHex(selectedColor));
+            }
+        });
 		appearancePanel.add(colorButton1, "w 160");
 		
 		JLabel gradientColorEnd = new JLabel("Gradient End Color");
@@ -213,23 +207,17 @@ public class SettingPanel extends JDialog implements ActionListener
 		colorButton2.putClientProperty(FlatClientProperties.STYLE, "font: +2;" + "arc: 1;" + "focusWidth: 0;");
 		colorButton2.setToolTipText("Changes the chat background color\n"
 				+ "Pick the same color if you don't want the gradient background");
-		colorButton2.addActionListener(new ActionListener() {
-			
-			final String mode = Application.currentTheme == Theme.LIGHT_MODE ? "light_mode" : "dark_mode";
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				Color selectedColor = JColorChooser.showDialog(SettingPanel.this, "Choose a chat background color",
-						Color.decode(Objects.requireNonNull(ResourceHandler.getColorFileSettings(mode, "Color2"))));
-				
-				if (selectedColor != null)
-				{
-					ResourceHandler.changeColorFileSettings(mode + ".Color2", convertColorToHex(selectedColor));
-				}
-			}
-		});
-		appearancePanel.add(colorButton2, "w 160"); */
+		colorButton2.addActionListener(_ -> {
+
+            Color selectedColor = JColorChooser.showDialog(SettingPanel.this, "Choose a chat background color",
+                    Color.decode(ResourceHandler.getSettings(Application.currentTheme.name, "Color2").orElse("#74B4E0")));
+
+            if (selectedColor != null)
+            {
+                ResourceHandler.changeSettings(Application.currentTheme.name, "Color2", convertColorToHex(selectedColor));
+            }
+        });
+		appearancePanel.add(colorButton2, "w 160");
 		
 		return appearancePanel;
 	}
@@ -380,7 +368,9 @@ public class SettingPanel extends JDialog implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if (e.getSource() == changeButton)
+        Notifications.getInstance().setJDialog(this);
+
+        if (e.getSource() == changeButton)
 		{
 			JFileChooser chooser = new JFileChooser();
 			String lastDirectory = Application.userDetails.last_directory();

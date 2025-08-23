@@ -91,29 +91,8 @@ public class Natter extends JFrame
 		
 		JLabel timestampLabel = new JLabel(currentTime);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
-        timestampLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" +
-                "[dark]foreground: #FFFFFF");
+        timestampLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" + "[dark]foreground: #FFFFFF");
 		detailsPanel.add(timestampLabel);
-		
-		JPopupMenu popupMenu = new JPopupMenu();
-		
-		JMenuItem close = new JMenuItem("Close Chat",
-				new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/close icon.svg"))
-						.derive(13, 13)
-						.setColorFilter(Application.currentTheme == Theme.DARK_MODE ? new ColorFilter(_ -> Color.WHITE) : null));
-		
-		close.addActionListener(_ -> {
-			this.remove(chatComponent);
-			usersMap.put(receiver, chatComponent);
-			chatComponent = null;
-			this.add(appDesc, BorderLayout.CENTER);
-			ChatUI.userName = "";
-			chatItemPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000;" +
-                    "[dark]background: #00000000");
-			this.repaint();
-            this.revalidate();
-		});
-		popupMenu.add(close);
 		
 		chatItemPanel.add(detailsPanel, "al center, w 230!");
 		
@@ -133,8 +112,7 @@ public class Natter extends JFrame
                         }
 
                         selectedPanel = chatItemPanel;
-                        selectedPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #D2D2D2; " +
-                                "[dark]background: #515151");
+                        selectedPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #D2D2D2;" + "[dark]background: #515151");
 
 						if (usersMap.containsKey(receiver))
 						{
@@ -156,7 +134,7 @@ public class Natter extends JFrame
 				{
 					if (ChatUI.userName.equals(receiver))
 					{
-                        popupMenu.repaint();
+                        JPopupMenu popupMenu = buildPopupMenu(receiver, chatItemPanel);
 						popupMenu.show(chatItemPanel, evt.getX(), evt.getY());
 					}
 				}
@@ -167,6 +145,32 @@ public class Natter extends JFrame
 		
 		return chatItemPanel;
 	}
+
+    private JPopupMenu buildPopupMenu(String receiver, JPanel chatItemPanel)
+    {
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JMenuItem close = new JMenuItem("Close Chat",
+                new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/close icon.svg"))
+                        .derive(13, 13)
+                        .setColorFilter(Application.currentTheme == Theme.DARK_MODE ? new ColorFilter(_ -> Color.WHITE) : null));
+
+        close.addActionListener(_ -> {
+            this.remove(chatComponent);
+            usersMap.put(receiver, chatComponent);
+            chatComponent = null;
+            this.add(appDesc, BorderLayout.CENTER);
+            ChatUI.userName = "";
+            chatItemPanel.putClientProperty(FlatClientProperties.STYLE, "[light]background: #00000000;" + "[dark]background: #00000000");
+            this.repaint();
+            this.revalidate();
+        });
+
+        popupMenu.add(close);
+
+        SwingUtilities.updateComponentTreeUI(popupMenu);
+        return popupMenu;
+    }
 	
 	private JPanel appDesc()
 	{
@@ -181,8 +185,7 @@ public class Natter extends JFrame
 		JLabel label1 = new JLabel("<html>" + "<center><b>Chatting app for all PC's</b></center>" + "<br/>"
 				+ "No conversations selected" + "</html>");
 		label1.setFont(ResourceHandler.getFont("Roboto-Bold.ttf", 18f));
-        label1.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000; " +
-                "[dark]foreground: #FFFFFF");
+        label1.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" + "[dark]foreground: #FFFFFF");
 		panel.add(label1, "gapx 8, wrap, sg 1");
 		return panel;
 	}
@@ -291,7 +294,7 @@ public class Natter extends JFrame
                     else
                     {
                         Notifications.getInstance().setJFrame(this);
-                        Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.BOTTOM_CENTER, "User doesn't exist!");
+                        Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.BOTTOM_RIGHT, "User doesn't exist!");
                     }
                 }
             }
@@ -398,11 +401,13 @@ public class Natter extends JFrame
 	
 	public boolean containsIgnoreCase(ArrayList<String> list, String target)
 	{
-		for (String s : list)
-		{
-			if (s != null && s.equalsIgnoreCase(target))
-				return true;
-		}
+        if (list != null)
+        {
+            for (String s : list)
+            {
+                if (s.equalsIgnoreCase(target)) return true;
+            }
+        }
 		return false;
 	}
 	
@@ -433,29 +438,9 @@ public class Natter extends JFrame
 		
 		JLabel timestampLabel = new JLabel(time);
 		timestampLabel.setFont(ResourceHandler.getFont("ClearSans-Bold.ttf", 14f));
-        nameLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" +
+        timestampLabel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #000000;" +
                 "[dark]foreground: #FFFFFF");
 		detailsPanel.add(timestampLabel);
-		
-		JPopupMenu popupMenu = new JPopupMenu();
-		
-		JMenuItem close = new JMenuItem("Close Chat",
-				new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/close icon.svg"))
-                        .derive(13, 13)
-						.setColorFilter(Application.currentTheme == Theme.DARK_MODE ? new ColorFilter(_ -> Color.WHITE) : null));
-		
-		close.addActionListener(_ -> {
-			this.remove(chatComponent);
-			usersMap.put(receiver, chatComponent);
-			chatComponent = null;
-			this.add(appDesc, BorderLayout.CENTER);
-			ChatUI.userName = "";
-			chatItemPanel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #00000000; " +
-                    "[dark]foreground: #00000000");
-			this.repaint();
-            this.revalidate();
-		});
-		popupMenu.add(close);
 		
 		chatItemPanel.add(detailsPanel, "al center, w 230!");
 		
@@ -499,8 +484,8 @@ public class Natter extends JFrame
 				{
 					if (ChatUI.userName.equals(receiver))
 					{
+                        JPopupMenu popupMenu = buildPopupMenu(receiver, chatItemPanel);
 						popupMenu.show(chatItemPanel, evt.getX(), evt.getY());
-                        popupMenu.repaint();
 					}
 				}
 				repaint();
@@ -514,9 +499,18 @@ public class Natter extends JFrame
     public void updateTheme()
     {
         SwingUtilities.invokeLater(() -> {
-            repaint();
-            revalidate();
-            SwingUtilities.updateComponentTreeUI(chatComponent);
+
+            SwingUtilities.updateComponentTreeUI(this);
+
+            for (ChatUI panel : usersMap.values()) {
+                SwingUtilities.updateComponentTreeUI(panel);
+                panel.repaint();
+                panel.revalidate();
+            }
+
+            this.invalidate();
+            this.validate();
+            this.repaint();
         });
     }
 	

@@ -8,9 +8,20 @@ public class ScrollBar extends JScrollBar
 {
 	public ScrollBar()
 	{
-		setUI(new ModernScrollBarUI());
-		setPreferredSize(new Dimension(10, 5));
-		setOpaque(false);
-        setUnitIncrement(20);
+        update();
 	}
+
+    @Override
+    public void updateUI()
+    {
+        update();
+    }
+
+    private void update()
+    {
+        setUI(new ModernScrollBarUI());
+        setPreferredSize(new Dimension(10, 5));
+        setOpaque(false);
+        setUnitIncrement(20);
+    }
 }

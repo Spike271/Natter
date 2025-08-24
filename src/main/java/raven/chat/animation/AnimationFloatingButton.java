@@ -22,12 +22,12 @@ public class AnimationFloatingButton
 				if (show)
 				{
 					v = (int) (fraction * 40);
-				    layout.setComponentConstraints(com, "pos 100%-60 100%-" + v + ", w 34!, h 34!");
+				    layout.setComponentConstraints(com, "pos 100%-50 100%-" + v + ", w 34!, h 34!");
                 }
 				else
 				{
 					v = (int) ((1f - fraction) * 40);
-				    layout.setComponentConstraints(com, "pos 100%-60 100%+" + (v + 5) + ", w 34!, h 34!"); // 5 px offset
+				    layout.setComponentConstraints(com, "pos 100%-50 100%+" + (v + 5) + ", w 34!, h 34!"); // 5 px offset
                 }
 				com.revalidate();
 			}

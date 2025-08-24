@@ -83,7 +83,7 @@ public class ChatArea extends JPanel
         });
 		floatingButton = createFloatingButton();
 		layeredPane.setLayer(floatingButton, JLayeredPane.POPUP_LAYER);
-		layeredPane.add(floatingButton, "pos 100%-60 100%+10");
+		layeredPane.add(floatingButton, "pos 100%-50 100%+10");
 		layeredPane.add(scrollBody);
 		setLayout(layout);
 		add(header);
@@ -210,10 +210,15 @@ public class ChatArea extends JPanel
 	
 	private JScrollPane createScroll()
 	{
-		JScrollPane scroll = new JScrollPane();
-		scroll.setBorder(null);
-		scroll.setViewportBorder(null);
-		return scroll;
+        return new JScrollPane() {
+            @Override
+            public void updateUI()
+            {
+                super.updateUI();
+                setBorder(null);
+                setViewportBorder(null);
+            }
+        };
 	}
 	
 	public void addChatBox(ModelMessage message, ChatBox.BoxType type)

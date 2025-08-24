@@ -202,7 +202,7 @@ public class Natter extends JFrame
 			if (usersMap.containsKey(receiver))
             {
                 add(usersMap.get(ChatUI.userName));
-                ChatUI.userName = receiver; // TODO: BEWARE
+                ChatUI.userName = receiver;
             }
 			else
 			{
@@ -226,19 +226,29 @@ public class Natter extends JFrame
 	
 	private JScrollPane createScroll()
 	{
-		JScrollPane scroll = new JScrollPane();
-		scroll.setBorder(null);
-		scroll.setViewportBorder(null);
-		return scroll;
+		 return new JScrollPane()
+         {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setBorder(null);
+                setViewportBorder(null);
+            }
+        };
 	}
 	
 	private void addGuiComponents()
 	{
-		usersPanel = new JPanel();
-		usersPanel.setLayout(new MigLayout("wrap, insets 10, gapy 4", "[290:310:320]", ""));
-        usersPanel.putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #FCFCFC; " +
-                "[dark]foreground: #2C2C2C;" +
-                "border: 1, 0, 0, 1, #515151");
+		usersPanel = new JPanel()
+        {
+            @Override
+            public void updateUI()
+            {
+                super.updateUI();
+                putClientProperty(FlatClientProperties.STYLE, "[light]foreground: #FCFCFC; " + "[dark]foreground: #2C2C2C;" + "border: 0, 0, 0, 1, #515151");
+            }
+        };
+        usersPanel.setLayout(new MigLayout("wrap, insets 10, gapy 4", "[290:310:320]", ""));
 
         // chats heading
 		JLabel userPanelHeading = new JLabel("Chats");

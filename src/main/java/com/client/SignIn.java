@@ -55,7 +55,7 @@ public class SignIn extends CustomJFrame implements ActionListener
 	protected void addCloseOperation()
 	{
 		closeButton.addActionListener(_ -> {
-            ResourceHandler.changeSettings("Global", "isDark", themeButton.isSelected() ? "true" : "false");
+            ResourceHandler.changeSettings("Global", "Theme", themeButton.isSelected() ? "DARK_MODE" : "LIGHT_MODE");
             System.exit(0);
         });
 	}

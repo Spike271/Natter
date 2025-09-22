@@ -375,38 +375,55 @@ public class SignUp extends CustomJFrame implements ActionListener
 			}
 		});
 	}
-	
-	private void firstCharacterOfTheTextFieldShouldBeALetter(JTextField textField)
-	{
-		PlainDocument doc = (PlainDocument) textField.getDocument();
-		
-		doc.setDocumentFilter(new DocumentFilter() {
 
-			@Override
-			public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
-					throws BadLocationException
-			{
-				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), offset);
-				super.insertString(fb, offset, newText, attr);
-			}
-			
-			@Override
-			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
-					throws BadLocationException
-			{
-				String newText = validateInput(fb.getDocument().getText(0, fb.getDocument().getLength()), offset);
-				super.replace(fb, offset, length, newText, attrs);
-			}
-			
-			private String validateInput(String newText, int offset)
-			{
-				if (offset == 0 && !newText.isEmpty())
-				{
-					char firstChar = newText.charAt(0);
-					if (!Character.isLetter(firstChar)) return "";
-				}
-				return newText;
-			}
-		});
-	}
+    private void firstCharacterOfTheTextFieldShouldBeALetter(JTextField textField)
+    {
+        PlainDocument doc = (PlainDocument) textField.getDocument();
+
+        doc.setDocumentFilter(new DocumentFilter() {
+
+            @Override
+            public void insertString(FilterBypass fb, int offset, String text, AttributeSet attrs)
+                    throws BadLocationException
+            {
+                if (text == null) return;
+
+                String filteredText = text.replace("$", "");
+
+                // Build prospective content after this insert
+                String current = fb.getDocument().getText(0, fb.getDocument().getLength());
+                StringBuilder prospective = new StringBuilder(current);
+                prospective.insert(offset, filteredText);
+
+                // Validate: first character (if any) must be a letter
+                if (!prospective.isEmpty() && !Character.isLetter(prospective.charAt(0))) {
+                    return; // reject insert
+                }
+
+                super.insertString(fb, offset, filteredText, attrs);
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException
+            {
+                String incoming = (text == null) ? "" : text;
+
+                // Strip '$' from the incoming text
+                String filteredText = incoming.replace("$", "");
+
+                // Build prospective content after this replace
+                String current = fb.getDocument().getText(0, fb.getDocument().getLength());
+                StringBuilder prospective = new StringBuilder(current);
+                prospective.replace(offset, offset + length, filteredText);
+
+                // Validate: first character (if any) must be a letter
+                if (!prospective.isEmpty() && !Character.isLetter(prospective.charAt(0))) {
+                    return; // reject replace
+                }
+
+                super.replace(fb, offset, length, filteredText, attrs);
+            }
+        });
+    }
 }

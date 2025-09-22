@@ -5,6 +5,8 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import global.ResourceHandler;
 import global.Theme;
 import net.miginfocom.swing.MigLayout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import raven.toast.Notifications;
 
 import javax.imageio.ImageIO;
@@ -16,18 +18,23 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class SettingPanel extends JDialog implements ActionListener
 {
-	private JPanel appearancePanel;
+    private static final Logger log = LoggerFactory.getLogger(SettingPanel.class);
+    private JPanel appearancePanel;
 	private JPanel profilePanel;
 	private JPanel placeHolderPanel;
     private JPanel securityPanel;
@@ -98,7 +105,7 @@ public class SettingPanel extends JDialog implements ActionListener
 		buttons[0].putClientProperty(FlatClientProperties.STYLE, "focusWidth: 0;" + "font:bold +3");
 		buttons[0].addActionListener(_ -> {
 			placeHolderPanel.removeAll();
-			placeHolderPanel.add(profilePanel);
+			if (profilePanel != null) placeHolderPanel.add(profilePanel);
 			repaint();
 			revalidate();
             SwingUtilities.updateComponentTreeUI(profilePanel);
@@ -323,44 +330,54 @@ public class SettingPanel extends JDialog implements ActionListener
 
 	private BufferedImage loadImageWithoutExtension(String baseName)
 	{
-		try
-		{
-			String[] extensions = { "jpg", "jpeg", "png" };
-			BufferedImage image;
-			
-			for (String ext : extensions)
-			{
-				File file;
-				String path = getPathString() + "profile/";
-				file = new File(path + baseName + "." + ext);
-				if (file.exists())
-				{
-					image = ImageIO.read(file);
-					if (image != null) return image;
-				}
-			}
-		}
-		catch (Exception _) {}
+        String path = getPathString() + "profile/";
+        BufferedImage image;
 
+        if (baseName.equals("null"))
+        {
+            File file = new File(path + baseName + ".png");
+            if (file.exists())
+            {
+                try
+                {
+                    image = ImageIO.read(file);
+                    if (image != null) return image;
+                } catch (IOException _) {}
+            }
+        }
+        else
+        {
+            Path dir = new File(Application.jarFilePath + "profile/").toPath();
+            try (Stream<Path> stream = Files.list(dir))
+            {
+                String fileName = stream.filter(Files::isRegularFile)
+                        .filter(p -> p.getFileName().toString().startsWith(Application.userDetails.username()))
+                        .map(p -> p.getFileName().toString())
+                        .findFirst().orElse("");
+
+                image = ImageIO.read(new File(path + fileName));
+                return image;
+            }
+            catch (IOException _) {}
+        }
 		return null;
 	}
 	
-	private Optional<File> loadFilePath(String fileName)
+	private Optional<File> loadFilePath()
 	{
-		try
-		{
-			String[] extensions = { "jpg", "jpeg", "png" };
-			
-			for (String ext : extensions)
-			{
-				File file;
-				String path = getPathString() + "profile/";
-				file = new File(path + fileName + "." + ext);
+        Path dir = new File(Application.jarFilePath + "profile/").toPath();
+        try (Stream<Path> stream = Files.list(dir))
+        {
+            String fileName = stream.filter(Files::isRegularFile)
+                    .filter(p -> p.getFileName().toString().startsWith(Application.userDetails.username()))
+                    .map(p -> p.getFileName().toString())
+                    .findFirst().orElse("");
 
-				if (file.exists()) return Optional.of(file);
-			}
-		}
-		catch (Exception _) {}
+            String path = getPathString() + "profile/";
+            File file = new File(path + fileName);
+			if (file.exists()) return Optional.of(file);
+        }
+        catch (IOException _) {}
 
 		return Optional.empty();
 	}
@@ -386,43 +403,56 @@ public class SettingPanel extends JDialog implements ActionListener
 			
 			if (userSelection == JFileChooser.APPROVE_OPTION)
 			{
+                LocalDateTime dateTime1 = null;
 				final File filePath = chooser.getSelectedFile();
 				String targetDirectoryPath = getPathString() + "profile/";
 
-				Path sourcePath = filePath.toPath();
-				Path targetPath = new File(targetDirectoryPath, USERNAME + getFileExtension(filePath.getName())).toPath();
-				
-				try
-				{
-                    Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                    ResourceHandler.updatePathInLocalDB(filePath.getParent());
-				}
-				catch (Exception e1) {
-                    System.err.println(e1.getClass().getName() + ": " + e1.getMessage());
-                }
-				
-				try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
-					 PreparedStatement pstmt = conn.prepareStatement("UPDATE pfp SET Profile_picture = ?, Image_extension = ? WHERE Username = ?"))
+                // upload the pfp into the database
+				try (final Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
+					 final PreparedStatement pstmt = conn.prepareStatement("UPDATE pfp SET Profile_picture = ?, Image_extension = ? WHERE Username = ?"))
 				{
 					try (FileInputStream fileInputStream = new FileInputStream(filePath))
                     {
                         String fileExtension = getFileExtension(filePath.getName());
-                        byte[] imageData = new byte[fileInputStream.available()];
-                        pstmt.setBytes(1, imageData);
+                        pstmt.setBinaryStream(1, fileInputStream);
                         pstmt.setString(2, fileExtension);
                         pstmt.setString(3, USERNAME);
                         pstmt.executeUpdate();
                     }
-
-					profilePic.setIcon(new ImageIcon(getScaledImage(Objects.requireNonNull(loadImageWithoutExtension(USERNAME)))));
-					repaint();
-
                     Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT, "Profile picture successfully Uploaded.");
+                    ResourceHandler.updatePathInLocalDB(filePath.getParent());
+
+                    try (ResultSet rs = conn.createStatement().executeQuery("select last_updated from pfp where Username = '" + USERNAME + "'"))
+                    {
+                        while (rs.next())
+                        {
+                            dateTime1 = (LocalDateTime) rs.getObject("last_updated");
+                        }
+                    }
 				}
 				catch (Exception e2)
 				{
+                    log.error("e: ", e2);
 					JOptionPane.showMessageDialog(this, "Something went wrong.\nPlease, Try again later.");
+                    return;
 				}
+
+                // copy the pfp into the local folder called pfp
+                Path sourcePath = filePath.toPath();
+                assert dateTime1 != null;
+                var tempDateTime =  dateTime1.toString().replaceAll(":", "-");
+                Path targetPath = new File(targetDirectoryPath, USERNAME + "$" + tempDateTime + getFileExtension(filePath.getName())).toPath();
+
+                try
+                {
+                    Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+                    profilePic.setIcon(new ImageIcon(getScaledImage(Objects.requireNonNull(loadImageWithoutExtension(USERNAME)))));
+                    repaint();
+                }
+                catch (Exception e1) {
+                    log.error("e: ", e1);
+                }
 			}
 		}
 		
@@ -430,12 +460,12 @@ public class SettingPanel extends JDialog implements ActionListener
 		{
 			try (Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
 				 PreparedStatement pstmt = conn.prepareStatement(
-							"UPDATE pfp SET Profile_picture = NULL, Image_extension = NULL WHERE Username = ?"))
+							"UPDATE pfp SET Profile_picture = NULL, Image_extension = NULL, last_updated = NULL WHERE Username = ?"))
 			{
 				pstmt.setString(1, USERNAME);
 				pstmt.executeUpdate();
 				
-				File file = loadFilePath(USERNAME).orElseThrow();
+				File file = loadFilePath().orElseThrow();
 
                 if (file.delete())
 				{
@@ -448,15 +478,16 @@ public class SettingPanel extends JDialog implements ActionListener
 				}
 				repaint();
 			}
-			catch (Exception _)
+			catch (Exception e1)
 			{
+                log.error("e: ", e1);
 				JOptionPane.showMessageDialog(this, "Unable to delete the profile picture.");
 			}
 		}
         else if (e.getSource() == logOutButton)
         {
-            int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Log Out",
-                    JOptionPane.YES_NO_OPTION);
+            int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Log Out", JOptionPane.YES_NO_OPTION);
+
             if (result == JOptionPane.YES_OPTION)
             {
                 ResourceHandler.deleteLocalDB();

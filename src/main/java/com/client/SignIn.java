@@ -1,25 +1,18 @@
 package com.client;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
-import javax.swing.*;
-
+import com.formdev.flatlaf.FlatClientProperties;
 import global.ResourceHandler;
 import global.Theme;
 import org.jdesktop.swingx.JXHyperlink;
 
-import com.formdev.flatlaf.FlatClientProperties;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 
 public class SignIn extends CustomJFrame implements ActionListener
 {
@@ -180,28 +173,7 @@ public class SignIn extends CustomJFrame implements ActionListener
 							
 							if (!checkIfPfpAlreadyExistOrNot(username))
 							{
-								String query1 = "select Profile_Picture, Image_extension from pfp where Username = ?";
-								
-								try (PreparedStatement getPfp = connection.prepareStatement(query1))
-								{
-									getPfp.setString(1, username);
-									ResultSet rs = getPfp.executeQuery();
-									
-									if (rs.next())
-									{
-										byte[] imageData = rs.getBytes("Profile_picture");
-										
-										if (imageData != null)
-										{
-											String imageExtension = rs.getString("Image_extension");
-											String imagePath = getPathString() + "profile/" + username + imageExtension;
-											OutputStream outputStream = new FileOutputStream(imagePath);
-											outputStream.write(imageData);
-											outputStream.close();
-										}
-									}
-								}
-								catch (Exception _) {}
+                                ResourceHandler.downloadPfp(username, getPathString() + "profile/");
 							}
 							
 							Application.natter.setVisible(true);

@@ -8,15 +8,27 @@ import global.ResourceHandler;
 import global.Theme;
 import global.UpdateTheme;
 import global.UserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 public class Application
 {
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
     public static SignIn signIn;
     public static SignUp signUp;
     public static Natter natter;
@@ -54,6 +66,7 @@ public class Application
         else FlatMacLightLaf.setup();
 
         userDetails = ResourceHandler.getLocalData();
+        ComparePfpTime();
 
         if (userDetails != null)
         {
@@ -66,6 +79,56 @@ public class Application
             init();
             initMainUi();
         }
+    }
+
+    private static void ComparePfpTime()
+    {
+        Path dir = new File(Application.jarFilePath + "profile/").toPath();
+        try (Stream<Path> stream = Files.list(dir))
+        {
+           String fileName = stream.filter(Files::isRegularFile)
+                    .filter(p -> p.getFileName().toString().startsWith(Application.userDetails.username()))
+                    .map(p -> p.getFileName().toString())
+                    .findFirst().orElse("");
+
+           if (!fileName.isEmpty())
+           {
+               String[] temp = fileName.split("\\$");
+               String[] date = temp[1].split("T");
+               String[] time = date[1].replaceAll("-", ":").split("\\.");
+
+               LocalDateTime localPfpDateTime = LocalDateTime.parse(date[0] + "T" + time[0]);
+               LocalDateTime serverPfpDateTime = null;
+               System.out.println(localPfpDateTime);
+
+               try (final Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
+                    ResultSet rs = conn.createStatement().executeQuery("select last_updated from pfp where Username = '" + Application.userDetails.username() + "'"))
+               {
+                   while (rs.next())
+                   {
+                      serverPfpDateTime  = (LocalDateTime) rs.getObject("last_updated");
+                      System.out.println(serverPfpDateTime);
+                      if (localPfpDateTime.isBefore(serverPfpDateTime))
+                      {
+                          System.out.println("Pfp is outdated");
+                      }
+                      else
+                      {
+                          System.out.println("Pfp is up to date");
+                      }
+                   }
+               }
+               catch (SQLException e)
+               {
+                   log.error("Error while comparing pfp time", e);
+               }
+           }
+           else
+           {
+                ResourceHandler.downloadPfp(Application.userDetails.username(), Application.jarFilePath + "profile/");
+           }
+        }
+        catch (IOException _) {}
     }
 
     private static void init()
@@ -86,6 +149,7 @@ public class Application
 
             ps = new PasswordWindow();
             natter = new Natter();
+            CreateSystemTray.createTrayIcon();
         });
     }
 

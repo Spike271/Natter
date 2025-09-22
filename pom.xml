@@ -73,9 +73,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.xerial</groupId>
+			<groupId>io.github.willena</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.41.2.2</version>
+			<version>3.50.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>2.0.13</version>
 		</dependency>
 
 		<dependency>

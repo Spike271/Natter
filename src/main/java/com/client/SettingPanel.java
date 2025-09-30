@@ -57,7 +57,7 @@ public class SettingPanel extends JDialog implements ActionListener
 	
 	private void init()
 	{
-		USERNAME = Application.userDetails.username();
+		USERNAME = Application.user.username();
 		Thread t1 = Thread.ofVirtual().start((() -> profilePanel = createProfilePanel()));
 
 		this.setLayout(new MigLayout("fill, insets 20", "[center, fill]"));
@@ -78,15 +78,17 @@ public class SettingPanel extends JDialog implements ActionListener
             t1.join();
 			thread.start();
 		}
-		catch (Exception _) {}
+		catch (Exception e) {
+            log.error("Error occurred while initializing the SettingPanel: {}", e.getMessage());
+        }
 	}
 	
 	private JPanel createPlaceHolderPanel()
 	{
 		JPanel placeHolderPanel = new JPanel();
 		placeHolderPanel.setLayout(new MigLayout("fillx", "[fill]", "[]"));
-		placeHolderPanel.putClientProperty(FlatClientProperties.STYLE, "arc: 20;"
-				+ "[light]background:darken(@background, 5%);" + "[dark]background:lighten(@background, 5%);");
+		placeHolderPanel.putClientProperty(FlatClientProperties.STYLE, "arc: 20;" + "[light]background:darken(@background, 5%);"
+                                                                                  + "[dark]background:lighten(@background, 5%);");
 		placeHolderPanel.setMinimumSize(new Dimension(600, getHeight()));
 		
 		return placeHolderPanel;
@@ -304,7 +306,7 @@ public class SettingPanel extends JDialog implements ActionListener
 		
 		JCheckBox checkBox = new JCheckBox("Enable");
 		checkBox.putClientProperty(FlatClientProperties.STYLE, "font:bold +6;" + "icon.focusWidth: 0;");
-		checkBox.setSelected(Application.userDetails.isPasswordEnabled());
+		checkBox.setSelected(Application.user.isPasswordEnabled());
 		securityPanel.add(checkBox);
 		
 		JLabel passwordLabel = new JLabel("Password");
@@ -315,7 +317,7 @@ public class SettingPanel extends JDialog implements ActionListener
 		passwordField.putClientProperty(FlatClientProperties.STYLE,
 				"font:bold +5;" + "showRevealButton: true;" + "focusWidth: 0;" + "showClearButton: true;");
 		passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
-		passwordField.setText(Application.userDetails.password());
+		passwordField.setText(Application.user.password());
 		securityPanel.add(passwordField, "w 150, h 30");
 		
 		JButton button = new JButton("Save");
@@ -351,9 +353,10 @@ public class SettingPanel extends JDialog implements ActionListener
             try (Stream<Path> stream = Files.list(dir))
             {
                 String fileName = stream.filter(Files::isRegularFile)
-                        .filter(p -> p.getFileName().toString().startsWith(Application.userDetails.username()))
+                        .filter(p -> p.getFileName().toString().startsWith(Application.user.username()))
                         .map(p -> p.getFileName().toString())
-                        .findFirst().orElse("");
+                        .findFirst()
+                        .orElse("");
 
                 image = ImageIO.read(new File(path + fileName));
                 return image;
@@ -369,7 +372,7 @@ public class SettingPanel extends JDialog implements ActionListener
         try (Stream<Path> stream = Files.list(dir))
         {
             String fileName = stream.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().startsWith(Application.userDetails.username()))
+                    .filter(p -> p.getFileName().toString().startsWith(Application.user.username()))
                     .map(p -> p.getFileName().toString())
                     .findFirst().orElse("");
 
@@ -390,9 +393,9 @@ public class SettingPanel extends JDialog implements ActionListener
         if (e.getSource() == changeButton)
 		{
 			JFileChooser chooser = new JFileChooser();
-			String lastDirectory = Application.userDetails.last_directory();
+			String lastDirectory = Application.user.last_directory();
+
             if (lastDirectory == null) lastDirectory = "";
-			
 			if (!lastDirectory.isBlank()) chooser.setCurrentDirectory(new File(lastDirectory));
 			
 			chooser.setDialogTitle("Select the Image File");
@@ -403,7 +406,7 @@ public class SettingPanel extends JDialog implements ActionListener
 			
 			if (userSelection == JFileChooser.APPROVE_OPTION)
 			{
-                LocalDateTime dateTime1 = null;
+                LocalDateTime uploadDateTime = null;
 				final File filePath = chooser.getSelectedFile();
 				String targetDirectoryPath = getPathString() + "profile/";
 
@@ -426,21 +429,25 @@ public class SettingPanel extends JDialog implements ActionListener
                     {
                         while (rs.next())
                         {
-                            dateTime1 = (LocalDateTime) rs.getObject("last_updated");
+                            uploadDateTime = (LocalDateTime) rs.getObject("last_updated");
                         }
                     }
 				}
-				catch (Exception e2)
-				{
-                    log.error("e: ", e2);
+				catch (Exception e2) {
+                    log.error("{}", e2.toString());
 					JOptionPane.showMessageDialog(this, "Something went wrong.\nPlease, Try again later.");
                     return;
 				}
 
                 // copy the pfp into the local folder called pfp
                 Path sourcePath = filePath.toPath();
-                assert dateTime1 != null;
-                var tempDateTime =  dateTime1.toString().replaceAll(":", "-");
+                assert uploadDateTime != null;
+
+                // convert yyyy-MM-dd-HH-mm-ss to Android like(yyyyMMdd_HHmmss)
+                // no milliseconds because mysql doesn't support it' (and we don't need it for this purpose')
+                String tempDateTime = uploadDateTime.toString()
+                                    .replaceAll(":", "")
+                                    .replaceAll("T", "_");
                 Path targetPath = new File(targetDirectoryPath, USERNAME + "$" + tempDateTime + getFileExtension(filePath.getName())).toPath();
 
                 try
@@ -451,7 +458,7 @@ public class SettingPanel extends JDialog implements ActionListener
                     repaint();
                 }
                 catch (Exception e1) {
-                    log.error("e: ", e1);
+                    log.error("{}", e1.toString());
                 }
 			}
 		}
@@ -465,9 +472,9 @@ public class SettingPanel extends JDialog implements ActionListener
 				pstmt.setString(1, USERNAME);
 				pstmt.executeUpdate();
 				
-				File file = loadFilePath().orElseThrow();
+				File pfpLocalCopy = loadFilePath().orElseThrow();
 
-                if (file.delete())
+                if (pfpLocalCopy.delete())
 				{
                     Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT, "Profile picture successfully removed.");
 					profilePic.setIcon(new ImageIcon(getScaledImage(Objects.requireNonNull(loadImageWithoutExtension("null")))));
@@ -502,7 +509,7 @@ public class SettingPanel extends JDialog implements ActionListener
 	{
 		String password = new String(passwordField.getPassword());
         ResourceHandler.updateIsEnabledInLocalDB(chk.isSelected());
-        ResourceHandler.updatePassword(Application.userDetails.username(), password);
+        ResourceHandler.updatePassword(Application.user.username(), password);
 	}
 	
 	private String getFileExtension(String fileName)
@@ -521,15 +528,17 @@ public class SettingPanel extends JDialog implements ActionListener
 	
 	private String convertColorToHex(Color color)
 	{
+        StringBuilder hexColor = new StringBuilder("#");
+
 		int red = color.getRed();
 		int green = color.getGreen();
 		int blue = color.getBlue();
 		
-		String hexRed = String.format("%02X", red);
-		String hexGreen = String.format("%02X", green);
-		String hexBlue = String.format("%02X", blue);
+		hexColor.append(String.format("%02X", red));
+		hexColor.append(String.format("%02X", green));
+		hexColor.append(String.format("%02X", blue));
 		
-		return "#" + hexRed + hexGreen + hexBlue;
+		return hexColor.toString();
 	}
 	
 	private Image getScaledImage(BufferedImage originalImage)
@@ -557,8 +566,10 @@ public class SettingPanel extends JDialog implements ActionListener
 
     private JButton createJButton(String text, String iconName)
     {
-        return new JButton(text, new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/" + iconName + ".svg"))
-                .derive(18, 18).setColorFilter(filterForCurrentTheme()));
+        FlatSVGIcon icon = new FlatSVGIcon(new File(Application.jarFilePath + "res/icons/" + iconName + ".svg"))
+                           .derive(18, 18)
+                           .setColorFilter(filterForCurrentTheme());
+        return new JButton(text, icon);
     }
 
     private void updateIconFiltersForCurrentTheme()

@@ -1,5 +1,10 @@
 package com.client;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -7,14 +12,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 public class UserInfo
 {
 	private static final String backupFile = Application.jarFilePath + "res/backup/Receivers.json";
-	
-	public static void addNewUser(String user, String time)
+    private static final Logger log = LoggerFactory.getLogger(UserInfo.class);
+
+    public static void addNewUser(String user, String time)
 	{
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		File file = new File(backupFile);
@@ -48,12 +51,14 @@ public class UserInfo
 					}
 				}
 			}
-			catch (IOException _) {}
+			catch (IOException e) {
+			    log.error(e.toString());
+            }
 			return users;
 		}
 		else
 		{
-			System.err.println("File 'receivers.json' not found.");
+			log.error("File 'receivers.json' not found.");
 			return new ArrayList<>(0);
 		}
 	}
@@ -86,7 +91,9 @@ public class UserInfo
 			wrapper.Receivers = receivers;
 			gson.toJson(wrapper, writer);
 		}
-		catch (IOException _) {}
+		catch (IOException e) {
+            log.error(e.toString());
+        }
 	}
 
     public static void clearAllConversations()
@@ -98,7 +105,9 @@ public class UserInfo
             {
                 writer.write("");
             }
-            catch (IOException _) {}
+            catch (IOException e) {
+                log.error(e.toString());
+            }
         }
     }
 	

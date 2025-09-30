@@ -128,7 +128,7 @@ public class Natter extends JFrame
                         }
                         else
                         {
-                            String userString = Application.userDetails.username();
+                            String userString = Application.user.username();
                             showChatUI(userString, receiver, createProfilePic(userString), profileImage);
                         }
                     }
@@ -475,7 +475,7 @@ public class Natter extends JFrame
                         }
                         else
                         {
-                            String userString = Application.userDetails.username();
+                            String userString = Application.user.username();
                             showChatUI(userString, receiver, createProfilePic(userString), profileImage);
                         }
                     }

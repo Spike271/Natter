@@ -2,21 +2,20 @@ package com.client;
 
 import raven.chat.swing.scroll.ModernScrollBarUI;
 
-import java.awt.Dimension;
-
-import javax.swing.JScrollBar;
+import javax.swing.*;
+import java.awt.*;
 
 public class CustomScrollBar extends JScrollBar
 {
     public CustomScrollBar()
     {
-        update();
+        this.update();
     }
 
     @Override
     public void updateUI()
     {
-        update();
+        this.update();
     }
 
     private void update()

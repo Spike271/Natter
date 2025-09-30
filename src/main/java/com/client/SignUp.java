@@ -4,6 +4,8 @@ import com.formdev.flatlaf.FlatClientProperties;
 import global.ResourceHandler;
 import global.Theme;
 import org.jdesktop.swingx.JXHyperlink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import raven.toast.Notifications;
 
 import javax.swing.*;
@@ -22,7 +24,8 @@ import java.sql.PreparedStatement;
 
 public class SignUp extends CustomJFrame implements ActionListener
 {
-	private JXHyperlink clickableLabel;
+    private static final Logger log = LoggerFactory.getLogger(SignUp.class);
+    private JXHyperlink clickableLabel;
 	private GradientToggleButton themeButton;
 	private JButton submitButton;
 	private JTextField firstNameField, lastNameField, userNameField;
@@ -258,10 +261,10 @@ public class SignUp extends CustomJFrame implements ActionListener
 						submitButton.setEnabled(false);
 						repaint();
 						
-						final String Query = "INSERT INTO account_info VALUES (NULL, ?, ?, ?, ?, ?)";
+						final String insertQuery = "INSERT INTO account_info VALUES (NULL, ?, ?, ?, ?, ?)";
 						
 						try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
-							 PreparedStatement preparedStatement = connection.prepareStatement(Query))
+							 PreparedStatement preparedStatement = connection.prepareStatement(insertQuery))
 						{
 							preparedStatement.setString(1, firstName);
 							preparedStatement.setString(2, lastName);
@@ -275,7 +278,7 @@ public class SignUp extends CustomJFrame implements ActionListener
 
                             ResourceHandler.createLocalDB();
                             ResourceHandler.insertDataInLocalDB(userName, null);
-                            Application.userDetails = ResourceHandler.getLocalData();
+                            Application.user = ResourceHandler.getLocalData();
 
                             Application.natter.setVisible(true);
 							this.setVisible(false);
@@ -331,12 +334,11 @@ public class SignUp extends CustomJFrame implements ActionListener
 			}
 			else
 			{
-				System.out.println("No MAC address found for the network interface.");
+				log.info("No MAC address found for the network interface.");
 			}
 		}
-		catch (Exception e)
-		{
-			System.err.println("Error retrieving network interfaces: " + e.getMessage());
+		catch (Exception e) {
+            log.error("Error retrieving network interfaces: {}", e.getMessage());
 		}
 		return null;
 	}

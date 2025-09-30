@@ -19,7 +19,7 @@ public class ResourceHandler
     private static final Logger log = LoggerFactory.getLogger(ResourceHandler.class);
     private static final String jarFilePath = Application.jarFilePath;
     private static final String settingFile = "res/Settings/settings.ini";
-    private static final String url = "jdbc:sqlite:file:mydatabase.db?cipher=chacha20&key=S:3,FAv.vE#pRL>";
+    private static final String SQLITE_CONNECTION_URL = "jdbc:sqlite:file:mydatabase.db?cipher=chacha20&key=S:3,FAv.vE#pRL>";
 
     public static Optional<String> getSettings(String section, String key)
     {
@@ -30,9 +30,9 @@ public class ResourceHandler
             String result = ini.get(section, key);
 
             if (result != null) return Optional.of(result);
-        } catch (IOException e)
-        {
-            System.err.println("cannot find the config file\ncalled from getSettings()\n" + jarFilePath + settingFile);
+        }
+        catch (IOException e) {
+            log.error("cannot find the config file\ncalled from getSettings()\n{}" + settingFile, jarFilePath);
         }
         return Optional.empty();
     }
@@ -47,9 +47,9 @@ public class ResourceHandler
 
             ini.put(section, key, value);
             ini.store();
-        } catch (IOException e)
-        {
-            System.err.println("cannot find the config file\ncalled from changeSettings()");
+        }
+        catch (IOException e) {
+            log.error("cannot find the config file\ncalled from changeSettings()");
         }
     }
 
@@ -61,9 +61,9 @@ public class ResourceHandler
         {
             FontFile = getFontFile(jarFilePath + "res/Fonts/" + name);
             font = Font.createFont(Font.TRUETYPE_FONT, FontFile).deriveFont(size);
-        } catch (Exception e)
-        {
-            System.err.println("could not find the font\nCalled from getFont");
+        }
+        catch (Exception e) {
+            log.error("could not find the font\nCalled from getFont");
         }
         return font;
     }
@@ -74,13 +74,12 @@ public class ResourceHandler
         {
             relFilePath = relFilePath.replaceAll("%20", " ");
         }
-
         return new File(relFilePath);
     }
 
     public static void createLocalDB()
     {
-        try (Connection conn = DriverManager.getConnection(url))
+        try (Connection conn = DriverManager.getConnection(SQLITE_CONNECTION_URL))
         {
             String createTable = "CREATE TABLE IF NOT EXISTS localdata" +
                     "(Username VARCHAR(40) PRIMARY KEY, isEnabled BOOLEAN, Password VARCHAR(30), last_directory text)";
@@ -88,93 +87,95 @@ public class ResourceHandler
             try (Statement stmt = conn.createStatement())
             {
                 if (stmt.execute(createTable))
-                    System.out.println("Table created");
+                {
+                    log.info("Table created");
+                }
             }
-        } catch (SQLException e)
-        {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+        catch (SQLException e) {
+            log.error("{}", e.toString());
         }
     }
 
     public static void insertDataInLocalDB(String username, String password)
     {
-        try (Connection conn = DriverManager.getConnection(url))
+        try (Connection conn = DriverManager.getConnection(SQLITE_CONNECTION_URL))
         {
-            String insert = "INSERT INTO localdata(Username, Password) VALUES(?, ?)";
-            try (PreparedStatement pstmt = conn.prepareStatement(insert))
+            String insertQuery = "INSERT INTO localdata(Username, Password) VALUES(?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(insertQuery))
             {
                 pstmt.setString(1, username);
                 pstmt.setString(2, password);
                 pstmt.executeUpdate();
             }
-        } catch (SQLException e)
-        {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+        catch (SQLException e) {
+            log.error("{}", e.toString());
         }
     }
 
     public static void updateIsEnabledInLocalDB(boolean boolValue)
     {
-        try (Connection conn = DriverManager.getConnection(url))
+        try (Connection conn = DriverManager.getConnection(SQLITE_CONNECTION_URL))
         {
-            String insert = "Update localdata SET isEnabled = ? where Username = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(insert))
+            String updateQuery = "Update localdata SET isEnabled = ? WHERE Username = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateQuery))
             {
                 pstmt.setBoolean(1, boolValue);
-                pstmt.setString(2, Application.userDetails.username());
+                pstmt.setString(2, Application.user.username());
                 pstmt.executeUpdate();
             }
-        } catch (SQLException e)
-        {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+        catch (SQLException e) {
+            log.error("{}", e.toString());
         }
     }
 
     public static void updatePathInLocalDB(String last_directory)
     {
-        try (Connection conn = DriverManager.getConnection(url))
+        try (Connection conn = DriverManager.getConnection(SQLITE_CONNECTION_URL))
         {
-            String insert = "Update localdata SET last_directory = ? where Username = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(insert))
+            String updateQuery = "Update localdata SET last_directory = ? WHERE Username = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateQuery))
             {
                 pstmt.setString(1, last_directory);
-                pstmt.setString(2, Application.userDetails.username());
+                pstmt.setString(2, Application.user.username());
                 pstmt.executeUpdate();
             }
-        } catch (SQLException e)
-        {
+        }
+        catch (SQLException e) {
             log.error("{}: {}", e.getClass().getName(), e.getMessage());
         }
     }
 
     public static void updatePassword(String username, String password)
     {
-        try (Connection conn = DriverManager.getConnection(url))
+        try (Connection conn = DriverManager.getConnection(SQLITE_CONNECTION_URL))
         {
-            String insert = "Update localdata SET Password = ? where Username = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(insert))
+            String updateQuery = "Update localdata SET Password = ? WHERE Username = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateQuery))
             {
                 pstmt.setString(1, password);
                 pstmt.setString(2, username);
                 pstmt.executeUpdate();
             }
-        } catch (SQLException e)
-        {
+        }
+        catch (SQLException e) {
             log.error("{}: {}", e.getClass().getName(), e.getMessage());
         }
     }
 
-    public static UserDetails getLocalData()
+    public static User getLocalData()
     {
-        try (Connection conn = DriverManager.getConnection(url))
+        try (Connection conn = DriverManager.getConnection(SQLITE_CONNECTION_URL))
         {
-            String query = "SELECT Username, isEnabled, Password, last_directory FROM localdata";
+            String fetchQuery = "SELECT Username, isEnabled, Password, last_directory FROM localdata";
             try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery(query))
+                 ResultSet rs = stmt.executeQuery(fetchQuery))
             {
                 if (rs.next())
                 {
-                    return new UserDetails(rs.getString("Username"), rs.getBoolean("isEnabled"),
+                    return new User(rs.getString("Username"), rs.getBoolean("isEnabled"),
                             rs.getString("Password"), rs.getString("last_directory"));
                 }
             }
@@ -196,52 +197,53 @@ public class ResourceHandler
             Files.deleteIfExists(db);
             Files.deleteIfExists(wal);
             Files.deleteIfExists(shm);
-        } catch (IOException e)
-        {
-            log.error("{}: {}", e.getClass().getName(), e.getMessage());
+        }
+        catch (IOException e) {
+            log.error("{}", e.toString());
         }
     }
 
-    public static void downloadPfp(String username, String pathToSave)
+    public static void downloadPfp(String username, StringBuilder pathToSave)
     {
-        try (final Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password))
+        final String fetchQuery = "SELECT Profile_Picture, Image_extension, last_updated FROM pfp WHERE Username = ?";
+
+        try (final Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
+             final PreparedStatement getPfp = conn.prepareStatement(fetchQuery))
         {
-            String query1 = "select Profile_Picture, Image_extension, last_updated from pfp where Username = ?";
+            getPfp.setString(1, username);
+            ResultSet rs = getPfp.executeQuery();
 
-            try (PreparedStatement getPfp = conn.prepareStatement(query1))
+            if (rs.next())
             {
-                getPfp.setString(1, username);
-                ResultSet rs = getPfp.executeQuery();
+                byte[] imageData = rs.getBytes("Profile_picture");
 
-                if (rs.next())
+                if (imageData != null)
                 {
-                    byte[] imageData = rs.getBytes("Profile_picture");
+                    String extension = rs.getString("Image_extension");
+                    String lastUpdatedTimestamp = String.valueOf(rs.getObject("last_updated"))
+                                                    .replaceAll(":", "")
+                                                    .replaceAll("-", "")
+                                                    .replaceAll("T", "_");
 
-                    if (imageData != null)
+                    pathToSave.append(username).append("$").append(lastUpdatedTimestamp).append(extension);
+
+                    try (InputStream in = new java.io.ByteArrayInputStream(imageData);
+                         OutputStream out = new FileOutputStream(String.valueOf(pathToSave)))
                     {
-                        String extension = rs.getString("Image_extension");
-                        String lastUpdated = String.valueOf(rs.getObject("last_updated")).replaceAll(":", "-");
-                        pathToSave += username + "$" + lastUpdated + extension;
-
-                        try (InputStream in = new java.io.ByteArrayInputStream(imageData);
-                             OutputStream out = new FileOutputStream(pathToSave))
+                        byte[] buffer = new byte[8192];
+                        int read;
+                        while ((read = in.read(buffer)) != -1)
                         {
-                            byte[] buffer = new byte[8192];
-                            int read;
-                            while ((read = in.read(buffer)) != -1)
-                            {
-                                out.write(buffer, 0, read);
-                            }
+                            out.write(buffer, 0, read);
                         }
-                        log.info("Image retrieved and saved successfully.");
                     }
+                    log.info("Image retrieved and saved successfully.");
                 }
-            } catch (SQLException | IOException e)
-            {
-                log.error("{}: {}", e.getClass().getName(), e.getMessage());
             }
         }
-        catch (SQLException _) {}
+        catch (SQLException | IOException e) {
+            log.error("{}", e.toString());
+        }
     }
 
     public static String getSettings(String imgPath)

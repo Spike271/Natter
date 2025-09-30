@@ -1,20 +1,26 @@
 package com.client;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class UserChats
 {
 	private static final String backupFile = Application.jarFilePath + "res/backup/Conversations.json";
-	
-	public static void addUsersConversation(String id, String date, String type, String content)
+    private static final Logger log = LoggerFactory.getLogger(UserChats.class);
+
+    public static void addUsersConversation(String id, String date, String type, String content)
 	{
 		Map<String, Message> newMessages = new HashMap<>();
 		
@@ -36,11 +42,13 @@ public class UserChats
 			{
 				data = gson.fromJson(reader, ConversationData.class);
 			}
-			catch (IOException _) {}
+			catch (IOException e) {
+                log.error("{}", e.toString());
+            }
 		}
 		else
 		{
-			System.err.println("File 'Conversations.json' not found.");
+			log.error("File 'Conversations.json' not found.");
 		}
 		
 		if (data == null) return new HashMap<>(0);
@@ -57,7 +65,9 @@ public class UserChats
             {
                 writer.write("");
             }
-            catch (IOException _) {}
+            catch (IOException e) {
+                log.error("{}", e.toString());
+            }
         }
     }
 	
@@ -80,7 +90,9 @@ public class UserChats
 		{
 			gson.toJson(data, writer);
 		}
-		catch (IOException _) {}
+		catch (IOException e) {
+            log.error("{}", e.toString());
+        }
 	}
 	
 	private static ConversationData readExistingData(Gson gson, File file)
@@ -92,7 +104,9 @@ public class UserChats
 			{
 				data = gson.fromJson(reader, ConversationData.class);
 			}
-			catch (IOException _) {}
+			catch (IOException e) {
+                log.error("{}", e.toString());
+            }
 		}
 		return data != null ? data : new ConversationData();
 	}

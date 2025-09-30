@@ -48,7 +48,7 @@ public class ChatUI extends JPanel
 		chatArea.addChatEvent(new ChatEvent() {
 			
 			final Icon icon = senderIcon;
-			final String name = Application.userDetails.username();
+			final String name = Application.user.username();
 			
 			@Override
 			public void mousePressedSendButton(ActionEvent evt)

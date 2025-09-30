@@ -160,20 +160,23 @@ public class SignIn extends CustomJFrame implements ActionListener
 					submitButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					submitButton.setEnabled(false);
 					
-					final String query = "SELECT * FROM account_info where BINARY Username = '" + username + "' and Password = '" + password + "'";
+					final String credentialValidationQuery = "SELECT * FROM account_info WHERE BINARY Username = ? and Password = ?";
 					
 					try (Connection connection = DriverManager.getConnection(DB.dbUrl, DB.username,DB.password);
-						 PreparedStatement preparedStatement = connection.prepareStatement(query))
+						 PreparedStatement preparedStatement = connection.prepareStatement(credentialValidationQuery))
 					{
+                        preparedStatement.setString(1, username);
+                        preparedStatement.setString(2, password);
+
 						if (preparedStatement.executeQuery().next())
 						{
 							ResourceHandler.createLocalDB();
 							ResourceHandler.insertDataInLocalDB(username, null);
-                            Application.userDetails = ResourceHandler.getLocalData();
+                            Application.user = ResourceHandler.getLocalData();
 							
 							if (!checkIfPfpAlreadyExistOrNot(username))
 							{
-                                ResourceHandler.downloadPfp(username, getPathString() + "profile/");
+                                ResourceHandler.downloadPfp(username, new StringBuilder(getPathString() + "profile/"));
 							}
 							
 							Application.natter.setVisible(true);

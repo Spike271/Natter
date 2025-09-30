@@ -1,5 +1,13 @@
 package com.client;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import raven.chatModal.ChatUI;
+import raven.toast.Notifications;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,15 +16,9 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-
-import raven.chatModal.ChatUI;
-import raven.toast.Notifications;
-
 public class MessagesSendAndReceive
 {
+    private static final Logger log = LoggerFactory.getLogger(MessagesSendAndReceive.class);
     private static PrintWriter output;
 	private static BufferedReader input;
 	private static Socket clientSocket;
@@ -59,7 +61,7 @@ public class MessagesSendAndReceive
         waitUntilNatterVisible();
         if (Thread.currentThread().isInterrupted()) return;
 
-        final String user = Application.userDetails.username();
+        final String user = Application.user.username();
         Notifications.getInstance().setJFrame(Application.natter);
 
 		if (clientSocket == null)
@@ -87,6 +89,7 @@ public class MessagesSendAndReceive
 			isConnected = true;
 			String outputMessage;
 			SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy, hh:mmaa");
+
 			while ((outputMessage = input.readLine()) != null)
 			{
 				try
@@ -99,7 +102,9 @@ public class MessagesSendAndReceive
 					
 					ChatUI.sink.tryEmitNext(receiver + ": " + finalMessage);
 				}
-				catch (JsonSyntaxException _) {}
+				catch (JsonSyntaxException e) {
+                    log.error("{}", e.toString());
+                }
 			}
 		}
 		catch (IOException e)
@@ -128,7 +133,9 @@ public class MessagesSendAndReceive
 				}
 			}
 		}
-		catch (IOException _) {}
+		catch (IOException e) {
+            log.error("{}, {}", "Unable to close the connection!\n", e.toString());
+        }
 
 		isConnected = false;
 	}

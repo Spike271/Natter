@@ -1,10 +1,15 @@
 package com.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class CreateSystemTray
 {
+    private static final Logger log = LoggerFactory.getLogger(CreateSystemTray.class);
+
     public static void createTrayIcon()
     {
         if (!SystemTray.isSupported())
@@ -15,8 +20,10 @@ public class CreateSystemTray
         createAndShowGUI();
     }
 
-    private static void createAndShowGUI() {
-        try {
+    private static void createAndShowGUI()
+    {
+        try
+        {
             // Create a system tray
             SystemTray tray = SystemTray.getSystemTray();
 
@@ -31,7 +38,7 @@ public class CreateSystemTray
             tray.add(trayIcon);
 
         } catch (AWTException ex) {
-            System.err.println("TrayIcon creation error: " + ex.getMessage());
+            log.error("TrayIcon creation error: {}", ex.getMessage());
         }
     }
 

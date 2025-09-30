@@ -48,7 +48,7 @@ public class PasswordWindow extends JFrame
 		submitButton.addActionListener(_ -> {
 			
 			String password = new String(passwordField.getPassword());
-			if (!password.equals(Application.userDetails.password()))
+			if (!password.equals(Application.user.password()))
 			{
 				messageLabel.setText("Incorrect password!");
                 new Timer(2500, _ -> messageLabel.setText(" ")).start();

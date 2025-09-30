@@ -7,7 +7,7 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import global.ResourceHandler;
 import global.Theme;
 import global.UpdateTheme;
-import global.UserDetails;
+import global.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
@@ -35,7 +32,7 @@ public class Application
     public static Theme currentTheme;
     public static SettingPanel settingPanel;
     public static String jarFilePath;
-    public static UserDetails userDetails;
+    public static User user;
     private static PasswordWindow ps;
 
     static
@@ -65,13 +62,13 @@ public class Application
         if (Application.currentTheme == Theme.DARK_MODE) FlatMacDarkLaf.setup();
         else FlatMacLightLaf.setup();
 
-        userDetails = ResourceHandler.getLocalData();
+        user = ResourceHandler.getLocalData();
         ComparePfpTime();
 
-        if (userDetails != null)
+        if (user != null)
         {
             initMainUi();
-            if (userDetails.isPasswordEnabled()) ps.setVisible(true);
+            if (user.isPasswordEnabled()) ps.setVisible(true);
             else natter.setVisible(true);
         }
         else
@@ -87,48 +84,56 @@ public class Application
         try (Stream<Path> stream = Files.list(dir))
         {
            String fileName = stream.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().startsWith(Application.userDetails.username()))
+                    .filter(p -> p.getFileName().toString().startsWith(Application.user.username()))
                     .map(p -> p.getFileName().toString())
                     .findFirst().orElse("");
 
            if (!fileName.isEmpty())
            {
-               String[] temp = fileName.split("\\$");
-               String[] date = temp[1].split("T");
-               String[] time = date[1].replaceAll("-", ":").split("\\.");
+               LocalDateTime localPfpDateTime = parseFileNameToDateTime(fileName);
+               LocalDateTime serverPfpDateTime;
 
-               LocalDateTime localPfpDateTime = LocalDateTime.parse(date[0] + "T" + time[0]);
-               LocalDateTime serverPfpDateTime = null;
-               System.out.println(localPfpDateTime);
+               final String selectQuery = "SELECT last_updated FROM pfp WHERE Username = ?";
 
                try (final Connection conn = DriverManager.getConnection(DB.dbUrl, DB.username, DB.password);
-                    ResultSet rs = conn.createStatement().executeQuery("select last_updated from pfp where Username = '" + Application.userDetails.username() + "'"))
+                    PreparedStatement stmt = conn.prepareStatement(selectQuery))
                {
-                   while (rs.next())
+                   stmt.setString(1, Application.user.username());
+                   try (final ResultSet rs = stmt.executeQuery())
                    {
-                      serverPfpDateTime  = (LocalDateTime) rs.getObject("last_updated");
-                      System.out.println(serverPfpDateTime);
-                      if (localPfpDateTime.isBefore(serverPfpDateTime))
-                      {
-                          System.out.println("Pfp is outdated");
-                      }
-                      else
-                      {
-                          System.out.println("Pfp is up to date");
-                      }
+                       while (rs.next())
+                       {
+                           serverPfpDateTime = (LocalDateTime) rs.getObject("last_updated");
+                           if (localPfpDateTime.isBefore(serverPfpDateTime))
+                           {
+                               if (Files.deleteIfExists(dir.resolve(fileName)))
+                                ResourceHandler.downloadPfp(Application.user.username(), new StringBuilder(Application.jarFilePath + "profile/"));
+                           }
+                       }
                    }
                }
-               catch (SQLException e)
-               {
-                   log.error("Error while comparing pfp time", e);
+               catch (SQLException e) {
+                   log.error("Error while comparing pfp time\n {}", e.toString());
                }
            }
            else
            {
-                ResourceHandler.downloadPfp(Application.userDetails.username(), Application.jarFilePath + "profile/");
+                ResourceHandler.downloadPfp(Application.user.username(), new StringBuilder(Application.jarFilePath + "profile/"));
            }
         }
         catch (IOException _) {}
+    }
+
+    private static LocalDateTime parseFileNameToDateTime(String fileName)
+    {
+        String dateTimeInAndroidFormat = fileName.split("\\$")[1].split("\\.")[0];
+        String date = dateTimeInAndroidFormat.split("_")[0];
+        date = date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8);
+
+        String time = dateTimeInAndroidFormat.split("_")[1];
+        time = time.substring(0, 2) + ":" + time.substring(2, 4) + ":" + time.substring(4, 6);
+
+        return LocalDateTime.parse(date + "T" + time);
     }
 
     private static void init()

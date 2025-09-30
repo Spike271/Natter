@@ -51,7 +51,7 @@ public abstract class CustomJFrame extends JFrame
 	{
 		JPanel titleBar = new JPanel();
         titleBar.putClientProperty(FlatClientProperties.STYLE, "[light]background: #FFFFFF;" +
-                "[dark]background: #202020;");
+                                                               "[dark]background: #202020;");
 		titleBar.setLayout(new BorderLayout());
 		
 		// Add icon on the tray
